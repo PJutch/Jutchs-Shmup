@@ -11,6 +11,8 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with JCyberEvolution. 
 If not, see <https://www.gnu.org/licenses/>. */
 
+#include "Player.h"
+
 #include <SFML/Graphics.hpp>
 using sf::Color;
 using sf::RenderWindow;
@@ -44,14 +46,12 @@ int main(int argc, char** argv) {
     Texture playerTexture;
     if (!playerTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0001.png")) return 1;
 
-    View gameView{{0, 0, width / 2, height / 2}};
+    float gameHeight = 512;
+    View gameView{{-gameHeight / 2, -gameHeight / 2, gameHeight * width / height, gameHeight}};
 
-    Sprite playerSprite{playerTexture};
-    playerSprite.setPosition(gameView.getSize().x / 4.f - 16, gameView.getSize().y / 2.f - 16);
-    playerSprite.rotate(90.f);
+    Player player{playerTexture, gameHeight};
 
     Clock clock;
-    Time timeBeforeUpdate = Time::Zero;
     while (window.isOpen()) {
         Time elapsedTime = clock.restart();
 
@@ -66,10 +66,12 @@ int main(int argc, char** argv) {
             }
         }
 
+        player.update(elapsedTime);
+
         window.clear(Color::Green);
         window.setView(gameView);
 
-        window.draw(playerSprite);
+        window.draw(player);
 
         window.display();
     }

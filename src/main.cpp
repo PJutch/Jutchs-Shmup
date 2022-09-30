@@ -17,6 +17,9 @@ using sf::RenderWindow;
 using sf::Texture;
 using sf::View;
 using sf::FloatRect;
+using sf::Sprite;
+using sf::IntRect;
+using sf::Vector2f;
 
 #include <SFML/System.hpp>
 using sf::Clock;
@@ -38,6 +41,15 @@ int main(int argc, char** argv) {
     RenderWindow window{videoMode, "Jutchs Shmup", Style::Fullscreen};
     window.setVerticalSyncEnabled(true);
 
+    Texture playerTexture;
+    if (!playerTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0001.png")) return 1;
+
+    View gameView{{0, 0, width / 2, height / 2}};
+
+    Sprite playerSprite{playerTexture};
+    playerSprite.setPosition(gameView.getSize().x / 4.f - 16, gameView.getSize().y / 2.f - 16);
+    playerSprite.rotate(90.f);
+
     Clock clock;
     Time timeBeforeUpdate = Time::Zero;
     while (window.isOpen()) {
@@ -53,8 +65,12 @@ int main(int argc, char** argv) {
                     }
             }
         }
-    
-        window.clear(Color::White);
+
+        window.clear(Color::Green);
+        window.setView(gameView);
+
+        window.draw(playerSprite);
+
         window.display();
     }
     return EXIT_SUCCESS;

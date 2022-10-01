@@ -31,30 +31,15 @@ public:
         return m_view;
     }
 
-    sf::Vector2f getPosition() const noexcept {
-        return m_sprite.getPosition();
-    }
-
     void handleMouseButtonPressed(sf::Event::MouseButtonEvent event);
 
     void update(sf::Time elapsedTime) noexcept override;
-
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
-        target.draw(m_sprite, states);
-    }
 
     bool shouldBeDeleted() const noexcept {
         return false;
     }
 private:
-    sf::Sprite m_sprite;
-    float m_gameHeight;
-
     sf::View m_view;
-
-    sf::Time m_shootCooldown;
-    std::vector<std::unique_ptr<Entity>>& m_entities;
-    const sf::Texture& m_bulletTexture;
 };
 
 #endif

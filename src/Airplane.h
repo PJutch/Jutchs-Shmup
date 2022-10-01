@@ -15,13 +15,40 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define AIRPLANE_H_
 
 #include "Entity.h"
+#include "Bullet.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
 class Airplane : public Entity {
 public:
+    Airplane(sf::Vector2f position, const sf::Texture& texture, const sf::Texture& bulletTexture, 
+             std::vector<std::unique_ptr<Entity>>& entities, float gameHeight) noexcept;
+
+
     virtual ~Airplane() = default;
+
+    sf::Vector2f getPosition() const noexcept {
+        return m_sprite.getPosition();
+    }
+protected:
+    sf::Sprite m_sprite;
+    float m_gameHeight;
+    sf::Time m_shootCooldown;
+
+    void tryShoot(bool right) noexcept {
+        if (m_shootCooldown <= sf::Time::Zero) {
+            m_entities.emplace_back(new Bullet{right, m_sprite.getPosition(), m_bulletTexture});
+            m_shootCooldown = sf::seconds(0.25f);
+        }
+    }
+private:
+    std::vector<std::unique_ptr<Entity>>& m_entities;
+    const sf::Texture& m_bulletTexture;
+
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
+        target.draw(m_sprite, states);
+    }
 };
 
 #endif

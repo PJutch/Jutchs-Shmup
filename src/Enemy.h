@@ -21,19 +21,8 @@ public:
     bool shouldBeDeleted() const noexcept override {
         return !m_alive;
     }
-
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
-        target.draw(m_sprite, states);
-    }
 private:
-    sf::Sprite m_sprite;
     bool m_alive;
-
-    std::vector<std::unique_ptr<Entity>>& m_entities;
-    const sf::Texture& m_bulletTexture;
-    sf::Time m_shootCooldown;
-
-    float m_gameHeight;
 };
 
 #endif

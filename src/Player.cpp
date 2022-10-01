@@ -35,20 +35,15 @@ using std::unique_ptr;
 Player::Player(const Texture& texture, const Texture& bulletTexture, 
                vector<unique_ptr<Entity>>& entities,
                float gameHeight, Vector2f screenSize) noexcept : 
-        m_sprite{texture}, m_gameHeight{gameHeight}, 
+        Airplane{{0.f, 0.f}, texture, bulletTexture, entities, gameHeight},
         m_view{{-gameHeight / 2.f, -gameHeight / 2.f, 
-                gameHeight * screenSize.x / screenSize.y, gameHeight}}, 
-        m_shootCooldown{Time::Zero}, m_entities{entities}, m_bulletTexture{bulletTexture} {
-    auto size = texture.getSize();
-    m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
-    m_sprite.setPosition(0.f, 0.f);
+                gameHeight * screenSize.x / screenSize.y, gameHeight}} {
     m_sprite.setRotation(90.f);
 }
 
 void Player::handleMouseButtonPressed(sf::Event::MouseButtonEvent event) {
-    if (event.button == Mouse::Left && m_shootCooldown <= Time::Zero) {
-        m_entities.emplace_back(new Bullet{true, m_sprite.getPosition(), m_bulletTexture});
-        m_shootCooldown = seconds(0.25f);
+    if (event.button == Mouse::Left) {
+        tryShoot(true);
     }
 }
 

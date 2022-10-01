@@ -25,14 +25,14 @@ public:
 
     void update(sf::Time elapsedTime) noexcept;
 
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
-        target.draw(m_sprite, states);
-    }
-
     bool shouldBeDeleted() const noexcept override {
         return false;
     }
 private:
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
+        target.draw(m_sprite, states);
+    }
+
     sf::Sprite m_sprite;
     bool m_moveRight;
 };

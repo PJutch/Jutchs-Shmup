@@ -29,6 +29,6 @@ void Enemy::update(Time elapsedTime) noexcept {
         m_shootCooldown = seconds(0.25f);
     }
 
-    float movedX = 500.f * elapsedTime.asSeconds();
+    float movedX = 250.f * elapsedTime.asSeconds();
     m_sprite.move(-movedX, 0.f);
 }

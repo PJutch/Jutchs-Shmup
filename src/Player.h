@@ -31,6 +31,10 @@ public:
         return m_view;
     }
 
+    sf::Vector2f getPosition() const noexcept {
+        return m_sprite.getPosition();
+    }
+
     void handleMouseButtonPressed(sf::Event::MouseButtonEvent event);
 
     void update(sf::Time elapsedTime) noexcept override;

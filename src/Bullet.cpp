@@ -29,5 +29,5 @@ Bullet::Bullet(bool moveRight, Vector2f position, const Texture& texture) noexce
 }
 
 void Bullet::update(Time elapsedTime) noexcept {
-    m_sprite.move((m_moveRight ? 1 : -1) * 1500.f * elapsedTime.asSeconds(), 0);
+    m_sprite.move((m_moveRight ? 1 : -1) * 750.f * elapsedTime.asSeconds(), 0);
 }

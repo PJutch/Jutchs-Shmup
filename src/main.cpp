@@ -25,6 +25,7 @@ using sf::FloatRect;
 using sf::Sprite;
 using sf::IntRect;
 using sf::Vector2f;
+using sf::Vector2u;
 
 #include <SFML/System.hpp>
 using sf::Clock;
@@ -40,6 +41,11 @@ namespace Style = sf::Style;
 
 #include <vector>
 using std::vector;
+
+#include <random>
+using std::random_device;
+using std::mt19937_64;
+using std::uniform_real_distribution;
 
 #include <memory>
 using std::unique_ptr;
@@ -63,6 +69,8 @@ int main(int argc, char** argv) {
     Texture enemyTexture;
     if (!enemyTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0001.png")) return 1;
 
+    mt19937_64 randomEngine(random_device{}());
+
     float gameHeight = 512;
 
     vector<Bullet> bullets;
@@ -71,8 +79,7 @@ int main(int argc, char** argv) {
     Player* player = new Player{bullets, playerTexture, bulletTexture, gameHeight, screenSize};
     airplanes.emplace_back(player);
 
-    airplanes.emplace_back(new Enemy{{gameHeight * 4, 0}, bullets, 
-                                     enemyTexture, bulletTexture, gameHeight});
+    float spawnX = gameHeight * 4;
 
     Clock clock;
     while (window.isOpen()) {
@@ -99,6 +106,18 @@ int main(int argc, char** argv) {
                 swap(airplane, airplanes.back());
                 airplanes.pop_back();
             }
+        }
+
+        while (player->getPosition().x + 4 * gameHeight > spawnX) {
+            Vector2u enemySize = enemyTexture.getSize();
+            for (float y = (enemySize.y - gameHeight) / 2; 
+                    y < (gameHeight- enemySize.y) / 2; y += enemySize.y) {
+                if (uniform_real_distribution(0.0, 1.0)(randomEngine) < 0.01) {
+                    airplanes.emplace_back(new Enemy{{spawnX, y}, bullets, 
+                                        enemyTexture, bulletTexture, gameHeight});
+                }
+            }
+            spawnX += enemySize.x;
         }
 
         for (auto& bullet : bullets) bullet.update(elapsedTime);

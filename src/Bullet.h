@@ -19,7 +19,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class Bullet : public sf::Drawable {
 public:
-    Bullet(sf::Vector2f position, const sf::Texture& texture) noexcept;
+    Bullet(bool moveRight, sf::Vector2f position, const sf::Texture& texture) noexcept;
 
     void update(sf::Time elapsedTime) noexcept;
 
@@ -28,7 +28,7 @@ public:
     }
 private:
     sf::Sprite m_sprite;
-    bool moveRight;
+    bool m_moveRight;
 };
 
 #endif

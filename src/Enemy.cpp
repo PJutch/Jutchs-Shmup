@@ -25,7 +25,7 @@ Enemy::Enemy(Vector2f position, vector<Bullet>& bullets,
 void Enemy::update(Time elapsedTime) noexcept {
     m_shootCooldown -= elapsedTime;
     if (m_shootCooldown <= Time::Zero) {
-        m_bullets.emplace_back(m_sprite.getPosition(), m_bulletTexture);
+        m_bullets.emplace_back(false, m_sprite.getPosition(), m_bulletTexture);
         m_shootCooldown = seconds(0.25f);
     }
 

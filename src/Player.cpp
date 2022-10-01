@@ -42,7 +42,7 @@ Player::Player(vector<Bullet>& bullets,
 
 void Player::handleMouseButtonPressed(sf::Event::MouseButtonEvent event) {
     if (event.button == Mouse::Left && m_shootCooldown <= Time::Zero) {
-        m_bullets.emplace_back(m_sprite.getPosition(), m_bulletTexture);
+        m_bullets.emplace_back(true, m_sprite.getPosition(), m_bulletTexture);
         m_shootCooldown = seconds(0.25f);
     }
 }

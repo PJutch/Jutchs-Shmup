@@ -20,7 +20,8 @@ using sf::Vector2f;
 #include <SFML/System.hpp>
 using sf::Time;
 
-Bullet::Bullet(Vector2f position, const Texture& texture) noexcept : m_sprite{texture} {
+Bullet::Bullet(bool moveRight, Vector2f position, const Texture& texture) noexcept :
+        m_sprite{texture}, m_moveRight{moveRight} {
     auto size = texture.getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
     m_sprite.setPosition(position);
@@ -28,5 +29,5 @@ Bullet::Bullet(Vector2f position, const Texture& texture) noexcept : m_sprite{te
 }
 
 void Bullet::update(Time elapsedTime) noexcept {
-    m_sprite.move(1500.f * elapsedTime.asSeconds(), 0);
+    m_sprite.move((m_moveRight ? 1 : -1) * 1500.f * elapsedTime.asSeconds(), 0);
 }

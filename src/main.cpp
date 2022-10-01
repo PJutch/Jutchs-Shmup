@@ -14,6 +14,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Player.h"
 #include "Bullet.h"
 #include "Airplane.h"
+#include "Enemy.h"
 
 #include <SFML/Graphics.hpp>
 using sf::Color;
@@ -54,10 +55,13 @@ int main(int argc, char** argv) {
     window.setVerticalSyncEnabled(true);
 
     Texture playerTexture;
-    if (!playerTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0001.png")) return 1;
+    if (!playerTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0000.png")) return 1;
 
     Texture bulletTexture;
     if (!bulletTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0000.png")) return 1;
+
+    Texture enemyTexture;
+    if (!enemyTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0001.png")) return 1;
 
     float gameHeight = 512;
 
@@ -66,6 +70,9 @@ int main(int argc, char** argv) {
 
     Player* player = new Player{bullets, playerTexture, bulletTexture, gameHeight, screenSize};
     airplanes.emplace_back(player);
+
+    airplanes.emplace_back(new Enemy{{gameHeight * 4, 0}, bullets, 
+                                     enemyTexture, bulletTexture, gameHeight});
 
     Clock clock;
     while (window.isOpen()) {

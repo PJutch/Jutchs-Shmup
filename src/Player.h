@@ -1,13 +1,14 @@
 #ifndef PLAYER_H_
 #define PLAYER_H_
 
+#include "Ship.h"
 #include "Bullet.h"
 
 #include <SFML/Graphics.hpp>
 
 #include <vector>
 
-class Player : public sf::Drawable {
+class Player : public sf::Drawable, public Ship {
 public:
     Player(std::vector<Bullet>& bullets, 
            const sf::Texture& texture, const sf::Texture& bulletTexture, 

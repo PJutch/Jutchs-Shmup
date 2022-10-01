@@ -13,6 +13,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Player.h"
 #include "Bullet.h"
+#include "Airplane.h"
 
 #include <SFML/Graphics.hpp>
 using sf::Color;
@@ -39,6 +40,9 @@ namespace Style = sf::Style;
 #include <vector>
 using std::vector;
 
+#include <memory>
+using std::unique_ptr;
+
 int main(int argc, char** argv) {
     auto videoMode = VideoMode::getDesktopMode();
     Vector2f screenSize(videoMode.width, videoMode.height);
@@ -53,8 +57,12 @@ int main(int argc, char** argv) {
     if (!bulletTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0000.png")) return 1;
 
     float gameHeight = 512;
+
     vector<Bullet> bullets;
-    Player player{bullets, playerTexture, bulletTexture, gameHeight, screenSize};
+    vector<unique_ptr<Airplane>> airplanes;
+
+    Player* player = new Player{bullets, playerTexture, bulletTexture, gameHeight, screenSize};
+    airplanes.emplace_back(player);
 
     Clock clock;
     while (window.isOpen()) {
@@ -70,18 +78,18 @@ int main(int argc, char** argv) {
                     }
                     break;
                 case Event::MouseButtonPressed:
-                    player.handleMouseButtonPressed(event.mouseButton);
+                    player->handleMouseButtonPressed(event.mouseButton);
                     break;
             }
         }
 
-        player.update(elapsedTime);
+        player->update(elapsedTime);
         for (auto& bullet : bullets) bullet.update(elapsedTime);
 
         window.clear(Color::Green);
-        window.setView(player.getView());
+        window.setView(player->getView());
 
-        window.draw(player);
+        window.draw(*player);
         for (auto& bullet : bullets) window.draw(bullet);
 
         window.display();

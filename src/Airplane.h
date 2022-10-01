@@ -14,8 +14,14 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef AIRPLANE_H_
 #define AIRPLANE_H_
 
-class Airplane {
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 
+class Airplane : public sf::Drawable {
+public:
+    virtual void update(sf::Time elapsedTime) noexcept = 0;
+
+    virtual bool shouldBeDeleted() const noexcept = 0;
 };
 
 #endif

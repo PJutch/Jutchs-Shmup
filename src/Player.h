@@ -14,14 +14,14 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef PLAYER_H_
 #define PLAYER_H_
 
-#include "Ship.h"
+#include "Airplane.h"
 #include "Bullet.h"
 
 #include <SFML/Graphics.hpp>
 
 #include <vector>
 
-class Player : public sf::Drawable, public Ship {
+class Player : public Airplane {
 public:
     Player(std::vector<Bullet>& bullets, 
            const sf::Texture& texture, const sf::Texture& bulletTexture, 
@@ -33,10 +33,14 @@ public:
 
     void handleMouseButtonPressed(sf::Event::MouseButtonEvent event);
 
-    void update(sf::Time elapsedTime) noexcept;
+    void update(sf::Time elapsedTime) noexcept override;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
         target.draw(m_sprite, states);
+    }
+
+    bool shouldBeDeleted() const noexcept {
+        return false;
     }
 private:
     sf::Sprite m_sprite;

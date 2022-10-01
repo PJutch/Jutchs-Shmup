@@ -43,6 +43,9 @@ using std::vector;
 #include <memory>
 using std::unique_ptr;
 
+#include <utility>
+using std::swap;
+
 int main(int argc, char** argv) {
     auto videoMode = VideoMode::getDesktopMode();
     Vector2f screenSize(videoMode.width, videoMode.height);
@@ -83,13 +86,20 @@ int main(int argc, char** argv) {
             }
         }
 
-        player->update(elapsedTime);
+        for (auto& airplane : airplanes) airplane->update(elapsedTime);
+        for (auto& airplane : airplanes) {
+            if (airplane->shouldBeDeleted()) {
+                swap(airplane, airplanes.back());
+                airplanes.pop_back();
+            }
+        }
+
         for (auto& bullet : bullets) bullet.update(elapsedTime);
 
         window.clear(Color::Green);
         window.setView(player->getView());
 
-        window.draw(*player);
+        for (auto& airplane : airplanes) window.draw(*airplane);
         for (auto& bullet : bullets) window.draw(bullet);
 
         window.display();

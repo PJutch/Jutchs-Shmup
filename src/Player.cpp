@@ -49,6 +49,9 @@ void Player::handleMouseButtonPressed(sf::Event::MouseButtonEvent event) {
 
 void Player::update(Time elapsedTime) noexcept {
     m_shootCooldown -= elapsedTime;
+    if (Mouse::isButtonPressed(Mouse::Left)) {
+        tryShoot(true);
+    }
 
     if (Keyboard::isKeyPressed(Keyboard::W)) {
         m_sprite.move(0, -250.f * elapsedTime.asSeconds());

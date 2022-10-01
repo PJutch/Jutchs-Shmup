@@ -5,7 +5,13 @@
 
 class Player : public sf::Drawable {
 public:
-    Player(const sf::Texture& texture, float gameHeight);
+    Player(const sf::Texture& texture, float gameHeight, sf::Vector2f screenSize);
+
+    const sf::View& getView() const noexcept {
+        return m_view;
+    }
+
+    void handleMouseButtonPressed(sf::Event::MouseButtonEvent);
 
     void update(sf::Time elapsedTime) noexcept;
 
@@ -15,7 +21,8 @@ public:
 private:
     sf::Sprite m_sprite;
     float m_gameHeight;
-    sf::Vector2f m_size;
+
+    sf::View m_view;
 };
 
 #endif

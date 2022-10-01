@@ -37,8 +37,7 @@ namespace Style = sf::Style;
 
 int main(int argc, char** argv) {
     auto videoMode = VideoMode::getDesktopMode();
-    float width = static_cast<float>(videoMode.width);
-    float height = static_cast<float>(videoMode.height);
+    Vector2f screenSize(videoMode.width, videoMode.height);
 
     RenderWindow window{videoMode, "Jutchs Shmup", Style::Fullscreen};
     window.setVerticalSyncEnabled(true);
@@ -47,9 +46,8 @@ int main(int argc, char** argv) {
     if (!playerTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0001.png")) return 1;
 
     float gameHeight = 512;
-    View gameView{{-gameHeight / 2, -gameHeight / 2, gameHeight * width / height, gameHeight}};
 
-    Player player{playerTexture, gameHeight};
+    Player player{playerTexture, gameHeight, screenSize};
 
     Clock clock;
     while (window.isOpen()) {
@@ -63,13 +61,16 @@ int main(int argc, char** argv) {
                     switch (event.key.code) {
                         case Keyboard::Escape: window.close(); break;
                     }
+                    break;
+                case Event::MouseButtonPressed:
+                    break;
             }
         }
 
         player.update(elapsedTime);
 
         window.clear(Color::Green);
-        window.setView(gameView);
+        window.setView(player.getView());
 
         window.draw(player);
 

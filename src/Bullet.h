@@ -14,10 +14,12 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef BULLET_H_
 #define BULLET_H_
 
+#include "Entity.h"
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-class Bullet : public sf::Drawable {
+class Bullet : public Entity {
 public:
     Bullet(bool moveRight, sf::Vector2f position, const sf::Texture& texture) noexcept;
 
@@ -25,6 +27,10 @@ public:
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
         target.draw(m_sprite, states);
+    }
+
+    bool shouldBeDeleted() const noexcept override {
+        return false;
     }
 private:
     sf::Sprite m_sprite;

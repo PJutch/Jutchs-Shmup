@@ -15,7 +15,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define PLAYER_H_
 
 #include "Airplane.h"
-#include "Bullet.h"
+#include "Entity.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -23,8 +23,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class Player : public Airplane {
 public:
-    Player(std::vector<Bullet>& bullets, 
-           const sf::Texture& texture, const sf::Texture& bulletTexture, 
+    Player(const sf::Texture& texture, const sf::Texture& bulletTexture, 
+           std::vector<std::unique_ptr<Entity>>& entities, 
            float gameHeight, sf::Vector2f screenSize) noexcept;
 
     const sf::View& getView() const noexcept {
@@ -53,7 +53,7 @@ private:
     sf::View m_view;
 
     sf::Time m_shootCooldown;
-    std::vector<Bullet>& m_bullets;
+    std::vector<std::unique_ptr<Entity>>& m_entities;
     const sf::Texture& m_bulletTexture;
 };
 

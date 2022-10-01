@@ -1,5 +1,7 @@
 #include "Enemy.h"
 
+#include "Bullet.h"
+
 #include <SFML/Graphics.hpp>
 using sf::Texture;
 using sf::Vector2f;
@@ -11,10 +13,14 @@ using sf::seconds;
 #include <vector>
 using std::vector;
 
-Enemy::Enemy(Vector2f position, vector<Bullet>& bullets, 
+#include <memory>
+using std::unique_ptr;
+
+Enemy::Enemy(Vector2f position,
              const Texture& texture, const Texture& bulletTexture, 
+             vector<unique_ptr<Entity>>& entities,
              float gameHeight) noexcept : 
-        m_sprite{texture}, m_alive{true}, m_bullets{bullets},
+        m_sprite{texture}, m_alive{true}, m_entities{entities},
         m_bulletTexture{bulletTexture}, m_shootCooldown{Time::Zero}, m_gameHeight{gameHeight} {
     auto size = texture.getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
@@ -25,7 +31,7 @@ Enemy::Enemy(Vector2f position, vector<Bullet>& bullets,
 void Enemy::update(Time elapsedTime) noexcept {
     m_shootCooldown -= elapsedTime;
     if (m_shootCooldown <= Time::Zero) {
-        m_bullets.emplace_back(false, m_sprite.getPosition(), m_bulletTexture);
+        m_entities.emplace_back(new Bullet{false, m_sprite.getPosition(), m_bulletTexture});
         m_shootCooldown = seconds(0.25f);
     }
 

@@ -15,6 +15,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Bullet.h"
 #include "Airplane.h"
 #include "Enemy.h"
+#include "Entity.h"
 
 #include <SFML/Graphics.hpp>
 using sf::Color;
@@ -73,11 +74,10 @@ int main(int argc, char** argv) {
 
     float gameHeight = 512;
 
-    vector<Bullet> bullets;
-    vector<unique_ptr<Airplane>> airplanes;
+    vector<unique_ptr<Entity>> entities;
 
-    Player* player = new Player{bullets, playerTexture, bulletTexture, gameHeight, screenSize};
-    airplanes.emplace_back(player);
+    auto* player = new Player{playerTexture, bulletTexture, entities, gameHeight, screenSize};
+    entities.emplace_back(player);
 
     float spawnX = gameHeight * 4;
 
@@ -100,11 +100,13 @@ int main(int argc, char** argv) {
             }
         }
 
-        for (auto& airplane : airplanes) airplane->update(elapsedTime);
-        for (auto& airplane : airplanes) {
-            if (airplane->shouldBeDeleted()) {
-                swap(airplane, airplanes.back());
-                airplanes.pop_back();
+        for (int i = 0; i < entities.size(); ++ i) 
+            entities[i]->update(elapsedTime);
+        
+        for (auto& entity : entities) {
+            if (entity->shouldBeDeleted()) {
+                swap(entity, entities.back());
+                entities.pop_back();
             }
         }
 
@@ -113,20 +115,17 @@ int main(int argc, char** argv) {
             for (float y = (enemySize.y - gameHeight) / 2; 
                     y < (gameHeight- enemySize.y) / 2; y += enemySize.y) {
                 if (uniform_real_distribution(0.0, 1.0)(randomEngine) < 0.01) {
-                    airplanes.emplace_back(new Enemy{{spawnX, y}, bullets, 
-                                        enemyTexture, bulletTexture, gameHeight});
+                    entities.emplace_back(
+                        new Enemy{{spawnX, y}, enemyTexture, bulletTexture, entities, gameHeight});
                 }
             }
             spawnX += enemySize.x;
         }
 
-        for (auto& bullet : bullets) bullet.update(elapsedTime);
-
         window.clear(Color::Green);
         window.setView(player->getView());
 
-        for (auto& airplane : airplanes) window.draw(*airplane);
-        for (auto& bullet : bullets) window.draw(bullet);
+        for (auto& entity : entities) window.draw(*entity);
 
         window.display();
     }

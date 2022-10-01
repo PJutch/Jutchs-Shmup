@@ -2,7 +2,7 @@
 #define ENEMY_H_
 
 #include "Airplane.h"
-#include "Bullet.h"
+#include "Entity.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -11,8 +11,9 @@
 
 class Enemy : public Airplane {
 public:
-    Enemy(sf::Vector2f position, std::vector<Bullet>& bullets, 
+    Enemy(sf::Vector2f position,
           const sf::Texture& texture, const sf::Texture& bulletTexture, 
+          std::vector<std::unique_ptr<Entity>>& entities,
           float gameHeight) noexcept;
 
     void update(sf::Time elapsedTime) noexcept override;
@@ -28,7 +29,7 @@ private:
     sf::Sprite m_sprite;
     bool m_alive;
 
-    std::vector<Bullet>& m_bullets;
+    std::vector<std::unique_ptr<Entity>>& m_entities;
     const sf::Texture& m_bulletTexture;
     sf::Time m_shootCooldown;
 

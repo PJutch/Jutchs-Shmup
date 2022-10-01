@@ -12,6 +12,7 @@ You should have received a copy of the GNU General Public License along with JCy
 If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Player.h"
+#include "Bullet.h"
 
 #include <SFML/Graphics.hpp>
 using sf::Color;
@@ -35,6 +36,9 @@ using sf::VideoMode;
 using sf::Clipboard;
 namespace Style = sf::Style;
 
+#include <vector>
+using std::vector;
+
 int main(int argc, char** argv) {
     auto videoMode = VideoMode::getDesktopMode();
     Vector2f screenSize(videoMode.width, videoMode.height);
@@ -45,9 +49,12 @@ int main(int argc, char** argv) {
     Texture playerTexture;
     if (!playerTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0001.png")) return 1;
 
-    float gameHeight = 512;
+    Texture bulletTexture;
+    if (!bulletTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0000.png")) return 1;
 
-    Player player{playerTexture, gameHeight, screenSize};
+    float gameHeight = 512;
+    vector<Bullet> bullets;
+    Player player{bullets, playerTexture, bulletTexture, gameHeight, screenSize};
 
     Clock clock;
     while (window.isOpen()) {
@@ -63,16 +70,19 @@ int main(int argc, char** argv) {
                     }
                     break;
                 case Event::MouseButtonPressed:
+                    player.handleMouseButtonPressed(event.mouseButton);
                     break;
             }
         }
 
         player.update(elapsedTime);
+        for (auto& bullet : bullets) bullet.update(elapsedTime);
 
         window.clear(Color::Green);
         window.setView(player.getView());
 
         window.draw(player);
+        for (auto& bullet : bullets) window.draw(bullet);
 
         window.display();
     }

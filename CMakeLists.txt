@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 include_directories(src)
 include_directories(extlibs/SFML/include)
 
-add_executable(Jutchs_Shmup src/main.cpp src/Player.cpp)
+add_executable(Jutchs_Shmup src/main.cpp src/Player.cpp src/Bullet.cpp)
 set_property(TARGET Jutchs_Shmup PROPERTY MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
 
 add_library(OpenGL STATIC IMPORTED)

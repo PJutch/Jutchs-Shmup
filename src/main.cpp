@@ -103,6 +103,18 @@ int main(int argc, char** argv) {
             }
         }
 
+        if (player->isDead()) {
+            player->reset();
+            spawnX = gameHeight * 4;
+
+            for (int i = 0; i < entities.size(); ++ i) 
+                if (entities[i].get() != player) {
+                    swap(entities[i], entities.back());
+                    entities.pop_back();
+                    -- i;
+            }
+        }
+
         for (int i = 0; i < entities.size(); ++ i) 
             entities[i]->update(elapsedTime);
         
@@ -111,11 +123,11 @@ int main(int argc, char** argv) {
                 if (entities[i]->getGlobalBounds().intersects(entities[j]->getGlobalBounds())) 
                     entities[i]->startCollide(*entities[j]);
         
-        for (int i = 0; i < entities.size(); ++ i)  {
+        for (int i = 0; i < entities.size(); ++ i)
             if (entities[i]->shouldBeDeleted()) {
                 swap(entities[i], entities.back());
                 entities.pop_back();
-            }
+                -- i;
         }
 
         while (player->getPosition().x + 4 * gameHeight > spawnX) {

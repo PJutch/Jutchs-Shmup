@@ -45,6 +45,16 @@ public:
     void handleDamaged() noexcept override {
         -- m_health;
     }
+
+    bool isDead() const noexcept {
+        return m_health <= 0;
+    }
+
+    void reset() noexcept {
+        m_view.move(-m_sprite.getPosition());
+        m_sprite.setPosition(0, 0);
+        m_health = 3;
+    }
 private:
     sf::View m_view;
     sf::Vector2f m_screenSize;

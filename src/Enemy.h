@@ -21,6 +21,10 @@ public:
     bool shouldBeDeleted() const noexcept override {
         return !m_alive;
     }
+
+    void handleDamaged() noexcept override {
+        m_alive = false;
+    }
 private:
     bool m_alive;
 };

@@ -31,6 +31,26 @@ public:
     sf::Vector2f getPosition() const noexcept {
         return m_sprite.getPosition();
     }
+
+    sf::FloatRect getGlobalBounds() const noexcept override {
+        return m_sprite.getGlobalBounds();
+    }
+
+    void startCollide(Entity& other) noexcept override {
+        other.acceptCollide(*this);
+    }
+
+    void acceptCollide(Airplane& other) noexcept override {
+        handleDamaged();
+        other.handleDamaged();
+    }
+
+    void acceptCollide(Bullet& other) noexcept override {
+        handleDamaged();
+        other.die();
+    }
+
+    virtual void handleDamaged() noexcept = 0;
 protected:
     sf::Sprite m_sprite;
     float m_gameHeight;
@@ -38,7 +58,7 @@ protected:
 
     void tryShoot(bool right) noexcept {
         if (m_shootCooldown <= sf::Time::Zero) {
-            m_entities.emplace_back(new Bullet{right, m_sprite.getPosition(), m_bulletTexture});
+            m_entities.emplace_back(new Bullet{this, right, m_sprite.getPosition(), m_bulletTexture});
             m_shootCooldown = sf::seconds(0.25f);
         }
     }

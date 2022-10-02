@@ -38,6 +38,8 @@ public:
     bool shouldBeDeleted() const noexcept {
         return false;
     }
+
+    void handleDamaged() noexcept override {}
 private:
     sf::View m_view;
 };

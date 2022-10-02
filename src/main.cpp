@@ -103,9 +103,14 @@ int main(int argc, char** argv) {
         for (int i = 0; i < entities.size(); ++ i) 
             entities[i]->update(elapsedTime);
         
-        for (auto& entity : entities) {
-            if (entity->shouldBeDeleted()) {
-                swap(entity, entities.back());
+        for (int i = 0; i < entities.size(); ++ i) 
+            for (int j = i + 1; j < entities.size(); ++ j) 
+                if (entities[i]->getGlobalBounds().intersects(entities[j]->getGlobalBounds())) 
+                    entities[i]->startCollide(*entities[j]);
+        
+        for (int i = 0; i < entities.size(); ++ i)  {
+            if (entities[i]->shouldBeDeleted()) {
+                swap(entities[i], entities.back());
                 entities.pop_back();
             }
         }

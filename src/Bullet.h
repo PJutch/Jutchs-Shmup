@@ -21,12 +21,28 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class Bullet : public Entity {
 public:
-    Bullet(bool moveRight, sf::Vector2f position, const sf::Texture& texture) noexcept;
+    Bullet(Airplane* owner, bool moveRight, sf::Vector2f position, const sf::Texture& texture) noexcept;
 
     void update(sf::Time elapsedTime) noexcept;
 
+    sf::FloatRect getGlobalBounds() const noexcept override {
+        return m_sprite.getGlobalBounds();
+    }
+
+    void startCollide(Entity& other) noexcept override {
+        other.acceptCollide(*this);
+    }
+
+    void acceptCollide(Airplane& other) noexcept override;
+
+    virtual void acceptCollide(Bullet& other) noexcept {}
+
     bool shouldBeDeleted() const noexcept override {
-        return false;
+        return !m_alive;
+    }
+
+    void die() noexcept {
+        m_alive = false;
     }
 private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
@@ -34,7 +50,11 @@ private:
     }
 
     sf::Sprite m_sprite;
+
     bool m_moveRight;
+    bool m_alive;
+    
+    Airplane* m_owner;
 };
 
 #endif

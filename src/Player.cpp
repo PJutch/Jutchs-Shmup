@@ -18,6 +18,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 using sf::Texture;
 using sf::Vector2f;
+using sf::Sprite;
+using sf::RenderTarget;
+using sf::RenderStates;
 
 #include <SFML/System.hpp>
 using sf::Event;
@@ -32,12 +35,14 @@ using std::vector;
 #include <memory>
 using std::unique_ptr;
 
-Player::Player(const Texture& texture, const Texture& bulletTexture, 
+Player::Player(const Texture& texture, const Texture& healthTexture, const Texture& bulletTexture, 
                vector<unique_ptr<Entity>>& entities,
                float gameHeight, Vector2f screenSize) noexcept : 
         Airplane{{0.f, 0.f}, texture, bulletTexture, entities, gameHeight},
         m_view{{-gameHeight / 2.f, -gameHeight / 2.f, 
-                gameHeight * screenSize.x / screenSize.y, gameHeight}} {
+                gameHeight * screenSize.x / screenSize.y, gameHeight}}, 
+        m_screenSize{screenSize},
+        m_healthTexture{healthTexture}, m_health{3} {
     m_sprite.setRotation(90.f);
 }
 
@@ -74,4 +79,13 @@ void Player::update(Time elapsedTime) noexcept {
 
     m_sprite.move(movedX, 0.f);
     m_view.move(movedX, 0);
+}
+
+void Player::drawHealth(RenderTarget& target, RenderStates states) const noexcept {
+    Sprite healthSprite{m_healthTexture};
+    healthSprite.scale(2, 2);
+    for (int i = 0; i < m_health; ++ i) {
+        healthSprite.setPosition(2 * i * m_healthTexture.getSize().x, 0.01 * m_screenSize.y);
+        target.draw(healthSprite, states);
+    }
 }

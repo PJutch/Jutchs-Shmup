@@ -64,6 +64,9 @@ int main(int argc, char** argv) {
     Texture playerTexture;
     if (!playerTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0000.png")) return 1;
 
+    Texture healthTexture;
+    if (!healthTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0026.png")) return 1;
+
     Texture bulletTexture;
     if (!bulletTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0000.png")) return 1;
 
@@ -76,7 +79,7 @@ int main(int argc, char** argv) {
 
     vector<unique_ptr<Entity>> entities;
 
-    auto* player = new Player{playerTexture, bulletTexture, entities, gameHeight, screenSize};
+    auto* player = new Player{playerTexture, healthTexture, bulletTexture, entities, gameHeight, screenSize};
     entities.emplace_back(player);
 
     float spawnX = gameHeight * 4;
@@ -128,9 +131,12 @@ int main(int argc, char** argv) {
         }
 
         window.clear(Color::Green);
-        window.setView(player->getView());
 
+        window.setView(player->getView());
         for (auto& entity : entities) window.draw(*entity);
+
+        window.setView(window.getDefaultView());
+        player->drawHealth(window);
 
         window.display();
     }

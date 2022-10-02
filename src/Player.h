@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class Player : public Airplane {
 public:
-    Player(const sf::Texture& texture, const sf::Texture& bulletTexture, 
+    Player(const sf::Texture& texture, const sf::Texture& healthTexture, const sf::Texture& bulletTexture, 
            std::vector<std::unique_ptr<Entity>>& entities, 
            float gameHeight, sf::Vector2f screenSize) noexcept;
 
@@ -39,9 +39,18 @@ public:
         return false;
     }
 
-    void handleDamaged() noexcept override {}
+    void drawHealth(sf::RenderTarget& target, 
+        sf::RenderStates states=sf::RenderStates::Default) const noexcept;
+
+    void handleDamaged() noexcept override {
+        -- m_health;
+    }
 private:
     sf::View m_view;
+    sf::Vector2f m_screenSize;
+
+    const sf::Texture& m_healthTexture;
+    int m_health;
 };
 
 #endif

@@ -16,11 +16,11 @@ using std::vector;
 #include <memory>
 using std::unique_ptr;
 
-Enemy::Enemy(Vector2f position,
+Enemy::Enemy(Vector2f position, Player& player, 
              const Texture& texture, const Texture& bulletTexture, 
              vector<unique_ptr<Entity>>& entities,
              float gameHeight) noexcept : 
-        Airplane{position, texture, bulletTexture, entities, gameHeight} {
+        Airplane{position, texture, bulletTexture, entities, gameHeight}, m_alive{true}, m_player{player} {
     m_sprite.setRotation(-90.f);
 }
 

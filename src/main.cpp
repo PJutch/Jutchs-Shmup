@@ -40,8 +40,16 @@ using sf::VideoMode;
 using sf::Clipboard;
 namespace Style = sf::Style;
 
+#include <format>
+using std::format;
+
 #include <vector>
 using std::vector;
+
+#include <array>
+using std::array;
+
+using std::ssize;
 
 #include <random>
 using std::random_device;
@@ -73,13 +81,19 @@ int main(int argc, char** argv) {
     Texture enemyTexture;
     if (!enemyTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0001.png")) return 1;
 
+    array<Texture, 10> digitTextures;
+    for (int i = 0; i < ssize(digitTextures); ++ i) 
+        if (!digitTextures[i].loadFromFile(format("resources/kenney_pixelshmup/Digits/digit_{}.png", i))) 
+            return 1;
+
     mt19937_64 randomEngine(random_device{}());
 
     float gameHeight = 512;
 
     vector<unique_ptr<Entity>> entities;
 
-    auto* player = new Player{playerTexture, healthTexture, bulletTexture, entities, gameHeight, screenSize};
+    auto* player = new Player{playerTexture, healthTexture, bulletTexture, digitTextures,
+                              entities, gameHeight, screenSize};
     entities.emplace_back(player);
 
     float spawnX = gameHeight * 4;
@@ -136,10 +150,11 @@ int main(int argc, char** argv) {
                     y < (gameHeight- enemySize.y) / 2; y += enemySize.y) {
                 if (uniform_real_distribution(0.0, 1.0)(randomEngine) < 0.01) {
                     entities.emplace_back(
-                        new Enemy{{spawnX, y}, enemyTexture, bulletTexture, entities, gameHeight});
+                        new Enemy{{spawnX, y}, *player, enemyTexture, bulletTexture, entities, gameHeight});
                 }
             }
             spawnX += enemySize.x;
+            player->setScore(player->getScore() + 1);
         }
 
         window.clear(Color::Green);
@@ -148,7 +163,7 @@ int main(int argc, char** argv) {
         for (auto& entity : entities) window.draw(*entity);
 
         window.setView(window.getDefaultView());
-        player->drawHealth(window);
+        player->drawGui(window);
 
         window.display();
     }

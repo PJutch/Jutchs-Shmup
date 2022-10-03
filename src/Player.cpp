@@ -29,20 +29,28 @@ using sf::Time;
 using sf::Mouse;
 using sf::seconds;
 
+#include <span>
+using std::span;
+
 #include <vector>
 using std::vector;
+
+#include <string>
+using std::string;
+using std::to_string;
 
 #include <memory>
 using std::unique_ptr;
 
 Player::Player(const Texture& texture, const Texture& healthTexture, const Texture& bulletTexture, 
+               span<Texture> digitTextures,
                vector<unique_ptr<Entity>>& entities,
                float gameHeight, Vector2f screenSize) noexcept : 
         Airplane{{0.f, 0.f}, texture, bulletTexture, entities, gameHeight},
         m_view{{-gameHeight / 2.f, -gameHeight / 2.f, 
                 gameHeight * screenSize.x / screenSize.y, gameHeight}}, 
         m_screenSize{screenSize},
-        m_healthTexture{healthTexture}, m_health{3} {
+        m_healthTexture{healthTexture}, m_health{3}, m_digitTextures{digitTextures}, m_score{0} {
     m_sprite.setRotation(90.f);
 }
 
@@ -81,11 +89,18 @@ void Player::update(Time elapsedTime) noexcept {
     m_view.move(movedX, 0);
 }
 
-void Player::drawHealth(RenderTarget& target, RenderStates states) const noexcept {
+void Player::drawGui(RenderTarget& target, RenderStates states) const noexcept {
     Sprite healthSprite{m_healthTexture};
     healthSprite.scale(2, 2);
     for (int i = 0; i < m_health; ++ i) {
         healthSprite.setPosition(2 * i * m_healthTexture.getSize().x, 0.01 * m_screenSize.y);
         target.draw(healthSprite, states);
+    }
+
+    string score = to_string(m_score);
+    for (int i = 0; i < ssize(score); ++ i) {
+        Sprite digitSprite{m_digitTextures[score[i] - '0']};
+        digitSprite.setPosition(i * m_digitTextures[0].getSize().x, 0);
+        target.draw(digitSprite, states);
     }
 }

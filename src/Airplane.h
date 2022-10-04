@@ -1,4 +1,4 @@
-/* This file is part of JCyberEvolution.
+/* This file is part of Jutchs Shmup.
 
 Jutchs Shmup is free software: you can redistribute it and/or modify it 
 under the terms of the GNU General Public License as published by the Free Software Foundation, 

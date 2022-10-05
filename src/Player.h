@@ -57,11 +57,10 @@ public:
     }
 
     bool addHealth(int health) noexcept override {
-        if (isDead()) return false;
+        if (isDead() || m_health >= 3) return false;
 
-        bool full =  m_health == 3;
         m_health = std::min(m_health + health, 3);
-        return full;
+        return true;
     }
 
     bool isDead() const noexcept {

@@ -21,10 +21,12 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/System.hpp>
 
 class Airplane;
+class Player;
 
 class Pickup : public Entity {
 public:
-    Pickup(sf::Vector2f position, const sf::Texture& texture) noexcept;
+    Pickup(sf::Vector2f position, const sf::Texture& texture, 
+           const Player& player, float gameHeight) noexcept;
 
     virtual ~Pickup() = default;
 
@@ -51,17 +53,22 @@ public:
 
     virtual void apply(Airplane& airplane) noexcept = 0;
 
-    bool shouldBeDeleted() const noexcept override {
-        return !m_alive;
-    }
+    bool shouldBeDeleted() const noexcept override;
 protected:
     void die() noexcept {
-        m_alive = true;
+        m_alive = false;
+    }
+
+    bool isAlive() const noexcept {
+        return m_alive;
     }
 private:
     sf::Sprite m_sprite;
 
     bool m_alive;
+
+    const Player& m_player;
+    float m_gameHeight;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
         target.draw(m_sprite, states);

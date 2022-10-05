@@ -36,14 +36,16 @@ public:
     void update(sf::Time elapsedTime) noexcept override;
 
     bool shouldBeDeleted() const noexcept override {
-        return !m_alive;
+        return !m_alive || m_sprite.getPosition().x + 2 * m_gameHeight < m_player.getPosition().x 
+                        || m_sprite.getPosition().x - 5 * m_gameHeight > m_player.getPosition().x;
     }
 
     void handleDamaged() noexcept override {
         m_alive = false;
         m_player.setScore(m_player.getScore() + 10);
         if (std::uniform_real_distribution{0.0, 1.0}(m_randomEngine) < 0.1) {
-            m_entities.emplace_back(new HealthPickup{m_sprite.getPosition(), m_healthPickupTexture});
+            m_entities.emplace_back(new HealthPickup{m_sprite.getPosition(), m_healthPickupTexture, 
+                                                     m_player, m_gameHeight});
         }
     }
 
@@ -52,7 +54,6 @@ public:
     }
 private:
     bool m_alive;
-    Player& m_player;
 
     std::mt19937_64& m_randomEngine;
 

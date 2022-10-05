@@ -19,9 +19,12 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+class Player;
+
 class Bullet : public Entity {
 public:
-    Bullet(Airplane* owner, bool moveRight, sf::Vector2f position, const sf::Texture& texture) noexcept;
+    Bullet(Airplane* owner, bool moveRight, sf::Vector2f position, 
+           const sf::Texture& texture, const Player& player, float gameHeight) noexcept;
 
     void update(sf::Time elapsedTime) noexcept;
 
@@ -38,9 +41,7 @@ public:
     void acceptCollide(Bullet&) noexcept override {}
     void acceptCollide(Pickup&) noexcept override {}
 
-    bool shouldBeDeleted() const noexcept override {
-        return !m_alive;
-    }
+    bool shouldBeDeleted() const noexcept override;
 
     void die() noexcept {
         m_alive = false;
@@ -56,6 +57,10 @@ private:
     bool m_alive;
     
     Airplane* m_owner;
+
+    const Player& m_player;
+
+    float m_gameHeight;
 };
 
 #endif

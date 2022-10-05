@@ -21,10 +21,13 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+class Player;
+
 class Airplane : public Entity {
 public:
     Airplane(sf::Vector2f position, const sf::Texture& texture, const sf::Texture& bulletTexture, 
-             std::vector<std::unique_ptr<Entity>>& entities, float gameHeight) noexcept;
+             Player& player, std::vector<std::unique_ptr<Entity>>& entities, 
+             float gameHeight) noexcept;
 
 
     virtual ~Airplane() = default;
@@ -64,9 +67,12 @@ protected:
     sf::Time m_shootCooldown;
     std::vector<std::unique_ptr<Entity>>& m_entities;
 
+    Player& m_player;
+
     void tryShoot(bool right) noexcept {
         if (m_shootCooldown <= sf::Time::Zero) {
-            m_entities.emplace_back(new Bullet{this, right, m_sprite.getPosition(), m_bulletTexture});
+            m_entities.emplace_back(new Bullet{this, right, m_sprite.getPosition(), 
+                                               m_bulletTexture, m_player, m_gameHeight});
             m_shootCooldown = sf::seconds(0.25f);
         }
     }

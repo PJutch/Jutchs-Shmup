@@ -61,6 +61,8 @@ void Player::handleMouseButtonPressed(sf::Event::MouseButtonEvent event) {
 }
 
 void Player::update(Time elapsedTime) noexcept {
+    if (isDead()) return;
+    
     m_shootCooldown -= elapsedTime;
     if (Mouse::isButtonPressed(Mouse::Left)) {
         tryShoot(true);

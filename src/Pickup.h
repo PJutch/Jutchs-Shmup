@@ -45,6 +45,7 @@ public:
     }
 
     void acceptCollide(Airplane& other) noexcept override {
+        if (!m_alive) return;
         apply(other);
     }
 

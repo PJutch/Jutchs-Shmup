@@ -41,20 +41,24 @@ public:
     }
 
     void startCollide(Entity& other) noexcept override {
+        if (shouldBeDeleted()) return;
         other.acceptCollide(*this);
     }
 
     void acceptCollide(Airplane& other) noexcept override {
+        if (shouldBeDeleted()) return;
         handleDamaged();
         other.handleDamaged();
     }
 
     void acceptCollide(Bullet& other) noexcept override {
+        if (shouldBeDeleted()) return;
         handleDamaged();
         other.die();
     }
 
     void acceptCollide(Pickup& other) noexcept override {
+        if (shouldBeDeleted()) return;
         other.apply(*this);
     }
 

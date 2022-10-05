@@ -43,6 +43,8 @@ Enemy::Enemy(Vector2f position, Player& player,
 }
 
 void Enemy::update(Time elapsedTime) noexcept {
+    if (!m_alive) return;
+    
     m_shootCooldown -= elapsedTime;
     tryShoot(false);
 

@@ -34,10 +34,14 @@ Bullet::Bullet(Airplane* owner, bool moveRight, Vector2f position,
 }
 
 void Bullet::update(Time elapsedTime) noexcept {
+    if (!m_alive) return;
+
     m_sprite.move((m_moveRight ? 1 : -1) * 750.f * elapsedTime.asSeconds(), 0);
 }
 
 void Bullet::acceptCollide(Airplane& other) noexcept {
+    if (!m_alive) return;
+
     if (&other != m_owner) {
         die();
         other.handleDamaged();

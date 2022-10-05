@@ -17,17 +17,20 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Airplane.h"
 #include "Entity.h"
 #include "Player.h"
+#include "HealthPickup.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
 #include <vector>
+#include <random>
 
 class Enemy : public Airplane {
 public:
     Enemy(sf::Vector2f position, Player& player, 
           const sf::Texture& texture, const sf::Texture& bulletTexture, 
-          std::vector<std::unique_ptr<Entity>>& entities,
+          const sf::Texture& healthPickupTexture,
+          std::vector<std::unique_ptr<Entity>>& entities, std::mt19937_64& randomEngine,
           float gameHeight) noexcept;
 
     void update(sf::Time elapsedTime) noexcept override;
@@ -39,10 +42,21 @@ public:
     void handleDamaged() noexcept override {
         m_alive = false;
         m_player.setScore(m_player.getScore() + 10);
+        if (std::uniform_real_distribution{0.0, 1.0}(m_randomEngine) < 0.1) {
+            m_entities.emplace_back(new HealthPickup{m_sprite.getPosition(), m_healthPickupTexture});
+        }
+    }
+
+    bool addHealth(int health) noexcept override {
+        return false;
     }
 private:
     bool m_alive;
     Player& m_player;
+
+    std::mt19937_64& m_randomEngine;
+
+    const sf::Texture& m_healthPickupTexture;
 };
 
 #endif

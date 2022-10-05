@@ -26,14 +26,19 @@ using sf::seconds;
 #include <vector>
 using std::vector;
 
+#include <random>
+using std::mt19937_64;
+
 #include <memory>
 using std::unique_ptr;
 
 Enemy::Enemy(Vector2f position, Player& player, 
              const Texture& texture, const Texture& bulletTexture, 
-             vector<unique_ptr<Entity>>& entities,
+             const Texture& healthPickupTexture,
+             vector<unique_ptr<Entity>>& entities, mt19937_64& randomEngine,
              float gameHeight) noexcept : 
-        Airplane{position, texture, bulletTexture, entities, gameHeight}, m_alive{true}, m_player{player} {
+        Airplane{position, texture, bulletTexture, entities, gameHeight}, m_alive{true}, m_player{player}, 
+        m_randomEngine{randomEngine}, m_healthPickupTexture{healthPickupTexture} {
     m_sprite.setRotation(-90.f);
 }
 

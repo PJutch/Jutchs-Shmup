@@ -86,6 +86,9 @@ int main(int argc, char** argv) {
         if (!digitTextures[i].loadFromFile(format("resources/kenney_pixelshmup/Digits/digit_{}.png", i))) 
             return 1;
 
+    Texture healthPickupTexture;
+    if (!healthPickupTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0024.png")) return 1;
+
     mt19937_64 randomEngine(random_device{}());
 
     float gameHeight = 512;
@@ -150,7 +153,8 @@ int main(int argc, char** argv) {
                     y < (gameHeight- enemySize.y) / 2; y += enemySize.y) {
                 if (uniform_real_distribution(0.0, 1.0)(randomEngine) < 0.01) {
                     entities.emplace_back(
-                        new Enemy{{spawnX, y}, *player, enemyTexture, bulletTexture, entities, gameHeight});
+                        new Enemy{{spawnX, y}, *player, enemyTexture, bulletTexture, healthPickupTexture, 
+                        entities, randomEngine, gameHeight});
                 }
             }
             spawnX += enemySize.x;

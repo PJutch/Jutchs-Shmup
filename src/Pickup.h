@@ -10,3 +10,62 @@ See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
+
+#ifndef PICKUP_H_
+#define PICKUP_H_
+
+#include "Entity.h"
+#include "Bullet.h"
+
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
+
+class Airplane;
+
+class Pickup : public Entity {
+public:
+    Pickup(sf::Vector2f position, const sf::Texture& texture) noexcept;
+
+    virtual ~Pickup() = default;
+
+    sf::Vector2f getPosition() const noexcept {
+        return m_sprite.getPosition();
+    }
+
+    void update(sf::Time) noexcept override {}
+
+    sf::FloatRect getGlobalBounds() const noexcept override {
+        return m_sprite.getGlobalBounds();
+    }
+
+    void startCollide(Entity& other) noexcept override {
+        other.acceptCollide(*this);
+    }
+
+    void acceptCollide(Airplane& other) noexcept override {
+        apply(other);
+    }
+
+    void acceptCollide(Bullet&) noexcept override {}
+    void acceptCollide(Pickup&) noexcept override {}
+
+    virtual void apply(Airplane& airplane) noexcept = 0;
+
+    bool shouldBeDeleted() const noexcept override {
+        return !m_alive;
+    }
+protected:
+    void die() noexcept {
+        m_alive = true;
+    }
+private:
+    sf::Sprite m_sprite;
+
+    bool m_alive;
+
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
+        target.draw(m_sprite, states);
+    }
+};
+
+#endif

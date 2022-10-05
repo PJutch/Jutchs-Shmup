@@ -16,6 +16,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Entity.h"
 #include "Bullet.h"
+#include "Pickup.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -50,11 +51,18 @@ public:
         other.die();
     }
 
+    void acceptCollide(Pickup& other) noexcept override {
+        other.apply(*this);
+    }
+
     virtual void handleDamaged() noexcept = 0;
+    virtual bool addHealth(int health) noexcept = 0; // return true if success
 protected:
     sf::Sprite m_sprite;
     float m_gameHeight;
+
     sf::Time m_shootCooldown;
+    std::vector<std::unique_ptr<Entity>>& m_entities;
 
     void tryShoot(bool right) noexcept {
         if (m_shootCooldown <= sf::Time::Zero) {
@@ -63,7 +71,6 @@ protected:
         }
     }
 private:
-    std::vector<std::unique_ptr<Entity>>& m_entities;
     const sf::Texture& m_bulletTexture;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {

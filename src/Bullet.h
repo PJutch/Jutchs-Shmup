@@ -35,7 +35,8 @@ public:
 
     void acceptCollide(Airplane& other) noexcept override;
 
-    virtual void acceptCollide(Bullet& other) noexcept {}
+    void acceptCollide(Bullet&) noexcept override {}
+    void acceptCollide(Pickup&) noexcept override {}
 
     bool shouldBeDeleted() const noexcept override {
         return !m_alive;

@@ -20,6 +20,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class Airplane;
 class Bullet;
+class Pickup;
 
 class Entity : public sf::Drawable {
 public:
@@ -32,6 +33,7 @@ public:
     virtual void startCollide(Entity& other) noexcept = 0;
     virtual void acceptCollide(Airplane& other) noexcept = 0;
     virtual void acceptCollide(Bullet& other) noexcept = 0;
+    virtual void acceptCollide(Pickup& other) noexcept = 0;
 
     virtual bool shouldBeDeleted() const noexcept = 0;
 };

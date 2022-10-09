@@ -34,9 +34,8 @@ using std::unique_ptr;
 
 Enemy::Enemy(Vector2f position, Player& player, 
              const Texture& texture, const Texture& bulletTexture, 
-             const Texture& healthPickupTexture,
-             vector<unique_ptr<Entity>>& entities, mt19937_64& randomEngine,
-             float gameHeight) noexcept : 
+             const Texture& healthPickupTexture, float gameHeight, 
+             vector<unique_ptr<Entity>>& entities, mt19937_64& randomEngine) noexcept : 
         Airplane{position, texture, 
                  unique_ptr<ShootComponent>(new BasicShootComponent{*this, gameHeight, entities, 
                                             bulletTexture, player}), player, gameHeight}, m_alive{true},

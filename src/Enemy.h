@@ -29,9 +29,16 @@ class Enemy : public Airplane {
 public:
     Enemy(sf::Vector2f position, Player& player, 
           const sf::Texture& texture, const sf::Texture& bulletTexture, 
-          const sf::Texture& healthPickupTexture,
-          std::vector<std::unique_ptr<Entity>>& entities, std::mt19937_64& randomEngine,
-          float gameHeight) noexcept;
+          const sf::Texture& healthPickupTexture, float gameHeight, 
+          std::vector<std::unique_ptr<Entity>>& entities, std::mt19937_64& randomEngine) noexcept;
+
+    template<typename... Args>
+    static void trySpawn(std::vector<std::unique_ptr<Entity>>& entities, std::mt19937_64& randomEngine,
+                          Args&& ...args) noexcept {
+        if (std::uniform_real_distribution(0.0, 1.0)(randomEngine) < 0.01) {
+            entities.emplace_back(new Enemy{std::forward<Args>(args)..., entities, randomEngine});
+        }
+    }
 
     void update(sf::Time elapsedTime) noexcept override;
 

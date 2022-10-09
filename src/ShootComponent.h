@@ -11,19 +11,7 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef HEALTH_PICKUP_
-#define HEALTH_PICKUP_
-
-#include "Pickup.h"
-
-class HealthPickup : public Pickup {
-    using Pickup::Pickup;
-
-    void apply(Airplane& airplane) noexcept override {
-        if (isAlive() && airplane.addHealth(1)) {
-            die();
-        }
-    };
-};
+#ifndef SHOOT_COMPONENT_H_
+#define SHOOT_COMPONENT_H_
 
 #endif

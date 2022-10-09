@@ -37,16 +37,18 @@ Enemy::Enemy(Vector2f position, Player& player,
              const Texture& healthPickupTexture,
              vector<unique_ptr<Entity>>& entities, mt19937_64& randomEngine,
              float gameHeight) noexcept : 
-        Airplane{position, texture, bulletTexture, player, entities, gameHeight}, m_alive{true},
-        m_randomEngine{randomEngine}, m_healthPickupTexture{healthPickupTexture} {
+        Airplane{position, texture, 
+                 unique_ptr<ShootComponent>(new BasicShootComponent{*this, gameHeight, entities, 
+                                            bulletTexture, player}), player, gameHeight}, m_alive{true},
+        m_randomEngine{randomEngine}, m_entities{entities}, m_healthPickupTexture{healthPickupTexture} {
     m_sprite.setRotation(-90.f);
 }
 
 void Enemy::update(Time elapsedTime) noexcept {
     if (!m_alive) return;
     
-    m_shootCooldown -= elapsedTime;
-    tryShoot(false);
+    m_shootComponent->update(elapsedTime);
+    m_shootComponent->tryShoot(false);
 
     float movedX = 250.f * elapsedTime.asSeconds();
     m_sprite.move(-movedX, 0.f);

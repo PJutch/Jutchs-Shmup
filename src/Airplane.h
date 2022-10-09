@@ -17,17 +17,21 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Entity.h"
 #include "Bullet.h"
 #include "Pickup.h"
+#include "ShootComponent.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
+
+#include <vector>
+#include <memory>
 
 class Player;
 
 class Airplane : public Entity {
 public:
-    Airplane(sf::Vector2f position, const sf::Texture& texture, const sf::Texture& bulletTexture, 
-             Player& player, std::vector<std::unique_ptr<Entity>>& entities, 
-             float gameHeight) noexcept;
+    Airplane(sf::Vector2f position, const sf::Texture& texture, 
+             std::unique_ptr<ShootComponent>&& shootComponent,
+             Player& player, float gameHeight) noexcept;
 
 
     virtual ~Airplane() = default;
@@ -66,23 +70,11 @@ public:
     virtual bool addHealth(int health) noexcept = 0; // return true if success
 protected:
     sf::Sprite m_sprite;
+    std::unique_ptr<ShootComponent> m_shootComponent;
+
     float m_gameHeight;
-
-    sf::Time m_shootCooldown;
-    std::vector<std::unique_ptr<Entity>>& m_entities;
-
     Player& m_player;
-
-    void tryShoot(bool right) noexcept {
-        if (m_shootCooldown <= sf::Time::Zero) {
-            m_entities.emplace_back(new Bullet{this, right, m_sprite.getPosition(), 
-                                               m_bulletTexture, m_player, m_gameHeight});
-            m_shootCooldown = sf::seconds(0.25f);
-        }
-    }
 private:
-    const sf::Texture& m_bulletTexture;
-
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
         target.draw(m_sprite, states);
     }

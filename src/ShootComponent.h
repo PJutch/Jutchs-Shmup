@@ -14,4 +14,44 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef SHOOT_COMPONENT_H_
 #define SHOOT_COMPONENT_H_
 
+#include "Entity.h"
+#include "Bullet.h"
+
+#include <SFML/System.hpp>
+#include <SFML/Graphics.hpp>
+
+#include <vector>
+#include <memory>
+
+class Airplane;
+class Player;
+
+class ShootComponent {
+public:
+    virtual ~ShootComponent() = default;
+
+    virtual void update(sf::Time elapsedTime) noexcept = 0;
+    virtual void tryShoot(bool right) noexcept = 0;
+};
+
+class BasicShootComponent : public ShootComponent {
+public:
+    BasicShootComponent(Airplane& owner, float gameHeight, std::vector<std::unique_ptr<Entity>>& entities, 
+                        const sf::Texture& bulletTexture, Player& player) noexcept;
+
+    void update(sf::Time elapsedTime) noexcept override {
+        m_shootCooldown -= elapsedTime;
+    }
+
+    void tryShoot(bool right) noexcept;
+private:
+    sf::Time m_shootCooldown;
+
+    Airplane& m_owner;
+    float m_gameHeight;
+    std::vector<std::unique_ptr<Entity>>& m_entities;
+    const sf::Texture& m_bulletTexture;
+    Player& m_player;
+};
+
 #endif

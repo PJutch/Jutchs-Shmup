@@ -57,6 +57,7 @@ private:
 
     std::mt19937_64& m_randomEngine;
 
+    std::vector<std::unique_ptr<Entity>>& m_entities;
     const sf::Texture& m_healthPickupTexture;
 };
 

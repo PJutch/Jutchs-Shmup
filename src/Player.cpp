@@ -14,6 +14,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Player.h"
 
 #include "Bullet.h"
+#include "ShootComponent.h"
 
 #include <SFML/Graphics.hpp>
 using sf::Texture;
@@ -46,7 +47,9 @@ Player::Player(const Texture& texture, const Texture& healthTexture, const Textu
                span<Texture> digitTextures,
                vector<unique_ptr<Entity>>& entities,
                float gameHeight, Vector2f screenSize) noexcept : 
-        Airplane{{0.f, 0.f}, texture, bulletTexture, *this, entities, gameHeight},
+        Airplane{{0.f, 0.f}, texture, 
+                 unique_ptr<ShootComponent>(new BasicShootComponent{*this, gameHeight, entities, 
+                                            bulletTexture, *this}), *this, gameHeight},
         m_view{{-gameHeight / 2.f, -gameHeight / 2.f, 
                 gameHeight * screenSize.x / screenSize.y, gameHeight}}, 
         m_screenSize{screenSize},
@@ -56,17 +59,15 @@ Player::Player(const Texture& texture, const Texture& healthTexture, const Textu
 
 void Player::handleMouseButtonPressed(sf::Event::MouseButtonEvent event) {
     if (event.button == Mouse::Left) {
-        tryShoot(true);
+        m_shootComponent->tryShoot(true);
     }
 }
 
 void Player::update(Time elapsedTime) noexcept {
     if (isDead()) return;
-    
-    m_shootCooldown -= elapsedTime;
-    if (Mouse::isButtonPressed(Mouse::Left)) {
-        tryShoot(true);
-    }
+
+    m_shootComponent->update(elapsedTime);
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) m_shootComponent->tryShoot(true);
 
     if (Keyboard::isKeyPressed(Keyboard::W)) {
         m_sprite.move(0, -250.f * elapsedTime.asSeconds());

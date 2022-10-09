@@ -29,10 +29,11 @@ using std::vector;
 #include <memory>
 using std::unique_ptr;
 
-Airplane::Airplane(Vector2f position, const Texture& texture, const Texture& bulletTexture, 
-                   Player& player, vector<unique_ptr<Entity>>& entities, float gameHeight) noexcept : 
-        m_sprite{texture}, m_gameHeight{gameHeight}, 
-        m_shootCooldown{Time::Zero}, m_entities{entities}, m_player{player}, m_bulletTexture{bulletTexture} {
+Airplane::Airplane(Vector2f position, const Texture& texture, 
+                   unique_ptr<ShootComponent>&& shootComponent,
+                   Player& player, float gameHeight) noexcept : 
+        m_sprite{texture}, m_shootComponent{move(shootComponent)}, m_gameHeight{gameHeight}, 
+        m_player{player} {
     auto size = texture.getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
     m_sprite.setPosition(position);

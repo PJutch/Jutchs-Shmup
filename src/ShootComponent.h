@@ -39,9 +39,12 @@ public:
 
     virtual void tryShoot(bool right) noexcept = 0;
 protected:
+    void shoot(bool right, sf::Vector2f position) noexcept;
+
     sf::Time m_shootCooldown;
 
     Airplane& m_owner;
+private:
     float m_gameHeight;
     std::vector<std::unique_ptr<Entity>>& m_entities;
     const sf::Texture& m_bulletTexture;
@@ -60,6 +63,19 @@ public:
     using ShootComponent::ShootComponent;
 
     void tryShoot(bool right) noexcept override;
+};
+
+class VolleyShootComponent : public ShootComponent {
+public:
+    VolleyShootComponent(Airplane& owner, float gameHeight, std::vector<std::unique_ptr<Entity>>& entities, 
+                         const sf::Texture& bulletTexture, Player& player) noexcept;
+
+    void update(sf::Time elapsedTime) noexcept override;
+
+    void tryShoot(bool right) noexcept override;
+private:
+    int m_shots;
+    bool m_right;
 };
 
 #endif

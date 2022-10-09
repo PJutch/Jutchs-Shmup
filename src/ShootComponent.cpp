@@ -16,12 +16,13 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Airplane.h"
 #include "Player.h"
 
+#include <SFML/Graphics.hpp>
+using sf::Texture;
+using sf::Vector2f;
+
 #include <SFML/System.hpp>
 using sf::Time;
 using sf::seconds;
-
-#include <SFML/Graphics.hpp>
-using sf::Texture;
 
 #include <vector>
 using std::vector;
@@ -35,10 +36,14 @@ ShootComponent::ShootComponent(Airplane& owner, float gameHeight,
         m_shootCooldown{Time::Zero}, m_owner{owner}, m_gameHeight{gameHeight}, m_entities{entities}, 
         m_bulletTexture{bulletTexture}, m_player{player} {};
 
+void ShootComponent::shoot(bool right, Vector2f position) noexcept {
+    m_entities.emplace_back(new Bullet{&m_owner, right, position, 
+                                       m_bulletTexture, m_player, m_gameHeight});
+}
+
 void BasicShootComponent::tryShoot(bool right) noexcept {
     if (m_shootCooldown <= Time::Zero) {
-        m_entities.emplace_back(new Bullet{&m_owner, right, m_owner.getPosition(), 
-                                           m_bulletTexture, m_player, m_gameHeight});
+        shoot(right, m_owner.getPosition());
         m_shootCooldown = seconds(0.25f);
     }
 }
@@ -48,12 +53,36 @@ void TripleShootComponent::tryShoot(bool right) noexcept {
         auto position = m_owner.getPosition();
         float height = m_owner.getGlobalBounds().height;
 
-        m_entities.emplace_back(new Bullet{&m_owner, right, position, 
-                                           m_bulletTexture, m_player, m_gameHeight});
-        m_entities.emplace_back(new Bullet{&m_owner, right, {position.x, position.y + height / 2}, 
-                                           m_bulletTexture, m_player, m_gameHeight});
-        m_entities.emplace_back(new Bullet{&m_owner, right, {position.x, position.y - height / 2}, 
-                                           m_bulletTexture, m_player, m_gameHeight});
+        shoot(right, m_owner.getPosition());
+        shoot(right, {position.x, position.y + height / 2});
+        shoot(right, {position.x, position.y - height / 2});
+
         m_shootCooldown = seconds(0.5f);
     }
 }
+
+void VolleyShootComponent::tryShoot(bool right) noexcept {
+    if (m_shootCooldown <= Time::Zero) {
+        auto position = m_owner.getPosition();
+        float height = m_owner.getGlobalBounds().height;
+
+        shoot(right, m_owner.getPosition());
+
+        m_shots += 2;
+        m_right = right;
+        m_shootCooldown = seconds(0.1f);
+    }
+}
+
+void VolleyShootComponent::update(sf::Time elapsedTime) noexcept {
+    ShootComponent::update(elapsedTime);
+    if (m_shootCooldown <= sf::Time::Zero && m_shots > 0) {
+        shoot(m_right, m_owner.getPosition());
+        m_shootCooldown = sf::seconds(-- m_shots == 0 ? 0.5f : 0.1f);
+    }
+}
+
+VolleyShootComponent::VolleyShootComponent(Airplane& owner, float gameHeight, 
+                                           vector<unique_ptr<Entity>>& entities, 
+                                           const Texture& bulletTexture, Player& player) noexcept : 
+    ShootComponent{owner, gameHeight, entities, bulletTexture, player}, m_shots{0}, m_right{false} {};

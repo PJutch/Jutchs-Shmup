@@ -48,7 +48,7 @@ Player::Player(const Texture& texture, const Texture& healthTexture, const Textu
                vector<unique_ptr<Entity>>& entities,
                float gameHeight, Vector2f screenSize) noexcept : 
         Airplane{{0.f, 0.f}, texture, 
-                 unique_ptr<ShootComponent>(new TripleShootComponent{*this, gameHeight, entities, 
+                 unique_ptr<ShootComponent>(new VolleyShootComponent{*this, gameHeight, entities, 
                                             bulletTexture, *this}), *this, gameHeight},
         m_view{{-gameHeight / 2.f, -gameHeight / 2.f, 
                 gameHeight * screenSize.x / screenSize.y, gameHeight}}, 

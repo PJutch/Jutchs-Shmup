@@ -36,9 +36,7 @@ Enemy::Enemy(Vector2f position, Player& player,
              const Texture& texture, const Texture& bulletTexture, 
              const Texture& healthPickupTexture, float gameHeight, 
              vector<unique_ptr<Entity>>& entities, mt19937_64& randomEngine) noexcept : 
-        Airplane{position, texture, 
-                 unique_ptr<ShootComponent>(new BasicShootComponent{*this, gameHeight, entities, 
-                                            bulletTexture, player}), player, gameHeight}, m_alive{true},
+        Airplane{position, texture, player, gameHeight}, m_alive{true},
         m_randomEngine{randomEngine}, m_entities{entities}, m_healthPickupTexture{healthPickupTexture} {
     m_sprite.setRotation(-90.f);
 }

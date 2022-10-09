@@ -29,10 +29,8 @@ using std::vector;
 #include <memory>
 using std::unique_ptr;
 
-Airplane::Airplane(Vector2f position, const Texture& texture, 
-                   unique_ptr<ShootComponent>&& shootComponent,
-                   Player& player, float gameHeight) noexcept : 
-        m_sprite{texture}, m_shootComponent{move(shootComponent)}, m_gameHeight{gameHeight}, 
+Airplane::Airplane(Vector2f position, const Texture& texture, Player& player, float gameHeight) noexcept : 
+        m_sprite{texture}, m_shootComponent{nullptr}, m_gameHeight{gameHeight}, 
         m_player{player} {
     auto size = texture.getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);

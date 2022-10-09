@@ -18,6 +18,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Entity.h"
 #include "Player.h"
 #include "HealthPickup.h"
+#include "ShootComponent.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -32,11 +33,28 @@ public:
           const sf::Texture& healthPickupTexture, float gameHeight, 
           std::vector<std::unique_ptr<Entity>>& entities, std::mt19937_64& randomEngine) noexcept;
 
-    template<typename... Args>
-    static void trySpawn(std::vector<std::unique_ptr<Entity>>& entities, std::mt19937_64& randomEngine,
-                          Args&& ...args) noexcept {
-        if (std::uniform_real_distribution(0.0, 1.0)(randomEngine) < 0.01) {
-            entities.emplace_back(new Enemy{std::forward<Args>(args)..., entities, randomEngine});
+    static void trySpawn(sf::Vector2f position, Player& player, 
+                         const sf::Texture& texture, const sf::Texture& bulletTexture, 
+                         const sf::Texture& healthPickupTexture, float gameHeight, 
+                         std::vector<std::unique_ptr<Entity>>& entities, std::mt19937_64& randomEngine) noexcept {
+        std::uniform_real_distribution canonicalDistribution{0.0, 1.0};
+        if (canonicalDistribution(randomEngine) < 0.01) {
+            auto created = new Enemy{position, player, texture, bulletTexture, healthPickupTexture, 
+                                   gameHeight, entities, randomEngine};
+
+            double value = canonicalDistribution(randomEngine);
+            if (value < 0.1) {
+                created->emplaceShootComponent<TripleShootComponent>(
+                    gameHeight, entities, bulletTexture, player);
+            } else if (value < 0.2) {
+                created->emplaceShootComponent<VolleyShootComponent>(
+                    gameHeight, entities, bulletTexture, player);
+            } else {
+                created->emplaceShootComponent<BasicShootComponent>(
+                    gameHeight, entities, bulletTexture, player);
+            }
+
+            entities.emplace_back(created);
         }
     }
 

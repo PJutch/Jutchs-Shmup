@@ -47,13 +47,13 @@ Player::Player(const Texture& texture, const Texture& healthTexture, const Textu
                span<Texture> digitTextures,
                vector<unique_ptr<Entity>>& entities,
                float gameHeight, Vector2f screenSize) noexcept : 
-        Airplane{{0.f, 0.f}, texture, 
-                 unique_ptr<ShootComponent>(new VolleyShootComponent{*this, gameHeight, entities, 
-                                            bulletTexture, *this}), *this, gameHeight},
+        Airplane{{0.f, 0.f}, texture, *this, gameHeight},
         m_view{{-gameHeight / 2.f, -gameHeight / 2.f, 
                 gameHeight * screenSize.x / screenSize.y, gameHeight}}, 
         m_screenSize{screenSize},
         m_healthTexture{healthTexture}, m_health{3}, m_digitTextures{digitTextures}, m_score{0} {
+    emplaceShootComponent<BasicShootComponent>(gameHeight, entities, bulletTexture, *this);
+
     m_sprite.setRotation(90.f);
 }
 

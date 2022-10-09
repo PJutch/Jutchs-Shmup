@@ -29,10 +29,7 @@ class Player;
 
 class Airplane : public Entity {
 public:
-    Airplane(sf::Vector2f position, const sf::Texture& texture, 
-             std::unique_ptr<ShootComponent>&& shootComponent,
-             Player& player, float gameHeight) noexcept;
-
+    Airplane(sf::Vector2f position, const sf::Texture& texture, Player& player, float gameHeight) noexcept;
 
     virtual ~Airplane() = default;
 
@@ -69,6 +66,12 @@ public:
     virtual void handleDamaged() noexcept = 0;
     virtual bool addHealth(int health) noexcept = 0; // return true if success
 protected:
+    // *this is passed as owner (arg1)
+    template<std::derived_from<ShootComponent> Component, typename... Args>
+    void emplaceShootComponent(Args&& ...args) noexcept {
+        m_shootComponent = unique_ptr<ShootComponent>(new Component{*this, std::forward<Args>(args)...});
+    }
+
     sf::Sprite m_sprite;
     std::unique_ptr<ShootComponent> m_shootComponent;
 

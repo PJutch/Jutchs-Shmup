@@ -151,8 +151,8 @@ int main(int argc, char** argv) {
             Vector2u enemySize = enemyTexture.getSize();
             for (float y = (enemySize.y - gameHeight) / 2; 
                     y < (gameHeight- enemySize.y) / 2; y += enemySize.y) {
-                Enemy::trySpawn(entities, randomEngine, Vector2f{spawnX, y}, *player, 
-                                enemyTexture, bulletTexture, healthPickupTexture, gameHeight);
+                Enemy::trySpawn(Vector2f{spawnX, y}, *player, enemyTexture, bulletTexture, healthPickupTexture, 
+                                gameHeight, entities, randomEngine);
             }
             spawnX += enemySize.x;
             player->setScore(player->getScore() + 1);

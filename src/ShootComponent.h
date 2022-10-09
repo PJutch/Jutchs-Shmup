@@ -28,23 +28,17 @@ class Player;
 
 class ShootComponent {
 public:
+    ShootComponent(Airplane& owner, float gameHeight, std::vector<std::unique_ptr<Entity>>& entities, 
+                   const sf::Texture& bulletTexture, Player& player) noexcept;
+
     virtual ~ShootComponent() = default;
 
-    virtual void update(sf::Time elapsedTime) noexcept = 0;
-    virtual void tryShoot(bool right) noexcept = 0;
-};
-
-class BasicShootComponent : public ShootComponent {
-public:
-    BasicShootComponent(Airplane& owner, float gameHeight, std::vector<std::unique_ptr<Entity>>& entities, 
-                        const sf::Texture& bulletTexture, Player& player) noexcept;
-
-    void update(sf::Time elapsedTime) noexcept override {
+    virtual void update(sf::Time elapsedTime) noexcept {
         m_shootCooldown -= elapsedTime;
     }
 
-    void tryShoot(bool right) noexcept;
-private:
+    virtual void tryShoot(bool right) noexcept = 0;
+protected:
     sf::Time m_shootCooldown;
 
     Airplane& m_owner;
@@ -52,6 +46,20 @@ private:
     std::vector<std::unique_ptr<Entity>>& m_entities;
     const sf::Texture& m_bulletTexture;
     Player& m_player;
+};
+
+class BasicShootComponent : public ShootComponent {
+public:
+    using ShootComponent::ShootComponent;
+
+    void tryShoot(bool right) noexcept override;
+};
+
+class TripleShootComponent : public ShootComponent {
+public:
+    using ShootComponent::ShootComponent;
+
+    void tryShoot(bool right) noexcept override;
 };
 
 #endif

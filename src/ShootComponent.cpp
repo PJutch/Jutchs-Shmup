@@ -29,9 +29,9 @@ using std::vector;
 #include <memory>
 using std::unique_ptr;
 
-BasicShootComponent::BasicShootComponent(Airplane& owner, float gameHeight, 
-                                         vector<unique_ptr<Entity>>& entities, 
-                                         const Texture& bulletTexture, Player& player) noexcept : 
+ShootComponent::ShootComponent(Airplane& owner, float gameHeight, 
+                               vector<unique_ptr<Entity>>& entities, 
+                               const Texture& bulletTexture, Player& player) noexcept : 
         m_shootCooldown{Time::Zero}, m_owner{owner}, m_gameHeight{gameHeight}, m_entities{entities}, 
         m_bulletTexture{bulletTexture}, m_player{player} {};
 
@@ -40,5 +40,20 @@ void BasicShootComponent::tryShoot(bool right) noexcept {
         m_entities.emplace_back(new Bullet{&m_owner, right, m_owner.getPosition(), 
                                            m_bulletTexture, m_player, m_gameHeight});
         m_shootCooldown = seconds(0.25f);
+    }
+}
+
+void TripleShootComponent::tryShoot(bool right) noexcept {
+    if (m_shootCooldown <= Time::Zero) {
+        auto position = m_owner.getPosition();
+        float height = m_owner.getGlobalBounds().height;
+
+        m_entities.emplace_back(new Bullet{&m_owner, right, position, 
+                                           m_bulletTexture, m_player, m_gameHeight});
+        m_entities.emplace_back(new Bullet{&m_owner, right, {position.x, position.y + height / 2}, 
+                                           m_bulletTexture, m_player, m_gameHeight});
+        m_entities.emplace_back(new Bullet{&m_owner, right, {position.x, position.y - height / 2}, 
+                                           m_bulletTexture, m_player, m_gameHeight});
+        m_shootCooldown = seconds(0.5f);
     }
 }

@@ -28,49 +28,40 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class Enemy : public Airplane {
 public:
-    Enemy(sf::Vector2f position, Player& player, 
-          const sf::Texture& texture, const sf::Texture& bulletTexture, 
-          const sf::Texture& healthPickupTexture, float gameHeight, 
-          std::vector<std::unique_ptr<Entity>>& entities, std::mt19937_64& randomEngine) noexcept;
+    Enemy(sf::Vector2f position, GameState& gameState) noexcept;
 
-    static void trySpawn(sf::Vector2f position, Player& player, 
-                         const sf::Texture& texture, const sf::Texture& bulletTexture, 
-                         const sf::Texture& healthPickupTexture, float gameHeight, 
-                         std::vector<std::unique_ptr<Entity>>& entities, std::mt19937_64& randomEngine) noexcept {
+    static void trySpawn(sf::Vector2f position, GameState& gameState) noexcept {
         std::uniform_real_distribution canonicalDistribution{0.0, 1.0};
-        if (canonicalDistribution(randomEngine) < 0.01) {
-            auto created = new Enemy{position, player, texture, bulletTexture, healthPickupTexture, 
-                                   gameHeight, entities, randomEngine};
+        if (gameState.genRandom(canonicalDistribution) < 0.01) {
+            auto created = new Enemy{position, gameState};
 
-            double value = canonicalDistribution(randomEngine);
+            double value = gameState.genRandom(canonicalDistribution);
             if (value < 0.1) {
-                created->emplaceShootComponent<TripleShootComponent>(
-                    gameHeight, entities, bulletTexture, player);
+                created->createShootComponent<TripleShootComponent>();
             } else if (value < 0.2) {
-                created->emplaceShootComponent<VolleyShootComponent>(
-                    gameHeight, entities, bulletTexture, player);
+                created->createShootComponent<VolleyShootComponent>();
             } else {
-                created->emplaceShootComponent<BasicShootComponent>(
-                    gameHeight, entities, bulletTexture, player);
+                created->createShootComponent<BasicShootComponent>();
             }
 
-            entities.emplace_back(created);
+            gameState.addEntity(created);
         }
     }
 
     void update(sf::Time elapsedTime) noexcept override;
 
     bool shouldBeDeleted() const noexcept override {
-        return !m_alive || m_sprite.getPosition().x + 2 * m_gameHeight < m_player.getPosition().x 
-                        || m_sprite.getPosition().x - 5 * m_gameHeight > m_player.getPosition().x;
+        return !m_alive || m_sprite.getPosition().x + 2 * m_gameState.getGameHeight() 
+                            < m_gameState.getPlayer().getPosition().x 
+                        || m_sprite.getPosition().x - 5 * m_gameState.getGameHeight()  
+                            > m_gameState.getPlayer().getPosition().x;
     }
 
     void handleDamaged() noexcept override {
         m_alive = false;
-        m_player.setScore(m_player.getScore() + 10);
-        if (std::uniform_real_distribution{0.0, 1.0}(m_randomEngine) < 0.1) {
-            m_entities.emplace_back(new HealthPickup{m_sprite.getPosition(), m_healthPickupTexture, 
-                                                     m_player, m_gameHeight});
+        m_gameState.getPlayer().addScore(10);
+        if (m_gameState.genRandom(std::uniform_real_distribution{0.0, 1.0}) < 0.1) {
+            m_gameState.addEntity(new HealthPickup{m_sprite.getPosition(), m_gameState});
         }
     }
 
@@ -79,11 +70,6 @@ public:
     }
 private:
     bool m_alive;
-
-    std::mt19937_64& m_randomEngine;
-
-    std::vector<std::unique_ptr<Entity>>& m_entities;
-    const sf::Texture& m_healthPickupTexture;
 };
 
 #endif

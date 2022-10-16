@@ -30,15 +30,11 @@ using std::vector;
 #include <memory>
 using std::unique_ptr;
 
-ShootComponent::ShootComponent(Airplane& owner, float gameHeight, 
-                               vector<unique_ptr<Entity>>& entities, 
-                               const Texture& bulletTexture, Player& player) noexcept : 
-        m_shootCooldown{Time::Zero}, m_owner{owner}, m_gameHeight{gameHeight}, m_entities{entities}, 
-        m_bulletTexture{bulletTexture}, m_player{player} {};
+ShootComponent::ShootComponent(Airplane& owner, GameState& gameState) noexcept : 
+        m_shootCooldown{Time::Zero}, m_owner{owner}, m_gameState{gameState} {};
 
 void ShootComponent::shoot(bool right, Vector2f position) noexcept {
-    m_entities.emplace_back(new Bullet{&m_owner, right, position, 
-                                       m_bulletTexture, m_player, m_gameHeight});
+    m_gameState.addEntity(new Bullet{&m_owner, right, position, m_gameState});
 }
 
 void BasicShootComponent::tryShoot(bool right) noexcept {
@@ -82,7 +78,5 @@ void VolleyShootComponent::update(sf::Time elapsedTime) noexcept {
     }
 }
 
-VolleyShootComponent::VolleyShootComponent(Airplane& owner, float gameHeight, 
-                                           vector<unique_ptr<Entity>>& entities, 
-                                           const Texture& bulletTexture, Player& player) noexcept : 
-    ShootComponent{owner, gameHeight, entities, bulletTexture, player}, m_shots{0}, m_right{false} {};
+VolleyShootComponent::VolleyShootComponent(Airplane& owner, GameState& gameState) noexcept : 
+    ShootComponent{owner, gameState}, m_shots{0}, m_right{false} {};

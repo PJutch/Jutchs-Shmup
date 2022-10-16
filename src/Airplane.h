@@ -14,6 +14,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef AIRPLANE_H_
 #define AIRPLANE_H_
 
+#include "GameState.h"
 #include "Entity.h"
 #include "Bullet.h"
 #include "Pickup.h"
@@ -29,9 +30,7 @@ class Player;
 
 class Airplane : public Entity {
 public:
-    Airplane(sf::Vector2f position, const sf::Texture& texture, Player& player, float gameHeight) noexcept;
-
-    virtual ~Airplane() = default;
+    Airplane(sf::Vector2f position, const sf::Texture& texture, GameState& gameState) noexcept;
 
     sf::Vector2f getPosition() const noexcept {
         return m_sprite.getPosition();
@@ -66,17 +65,13 @@ public:
     virtual void handleDamaged() noexcept = 0;
     virtual bool addHealth(int health) noexcept = 0; // return true if success
 protected:
-    // *this is passed as owner (arg1)
-    template<std::derived_from<ShootComponent> Component, typename... Args>
-    void emplaceShootComponent(Args&& ...args) noexcept {
-        m_shootComponent = unique_ptr<ShootComponent>(new Component{*this, std::forward<Args>(args)...});
+    template<std::derived_from<ShootComponent> Component>
+    void createShootComponent() noexcept {
+        m_shootComponent = unique_ptr<ShootComponent>(new Component{*this, m_gameState});
     }
 
     sf::Sprite m_sprite;
     std::unique_ptr<ShootComponent> m_shootComponent;
-
-    float m_gameHeight;
-    Player& m_player;
 private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
         target.draw(m_sprite, states);

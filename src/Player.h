@@ -24,10 +24,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class Player : public Airplane {
 public:
-    Player(const sf::Texture& texture, const sf::Texture& healthTexture, const sf::Texture& bulletTexture, 
-           std::span<sf::Texture> digitTextures,
-           std::vector<std::unique_ptr<Entity>>& entities, 
-           float gameHeight, sf::Vector2f screenSize) noexcept;
+    Player(GameState& GameState) noexcept;
 
     const sf::View& getView() const noexcept {
         return m_view;
@@ -39,6 +36,10 @@ public:
 
     void setScore(int score) noexcept {
         m_score = score;
+    }
+
+    void addScore(int score) noexcept {
+        m_score += score;
     }
 
     void handleMouseButtonPressed(sf::Event::MouseButtonEvent event);
@@ -75,12 +76,7 @@ public:
     }
 private:
     sf::View m_view;
-    sf::Vector2f m_screenSize;
-
-    const sf::Texture& m_healthTexture;
     int m_health;
-
-    std::span<sf::Texture> m_digitTextures;
     int m_score;
 };
 

@@ -16,6 +16,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Airplane.h"
 #include "Enemy.h"
 #include "Entity.h"
+#include "GameState.h"
 
 #include <SFML/Graphics.hpp>
 using sf::Color;
@@ -69,37 +70,9 @@ int main(int argc, char** argv) {
     RenderWindow window{videoMode, "Jutchs Shmup", Style::Fullscreen};
     window.setVerticalSyncEnabled(true);
 
-    Texture playerTexture;
-    if (!playerTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0000.png")) return 1;
+    GameState gameState{screenSize};
 
-    Texture healthTexture;
-    if (!healthTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0026.png")) return 1;
-
-    Texture bulletTexture;
-    if (!bulletTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0000.png")) return 1;
-
-    Texture enemyTexture;
-    if (!enemyTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0001.png")) return 1;
-
-    array<Texture, 10> digitTextures;
-    for (int i = 0; i < ssize(digitTextures); ++ i) 
-        if (!digitTextures[i].loadFromFile(format("resources/kenney_pixelshmup/Digits/digit_{}.png", i))) 
-            return 1;
-
-    Texture healthPickupTexture;
-    if (!healthPickupTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0024.png")) return 1;
-
-    mt19937_64 randomEngine(random_device{}());
-
-    float gameHeight = 512;
-
-    vector<unique_ptr<Entity>> entities;
-
-    auto* player = new Player{playerTexture, healthTexture, bulletTexture, digitTextures,
-                              entities, gameHeight, screenSize};
-    entities.emplace_back(player);
-
-    float spawnX = gameHeight * 4;
+    float spawnX = gameState.getGameHeight() * 4;
 
     Clock clock;
     while (window.isOpen()) {
@@ -115,56 +88,22 @@ int main(int argc, char** argv) {
                     }
                     break;
                 case Event::MouseButtonPressed:
-                    player->handleMouseButtonPressed(event.mouseButton);
+                    gameState.getPlayer().handleMouseButtonPressed(event.mouseButton);
                     break;
             }
         }
 
-        if (player->isDead()) {
-            player->reset();
-            spawnX = gameHeight * 4;
-
-            for (int i = 0; i < entities.size(); ++ i) 
-                if (entities[i].get() != player) {
-                    swap(entities[i], entities.back());
-                    entities.pop_back();
-                    -- i;
-            }
-        }
-
-        for (int i = 0; i < entities.size(); ++ i) 
-            entities[i]->update(elapsedTime);
-        
-        for (int i = 0; i < entities.size(); ++ i) 
-            for (int j = i + 1; j < entities.size(); ++ j) 
-                if (entities[i]->getGlobalBounds().intersects(entities[j]->getGlobalBounds())) 
-                    entities[i]->startCollide(*entities[j]);
-        
-        for (int i = 0; i < entities.size(); ++ i)
-            if (entities[i]->shouldBeDeleted()) {
-                swap(entities[i], entities.back());
-                entities.pop_back();
-                -- i;
-        }
-
-        while (player->getPosition().x + 4 * gameHeight > spawnX) {
-            Vector2u enemySize = enemyTexture.getSize();
-            for (float y = (enemySize.y - gameHeight) / 2; 
-                    y < (gameHeight- enemySize.y) / 2; y += enemySize.y) {
-                Enemy::trySpawn(Vector2f{spawnX, y}, *player, enemyTexture, bulletTexture, healthPickupTexture, 
-                                gameHeight, entities, randomEngine);
-            }
-            spawnX += enemySize.x;
-            player->setScore(player->getScore() + 1);
-        }
+        gameState.update(elapsedTime);
 
         window.clear(Color::Green);
 
-        window.setView(player->getView());
-        for (auto& entity : entities) window.draw(*entity);
+        window.setView(gameState.getPlayer().getView());
+        for (const auto& entity : gameState.getEntities()) {
+            window.draw(*entity);
+        }
 
         window.setView(window.getDefaultView());
-        player->drawGui(window);
+        gameState.getPlayer().drawGui(window);
 
         window.display();
     }

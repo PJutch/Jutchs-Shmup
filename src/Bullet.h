@@ -23,8 +23,7 @@ class Player;
 
 class Bullet : public Entity {
 public:
-    Bullet(Airplane* owner, bool moveRight, sf::Vector2f position, 
-           const sf::Texture& texture, const Player& player, float gameHeight) noexcept;
+    Bullet(Airplane* owner, bool moveRight, sf::Vector2f position, GameState& gameState) noexcept;
 
     void update(sf::Time elapsedTime) noexcept;
 
@@ -57,10 +56,6 @@ private:
     bool m_alive;
     
     Airplane* m_owner;
-
-    const Player& m_player;
-
-    float m_gameHeight;
 };
 
 #endif

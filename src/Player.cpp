@@ -43,16 +43,13 @@ using std::to_string;
 #include <memory>
 using std::unique_ptr;
 
-Player::Player(const Texture& texture, const Texture& healthTexture, const Texture& bulletTexture, 
-               span<Texture> digitTextures,
-               vector<unique_ptr<Entity>>& entities,
-               float gameHeight, Vector2f screenSize) noexcept : 
-        Airplane{{0.f, 0.f}, texture, *this, gameHeight},
-        m_view{{-gameHeight / 2.f, -gameHeight / 2.f, 
-                gameHeight * screenSize.x / screenSize.y, gameHeight}}, 
-        m_screenSize{screenSize},
-        m_healthTexture{healthTexture}, m_health{3}, m_digitTextures{digitTextures}, m_score{0} {
-    emplaceShootComponent<BasicShootComponent>(gameHeight, entities, bulletTexture, *this);
+Player::Player(GameState& gameState) noexcept : 
+        Airplane{{0.f, 0.f}, gameState.getPlayerTexture(), gameState},
+        m_view{{-gameState.getGameHeight() / 2.f, -gameState.getGameHeight() / 2.f, 
+                gameState.getGameHeight() * gameState.getScreenSize().x / gameState.getScreenSize().y, 
+                gameState.getGameHeight()}}, 
+        m_health{3}, m_score{0} {
+    createShootComponent<BasicShootComponent>();
 
     m_sprite.setRotation(90.f);
 }
@@ -73,16 +70,16 @@ void Player::update(Time elapsedTime) noexcept {
         m_sprite.move(0, -250.f * elapsedTime.asSeconds());
 
         auto globalBounds = m_sprite.getGlobalBounds();
-        if (globalBounds.top < -m_gameHeight / 2)
+        if (globalBounds.top < -m_gameState.getGameHeight() / 2)
             m_sprite.setPosition(m_sprite.getPosition().x, 
-                                 -m_gameHeight / 2 + globalBounds.height / 2.f);
+                                 -m_gameState.getGameHeight() / 2 + globalBounds.height / 2.f);
     } else if (Keyboard::isKeyPressed(Keyboard::S)) {
         m_sprite.move(0, 250.f * elapsedTime.asSeconds());
 
         auto globalBounds = m_sprite.getGlobalBounds();
-        if (globalBounds.top + globalBounds.width > m_gameHeight / 2)
+        if (globalBounds.top + globalBounds.width > m_gameState.getGameHeight() / 2)
             m_sprite.setPosition(m_sprite.getPosition().x, 
-                                 m_gameHeight / 2 - globalBounds.height / 2.f);
+                                 m_gameState.getGameHeight() / 2 - globalBounds.height / 2.f);
     }
 
     float movedX = 250.f * elapsedTime.asSeconds();
@@ -93,17 +90,18 @@ void Player::update(Time elapsedTime) noexcept {
 }
 
 void Player::drawGui(RenderTarget& target, RenderStates states) const noexcept {
-    Sprite healthSprite{m_healthTexture};
+    Sprite healthSprite{m_gameState.getHealthTexture()};
     healthSprite.scale(2, 2);
     for (int i = 0; i < m_health; ++ i) {
-        healthSprite.setPosition(2 * i * m_healthTexture.getSize().x, 0.01 * m_screenSize.y);
+        healthSprite.setPosition(2 * i * m_gameState.getHealthTexture().getSize().x, 
+                                 0.01 * m_gameState.getScreenSize().y);
         target.draw(healthSprite, states);
     }
 
     string score = to_string(m_score);
     for (int i = 0; i < ssize(score); ++ i) {
-        Sprite digitSprite{m_digitTextures[score[i] - '0']};
-        digitSprite.setPosition(i * m_digitTextures[0].getSize().x, 0);
+        Sprite digitSprite{m_gameState.getDigitTextures()[score[i] - '0']};
+        digitSprite.setPosition(i * m_gameState.getDigitTextures()[0].getSize().x, 0);
         target.draw(digitSprite, states);
     }
 }

@@ -15,6 +15,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef ENTITY_H_
 #define ENTITY_H_
 
+#include "GameState.h"
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
@@ -24,6 +26,7 @@ class Pickup;
 
 class Entity : public sf::Drawable {
 public:
+    Entity(GameState& gameState) noexcept;
     virtual ~Entity() = default;
 
     virtual void update(sf::Time elapsedTime) noexcept = 0;
@@ -36,6 +39,8 @@ public:
     virtual void acceptCollide(Pickup& other) noexcept = 0;
 
     virtual bool shouldBeDeleted() const noexcept = 0;
+protected:
+    GameState& m_gameState;
 };
 
 #endif

@@ -25,8 +25,7 @@ class Player;
 
 class Pickup : public Entity {
 public:
-    Pickup(sf::Vector2f position, const sf::Texture& texture, 
-           const Player& player, float gameHeight) noexcept;
+    Pickup(sf::Vector2f position, const sf::Texture& texture, GameState& gameState) noexcept;
 
     virtual ~Pickup() = default;
 
@@ -67,9 +66,6 @@ private:
     sf::Sprite m_sprite;
 
     bool m_alive;
-
-    const Player& m_player;
-    float m_gameHeight;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
         target.draw(m_sprite, states);

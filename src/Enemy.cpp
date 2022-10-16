@@ -32,12 +32,8 @@ using std::mt19937_64;
 #include <memory>
 using std::unique_ptr;
 
-Enemy::Enemy(Vector2f position, Player& player, 
-             const Texture& texture, const Texture& bulletTexture, 
-             const Texture& healthPickupTexture, float gameHeight, 
-             vector<unique_ptr<Entity>>& entities, mt19937_64& randomEngine) noexcept : 
-        Airplane{position, texture, player, gameHeight}, m_alive{true},
-        m_randomEngine{randomEngine}, m_entities{entities}, m_healthPickupTexture{healthPickupTexture} {
+Enemy::Enemy(Vector2f position, GameState& gameState) noexcept : 
+        Airplane{position, gameState.getEnemyTexture(), gameState}, m_alive{true} {
     m_sprite.setRotation(-90.f);
 }
 

@@ -11,21 +11,6 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef HEALTH_PICKUP_
-#define HEALTH_PICKUP_
+#include "Entity.h"
 
-#include "Pickup.h"
-#include "Airplane.h"
-
-class HealthPickup : public Pickup {
-public:
-    HealthPickup(sf::Vector2f position, GameState& gameState) noexcept;
-
-    void apply(Airplane& airplane) noexcept override {
-        if (isAlive() && airplane.addHealth(1)) {
-            die();
-        }
-    };
-};
-
-#endif
+Entity::Entity(GameState& gameState) noexcept : m_gameState{gameState} {}

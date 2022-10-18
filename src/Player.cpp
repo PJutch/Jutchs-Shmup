@@ -44,14 +44,12 @@ using std::to_string;
 using std::unique_ptr;
 
 Player::Player(GameState& gameState) noexcept : 
-        Airplane{{0.f, 0.f}, gameState.getPlayerTexture(), gameState},
+        Airplane{gameState},
         m_view{{-gameState.getGameHeight() / 2.f, -gameState.getGameHeight() / 2.f, 
                 gameState.getGameHeight() * gameState.getScreenSize().x / gameState.getScreenSize().y, 
                 gameState.getGameHeight()}}, 
         m_health{3}, m_score{0} {
-    createShootComponent<BasicShootComponent>(true);
-    createShootControlComponent<PlayerShootControlComponent>();
-
+    setTexture(gameState.getPlayerTexture());    
     m_sprite.setRotation(90.f);
 }
 

@@ -71,6 +71,10 @@ public:
         m_entities.emplace_back(entity);
     }
 
+    void addEntity(std::unique_ptr<Entity>&& entity) noexcept {
+        m_entities.push_back(std::move(entity));
+    }
+
     const Player& getPlayer() const noexcept {
         return *m_player;
     }

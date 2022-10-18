@@ -57,7 +57,9 @@ GameState::GameState(Vector2f screenSize) : m_playerTexture{}, m_healthTexture{}
     if (!m_healthPickupTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0024.png")) 
         throw TextureLoadError{"Can't load health pickup texture"};
 
-    m_player = new Player{*this};
+    m_player = Airplane::Builder<Player>{*this}.position({0.f, 0.f})
+        .shootComponent<BasicShootComponent>(true)
+        .shootControlComponent<PlayerShootControlComponent>().build().release();
     m_entities.emplace_back(m_player);
 }
 

@@ -28,25 +28,26 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class Enemy : public Airplane {
 public:
-    Enemy(sf::Vector2f position, GameState& gameState) noexcept;
+    Enemy(GameState& gameState) noexcept;
 
     static void trySpawn(sf::Vector2f position, GameState& gameState) noexcept {
         std::uniform_real_distribution canonicalDistribution{0.0, 1.0};
         if (gameState.genRandom(canonicalDistribution) < 0.01) {
-            auto created = new Enemy{position, gameState};
+            Airplane::Builder<Enemy> builder{gameState};
+            builder.position(position);
 
             double value = gameState.genRandom(canonicalDistribution);
             if (value < 0.1) {
-                created->createShootComponent<TripleShootComponent>(false);
+                builder.shootComponent<TripleShootComponent>(false);
             } else if (value < 0.2) {
-                created->createShootComponent<VolleyShootComponent>(false);
+                builder.shootComponent<VolleyShootComponent>(false);
             } else {
-                created->createShootComponent<BasicShootComponent>(false);
+                builder.shootComponent<BasicShootComponent>(false);
             }
 
-            created->createShootControlComponent<BasicShootControlComponent>();
+            builder.shootControlComponent<BasicShootControlComponent>();
 
-            gameState.addEntity(created);
+            gameState.addEntity(builder.build());
         }
     }
 

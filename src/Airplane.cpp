@@ -28,9 +28,5 @@ using std::vector;
 #include <memory>
 using std::unique_ptr;
 
-Airplane::Airplane(Vector2f position, const Texture& texture, GameState& gameState) noexcept : 
-        Entity{gameState}, m_sprite{texture}, m_shootComponent{nullptr}, m_shootControlComponent{nullptr} {
-    auto size = texture.getSize();
-    m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
-    m_sprite.setPosition(position);
-}
+Airplane::Airplane(GameState& gameState) noexcept : 
+        Entity{gameState}, m_sprite{}, m_shootComponent{nullptr}, m_shootControlComponent{nullptr} {}

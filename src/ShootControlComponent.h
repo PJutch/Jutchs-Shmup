@@ -20,15 +20,18 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class ShootControlComponent {
 public:
-    ShootControlComponent(ShootComponent& shootComponent) : m_shootComponent{shootComponent} {}
-
+    ShootControlComponent() : m_shootComponent{nullptr} {}
     virtual ~ShootControlComponent() = default;
+
+    void registerShootComponent(ShootComponent* shootComponent) noexcept {
+        m_shootComponent = shootComponent;
+    }
 
     virtual void handleMouseButtonPressed(sf::Event::MouseButtonEvent event) noexcept {}
 
     virtual void update(sf::Time elapsedTime) noexcept = 0;
 protected:
-    ShootComponent& m_shootComponent;
+    ShootComponent* m_shootComponent;
 };
 
 class BasicShootControlComponent : public ShootControlComponent {
@@ -36,7 +39,7 @@ public:
     using ShootControlComponent::ShootControlComponent;
 
     void update(sf::Time elapsedTime) noexcept override {
-        m_shootComponent.tryShoot();
+        m_shootComponent->tryShoot();
     }
 };
 
@@ -45,11 +48,11 @@ public:
     using ShootControlComponent::ShootControlComponent;
 
     void handleMouseButtonPressed(sf::Event::MouseButtonEvent event) noexcept override {
-        if (event.button == sf::Mouse::Left) m_shootComponent.tryShoot();
+        if (event.button == sf::Mouse::Left) m_shootComponent->tryShoot();
     }
 
     void update(sf::Time elapsedTime) noexcept override {
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) m_shootComponent.tryShoot();
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) m_shootComponent->tryShoot();
     }
 };
 

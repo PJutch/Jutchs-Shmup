@@ -31,7 +31,40 @@ class Player;
 
 class Airplane : public Entity {
 public:
-    Airplane(sf::Vector2f position, const sf::Texture& texture, GameState& gameState) noexcept;
+    template<std::derived_from<Airplane> T>
+    class Builder {
+    public:
+        Builder(GameState& gameState);
+
+        Builder<T>& position(sf::Vector2f position) noexcept {
+            m_build->m_sprite.setPosition(position);
+            return *this;
+        }
+
+        template<std::derived_from<ShootComponent> Component>
+        Builder<T>& shootComponent(bool shootRight) noexcept {
+            m_build->m_shootComponent = unique_ptr<ShootComponent>(
+                new Component{shootRight, *m_build, m_gameState});
+            return *this;
+        }
+
+        template<std::derived_from<ShootControlComponent> Component>
+        Builder<T>& shootControlComponent() noexcept {
+            m_build->m_shootControlComponent = unique_ptr<ShootControlComponent>(
+                new Component{});
+            return *this;
+        }
+
+        std::unique_ptr<T> build() noexcept {
+            m_build->m_shootControlComponent->registerShootComponent(m_build->m_shootComponent.get());
+            return std::move(m_build);
+        };
+    private:
+        std::unique_ptr<T> m_build;
+        GameState& m_gameState;
+    };
+
+    Airplane(GameState& gameState) noexcept;
 
     sf::Vector2f getPosition() const noexcept {
         return m_sprite.getPosition();
@@ -71,23 +104,23 @@ public:
         m_shootControlComponent->update(elapsedTime);
     }
 protected:
-    template<std::derived_from<ShootComponent> Component>
-    void createShootComponent(bool shootRight) noexcept {
-        m_shootComponent = unique_ptr<ShootComponent>(new Component{shootRight, *this, m_gameState});
-    }
-
-    template<std::derived_from<ShootControlComponent> Component>
-    void createShootControlComponent() noexcept {
-        m_shootControlComponent = unique_ptr<ShootControlComponent>(new Component{*m_shootComponent});
-    }
-
     sf::Sprite m_sprite;
+
     std::unique_ptr<ShootComponent> m_shootComponent;
     std::unique_ptr<ShootControlComponent> m_shootControlComponent;
+
+    void setTexture(const sf::Texture& texture) {
+        m_sprite.setTexture(texture);
+        auto size = texture.getSize();
+        m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
+    }
 private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
         target.draw(m_sprite, states);
     }
 };
+
+template<std::derived_from<Airplane> T>
+Airplane::Builder<T>::Builder(GameState& gameState) : m_build{new T{gameState}}, m_gameState{gameState} {}
 
 #endif

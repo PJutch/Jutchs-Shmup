@@ -15,7 +15,13 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Player.h"
 
-Pickup::Pickup(sf::Vector2f position, const sf::Texture& texture, GameState& gameState) noexcept : 
+#include <SFML/Graphics.hpp>
+using sf::Texture;
+
+#include <SFML/System.hpp>
+using sf::Vector2f;
+
+Pickup::Pickup(Vector2f position, const Texture& texture, GameState& gameState) noexcept : 
         Entity{gameState}, m_sprite{texture}, m_alive{true} {
     auto size = texture.getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);

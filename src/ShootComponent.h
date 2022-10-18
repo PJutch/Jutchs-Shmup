@@ -28,7 +28,7 @@ class Player;
 
 class ShootComponent {
 public:
-    ShootComponent(Airplane& owner, GameState& gameState) noexcept;
+    ShootComponent(bool shootRight, Airplane& owner, GameState& gameState) noexcept;
 
     virtual ~ShootComponent() = default;
 
@@ -36,37 +36,39 @@ public:
         m_shootCooldown -= elapsedTime;
     }
 
-    virtual void tryShoot(bool right) noexcept = 0;
+    virtual void tryShoot() noexcept = 0;
 protected:
-    void shoot(bool right, sf::Vector2f position) noexcept;
+    void shoot(sf::Vector2f position) noexcept;
 
     sf::Time m_shootCooldown;
 
     Airplane& m_owner;
     GameState& m_gameState;
+protected:
+    bool m_shootRight;
 };
 
 class BasicShootComponent : public ShootComponent {
 public:
     using ShootComponent::ShootComponent;
 
-    void tryShoot(bool right) noexcept override;
+    void tryShoot() noexcept override;
 };
 
 class TripleShootComponent : public ShootComponent {
 public:
     using ShootComponent::ShootComponent;
 
-    void tryShoot(bool right) noexcept override;
+    void tryShoot() noexcept override;
 };
 
 class VolleyShootComponent : public ShootComponent {
 public:
-    VolleyShootComponent(Airplane& owner, GameState& gameState) noexcept;
+    VolleyShootComponent(bool shootRight, Airplane& owner, GameState& gameState) noexcept;
 
     void update(sf::Time elapsedTime) noexcept override;
 
-    void tryShoot(bool right) noexcept override;
+    void tryShoot() noexcept override;
 private:
     int m_shots;
     bool m_right;

@@ -37,12 +37,14 @@ public:
 
             double value = gameState.genRandom(canonicalDistribution);
             if (value < 0.1) {
-                created->createShootComponent<TripleShootComponent>();
+                created->createShootComponent<TripleShootComponent>(false);
             } else if (value < 0.2) {
-                created->createShootComponent<VolleyShootComponent>();
+                created->createShootComponent<VolleyShootComponent>(false);
             } else {
-                created->createShootComponent<BasicShootComponent>();
+                created->createShootComponent<BasicShootComponent>(false);
             }
+
+            created->createShootControlComponent<BasicShootControlComponent>();
 
             gameState.addEntity(created);
         }

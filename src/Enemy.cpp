@@ -41,7 +41,7 @@ void Enemy::update(Time elapsedTime) noexcept {
     if (!m_alive) return;
     
     m_shootComponent->update(elapsedTime);
-    m_shootComponent->tryShoot(false);
+    m_shootControlComponent->update(elapsedTime);
 
     float movedX = 250.f * elapsedTime.asSeconds();
     m_sprite.move(-movedX, 0.f);

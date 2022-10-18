@@ -30,42 +30,41 @@ using std::vector;
 #include <memory>
 using std::unique_ptr;
 
-ShootComponent::ShootComponent(Airplane& owner, GameState& gameState) noexcept : 
-        m_shootCooldown{Time::Zero}, m_owner{owner}, m_gameState{gameState} {};
+ShootComponent::ShootComponent(bool shootRight, Airplane& owner, GameState& gameState) noexcept : 
+        m_shootCooldown{Time::Zero}, m_owner{owner}, m_gameState{gameState}, m_shootRight{shootRight} {};
 
-void ShootComponent::shoot(bool right, Vector2f position) noexcept {
-    m_gameState.addEntity(new Bullet{&m_owner, right, position, m_gameState});
+void ShootComponent::shoot(Vector2f position) noexcept {
+    m_gameState.addEntity(new Bullet{&m_owner, m_shootRight, position, m_gameState});
 }
 
-void BasicShootComponent::tryShoot(bool right) noexcept {
+void BasicShootComponent::tryShoot() noexcept {
     if (m_shootCooldown <= Time::Zero) {
-        shoot(right, m_owner.getPosition());
+        shoot(m_owner.getPosition());
         m_shootCooldown = seconds(0.25f);
     }
 }
 
-void TripleShootComponent::tryShoot(bool right) noexcept {
+void TripleShootComponent::tryShoot() noexcept {
     if (m_shootCooldown <= Time::Zero) {
         auto position = m_owner.getPosition();
         float height = m_owner.getGlobalBounds().height;
 
-        shoot(right, m_owner.getPosition());
-        shoot(right, {position.x, position.y + height / 2});
-        shoot(right, {position.x, position.y - height / 2});
+        shoot(m_owner.getPosition());
+        shoot({position.x, position.y + height / 2});
+        shoot({position.x, position.y - height / 2});
 
         m_shootCooldown = seconds(0.5f);
     }
 }
 
-void VolleyShootComponent::tryShoot(bool right) noexcept {
+void VolleyShootComponent::tryShoot() noexcept {
     if (m_shootCooldown <= Time::Zero) {
         auto position = m_owner.getPosition();
         float height = m_owner.getGlobalBounds().height;
 
-        shoot(right, m_owner.getPosition());
+        shoot(m_owner.getPosition());
 
         m_shots += 2;
-        m_right = right;
         m_shootCooldown = seconds(0.1f);
     }
 }
@@ -73,10 +72,10 @@ void VolleyShootComponent::tryShoot(bool right) noexcept {
 void VolleyShootComponent::update(sf::Time elapsedTime) noexcept {
     ShootComponent::update(elapsedTime);
     if (m_shootCooldown <= sf::Time::Zero && m_shots > 0) {
-        shoot(m_right, m_owner.getPosition());
+        shoot(m_owner.getPosition());
         m_shootCooldown = sf::seconds(-- m_shots == 0 ? 0.5f : 0.1f);
     }
 }
 
-VolleyShootComponent::VolleyShootComponent(Airplane& owner, GameState& gameState) noexcept : 
-    ShootComponent{owner, gameState}, m_shots{0}, m_right{false} {};
+VolleyShootComponent::VolleyShootComponent(bool shootRight, Airplane& owner, GameState& gameState) noexcept : 
+    ShootComponent{shootRight, owner, gameState}, m_shots{0} {};

@@ -49,22 +49,20 @@ Player::Player(GameState& gameState) noexcept :
                 gameState.getGameHeight() * gameState.getScreenSize().x / gameState.getScreenSize().y, 
                 gameState.getGameHeight()}}, 
         m_health{3}, m_score{0} {
-    createShootComponent<BasicShootComponent>();
+    createShootComponent<BasicShootComponent>(true);
+    createShootControlComponent<PlayerShootControlComponent>();
 
     m_sprite.setRotation(90.f);
 }
 
 void Player::handleMouseButtonPressed(sf::Event::MouseButtonEvent event) {
-    if (event.button == Mouse::Left) {
-        m_shootComponent->tryShoot(true);
-    }
+    m_shootControlComponent->handleMouseButtonPressed(event);
 }
 
 void Player::update(Time elapsedTime) noexcept {
     if (isDead()) return;
 
-    m_shootComponent->update(elapsedTime);
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) m_shootComponent->tryShoot(true);
+    Airplane::update(elapsedTime);
 
     if (Keyboard::isKeyPressed(Keyboard::W)) {
         m_sprite.move(0, -250.f * elapsedTime.asSeconds());

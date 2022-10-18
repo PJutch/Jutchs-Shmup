@@ -19,6 +19,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Bullet.h"
 #include "Pickup.h"
 #include "ShootComponent.h"
+#include "ShootControlComponent.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -64,14 +65,25 @@ public:
 
     virtual void handleDamaged() noexcept = 0;
     virtual bool addHealth(int health) noexcept = 0; // return true if success
+
+    void update(sf::Time elapsedTime) noexcept override {
+        m_shootComponent->update(elapsedTime);
+        m_shootControlComponent->update(elapsedTime);
+    }
 protected:
     template<std::derived_from<ShootComponent> Component>
-    void createShootComponent() noexcept {
-        m_shootComponent = unique_ptr<ShootComponent>(new Component{*this, m_gameState});
+    void createShootComponent(bool shootRight) noexcept {
+        m_shootComponent = unique_ptr<ShootComponent>(new Component{shootRight, *this, m_gameState});
+    }
+
+    template<std::derived_from<ShootControlComponent> Component>
+    void createShootControlComponent() noexcept {
+        m_shootControlComponent = unique_ptr<ShootControlComponent>(new Component{*m_shootComponent});
     }
 
     sf::Sprite m_sprite;
     std::unique_ptr<ShootComponent> m_shootComponent;
+    std::unique_ptr<ShootControlComponent> m_shootControlComponent;
 private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
         target.draw(m_sprite, states);

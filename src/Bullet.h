@@ -15,6 +15,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define BULLET_H_
 
 #include "Entity.h"
+#include "GameState.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>

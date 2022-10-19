@@ -26,8 +26,6 @@ class Player : public Airplane {
 public:
     Player(GameState& GameState) noexcept;
 
-    void handleMouseButtonPressed(sf::Event::MouseButtonEvent event);
-
     bool shouldBeDeleted() const noexcept override {
         return false;
     }

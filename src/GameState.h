@@ -14,6 +14,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef GAME_STATE_H_
 #define GAME_STATE_H_
 
+#include "Entity.h"
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
@@ -23,7 +25,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <memory>
 #include <exception>
 
-class Entity;
 class Player;
 
 class GameState : public sf::Drawable {
@@ -94,6 +95,12 @@ public:
     bool inActiveArea(float x) const noexcept;
 
     void reset() noexcept;
+
+    void handleEvent(sf::Event event) noexcept {
+        for (const auto& entity : getEntities()) {
+            entity->handleEvent(event);
+        }
+    }
 
     void update(sf::Time elapsedTime) noexcept;
 

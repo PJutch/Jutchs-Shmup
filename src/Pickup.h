@@ -16,6 +16,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Entity.h"
 #include "Bullet.h"
+#include "GameState.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>

@@ -27,7 +27,7 @@ public:
         m_shootComponent = shootComponent;
     }
 
-    virtual void handleMouseButtonPressed(sf::Event::MouseButtonEvent event) noexcept {}
+    virtual void handleEvent(sf::Event event) noexcept {}
 
     virtual void update(sf::Time elapsedTime) noexcept = 0;
 protected:
@@ -47,8 +47,9 @@ class PlayerShootControlComponent : public ShootControlComponent {
 public:
     using ShootControlComponent::ShootControlComponent;
 
-    void handleMouseButtonPressed(sf::Event::MouseButtonEvent event) noexcept override {
-        if (event.button == sf::Mouse::Left) m_shootComponent->tryShoot();
+    void handleEvent(sf::Event event) noexcept override {
+        if (event.type == sf::Event::MouseButtonPressed 
+            && event.mouseButton.button == sf::Mouse::Left) m_shootComponent->tryShoot();
     }
 
     void update(sf::Time elapsedTime) noexcept override {

@@ -87,18 +87,15 @@ int main(int argc, char** argv) {
                         case Keyboard::Escape: window.close(); break;
                     }
                     break;
-                case Event::MouseButtonPressed:
-                    gameState.getPlayer().handleMouseButtonPressed(event.mouseButton);
-                    break;
             }
+
+            gameState.handleEvent(event);
         }
 
         gameState.update(elapsedTime);
 
         window.clear(Color::Green);
-
         window.draw(gameState);
-
         window.display();
     }
     return EXIT_SUCCESS;

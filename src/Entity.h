@@ -15,19 +15,20 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef ENTITY_H_
 #define ENTITY_H_
 
-#include "GameState.h"
-
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
 class Airplane;
 class Bullet;
 class Pickup;
+class GameState;
 
 class Entity : public sf::Drawable {
 public:
     Entity(GameState& gameState) noexcept;
     virtual ~Entity() = default;
+
+    void handleEvent(sf::Event event) noexcept {}
 
     virtual void update(sf::Time elapsedTime) noexcept = 0;
 

@@ -48,7 +48,3 @@ Player::Player(GameState& gameState) noexcept :
     setTexture(gameState.getPlayerTexture());    
     m_sprite.setRotation(90.f);
 }
-
-void Player::handleMouseButtonPressed(sf::Event::MouseButtonEvent event) {
-    m_shootControlComponent->handleMouseButtonPressed(event);
-}

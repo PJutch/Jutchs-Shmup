@@ -19,6 +19,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 using sf::RenderTarget;
 using sf::RenderStates;
 using sf::Sprite;
+using sf::View;
 
 #include <SFML/System.hpp>
 using sf::Time;
@@ -144,9 +145,9 @@ void GameState::draw(RenderTarget& target, RenderStates states) const noexcept {
     }
 }
 
-sf::View GameState::getView() const noexcept {
-    return sf::View{{getPlayer().getPosition().x - getGameHeight() / 2.f, 
-                    -getGameHeight() / 2.f, 
-                    getGameHeight() * getScreenSize().x / getScreenSize().y, 
-                    getGameHeight()}};
+View GameState::getView() const noexcept {
+    return View{{getPlayer().getPosition().x - getGameHeight() / 2.f, 
+                 -getGameHeight() / 2.f, 
+                 getGameHeight() * getScreenSize().x / getScreenSize().y, 
+                 getGameHeight()}};
 }

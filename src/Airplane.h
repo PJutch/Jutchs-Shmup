@@ -81,6 +81,10 @@ public:
 
     Airplane(GameState& gameState) noexcept;
 
+    void handleEvent(sf::Event event) noexcept {
+        m_shootControlComponent->handleEvent(event);
+    }
+
     sf::Vector2f getPosition() const noexcept {
         return m_sprite.getPosition();
     }

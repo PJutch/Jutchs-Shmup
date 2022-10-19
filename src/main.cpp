@@ -97,13 +97,7 @@ int main(int argc, char** argv) {
 
         window.clear(Color::Green);
 
-        window.setView(gameState.getPlayer().getView());
-        for (const auto& entity : gameState.getEntities()) {
-            window.draw(*entity);
-        }
-
-        window.setView(window.getDefaultView());
-        gameState.getPlayer().drawGui(window);
+        window.draw(gameState);
 
         window.display();
     }

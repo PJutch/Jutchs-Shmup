@@ -15,6 +15,11 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Player.h"
 #include "Enemy.h"
 
+#include <SFML/Graphics.hpp>
+using sf::RenderTarget;
+using sf::RenderStates;
+using sf::Sprite;
+
 #include <SFML/System.hpp>
 using sf::Time;
 using sf::Vector2u;
@@ -29,6 +34,10 @@ using std::random_device;
 #include <algorithm>
 using std::erase_if;
 
+#include <string>
+using std::string;
+using std::to_string;
+
 using std::ssize;
 
 #include <memory>
@@ -37,7 +46,7 @@ using std::unique_ptr;
 GameState::GameState(Vector2f screenSize) : m_playerTexture{}, m_healthTexture{}, m_bulletTexture{}, 
         m_enemyTexture{}, m_digitTextures{}, m_healthPickupTexture{}, 
         m_randomEngine{random_device{}()}, m_entities{}, m_player{}, 
-        m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4} {
+        m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, m_score{0} {
     if (!m_playerTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0000.png")) 
         throw TextureLoadError{"Can't load player texture"};
     
@@ -88,19 +97,56 @@ void GameState::update(Time elapsedTime) noexcept {
             Enemy::trySpawn(Vector2f{m_spawnX, y}, *this);
         }
         m_spawnX += enemySize.x;
-        m_player->addScore(1);
+        addScore(1);
     }
 }
 
 void GameState::reset() noexcept {
-    m_player->reset();
+    m_player->setPosition({0.f, 0.f});
+    m_player->setHealth(3);
+
     erase_if(m_entities, [this](const unique_ptr<Entity>& entity) -> bool {
         return entity.get() != m_player;
     });
     m_spawnX = m_gameHeight * 4;
+
+    m_score = 0;
 }
 
 bool GameState::inActiveArea(float x) const noexcept {
     return x + 2 * getGameHeight() >= getPlayer().getPosition().x 
         && x - 5 * getGameHeight() <= getPlayer().getPosition().x;
+}
+
+void GameState::draw(RenderTarget& target, RenderStates states) const noexcept {
+    auto prevView = target.getView();
+    target.setView(getView());
+
+    for (const auto& entity : getEntities()) {
+        target.draw(*entity, states);
+    }
+
+    target.setView(prevView);
+
+    Sprite healthSprite{getHealthTexture()};
+    healthSprite.scale(2, 2);
+    for (int i = 0; i < getPlayer().getHealth(); ++ i) {
+        healthSprite.setPosition(2 * i * getHealthTexture().getSize().x, 
+                                 0.01 * getScreenSize().y);
+        target.draw(healthSprite, states);
+    }
+
+    string score = to_string(m_score);
+    for (int i = 0; i < ssize(score); ++ i) {
+        Sprite digitSprite{getDigitTextures()[score[i] - '0']};
+        digitSprite.setPosition(i * getDigitTextures()[0].getSize().x, 0);
+        target.draw(digitSprite, states);
+    }
+}
+
+sf::View GameState::getView() const noexcept {
+    return sf::View{{getPlayer().getPosition().x - getGameHeight() / 2.f, 
+                    -getGameHeight() / 2.f, 
+                    getGameHeight() * getScreenSize().x / getScreenSize().y, 
+                    getGameHeight()}};
 }

@@ -44,32 +44,11 @@ using std::to_string;
 using std::unique_ptr;
 
 Player::Player(GameState& gameState) noexcept : 
-        Airplane{gameState},
-        m_view{{-gameState.getGameHeight() / 2.f, -gameState.getGameHeight() / 2.f, 
-                gameState.getGameHeight() * gameState.getScreenSize().x / gameState.getScreenSize().y, 
-                gameState.getGameHeight()}}, 
-        m_score{0} {
+        Airplane{gameState} {
     setTexture(gameState.getPlayerTexture());    
     m_sprite.setRotation(90.f);
 }
 
 void Player::handleMouseButtonPressed(sf::Event::MouseButtonEvent event) {
     m_shootControlComponent->handleMouseButtonPressed(event);
-}
-
-void Player::drawGui(RenderTarget& target, RenderStates states) const noexcept {
-    Sprite healthSprite{m_gameState.getHealthTexture()};
-    healthSprite.scale(2, 2);
-    for (int i = 0; i < m_health; ++ i) {
-        healthSprite.setPosition(2 * i * m_gameState.getHealthTexture().getSize().x, 
-                                 0.01 * m_gameState.getScreenSize().y);
-        target.draw(healthSprite, states);
-    }
-
-    string score = to_string(m_score);
-    for (int i = 0; i < ssize(score); ++ i) {
-        Sprite digitSprite{m_gameState.getDigitTextures()[score[i] - '0']};
-        digitSprite.setPosition(i * m_gameState.getDigitTextures()[0].getSize().x, 0);
-        target.draw(digitSprite, states);
-    }
 }

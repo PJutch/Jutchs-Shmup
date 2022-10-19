@@ -136,6 +136,10 @@ public:
         m_health = health;
     }
 
+    int getHealth() const noexcept {
+        return m_health;
+    }
+
     void update(sf::Time elapsedTime) noexcept override {
         if (isDead() || shouldBeDeleted()) return;
         

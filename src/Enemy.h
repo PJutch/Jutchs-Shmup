@@ -54,7 +54,7 @@ public:
     }
 
     void handleKilled() noexcept override {
-        m_gameState.getPlayer().addScore(10);
+        m_gameState.addScore(10);
         if (m_gameState.genRandom(std::uniform_real_distribution{0.0, 1.0}) < 0.1) {
             m_gameState.addEntity(new HealthPickup{m_sprite.getPosition(), m_gameState});
         }

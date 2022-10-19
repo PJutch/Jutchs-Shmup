@@ -26,51 +26,13 @@ class Player : public Airplane {
 public:
     Player(GameState& GameState) noexcept;
 
-    const sf::View& getView() const noexcept {
-        return m_view;
-    }
-
-    int getScore() const noexcept {
-        return m_score;
-    }
-
-    void setScore(int score) noexcept {
-        m_score = score;
-    }
-
-    void addScore(int score) noexcept {
-        m_score += score;
-    }
-
     void handleMouseButtonPressed(sf::Event::MouseButtonEvent event);
 
     bool shouldBeDeleted() const noexcept override {
         return false;
     }
 
-    void drawGui(sf::RenderTarget& target, 
-        sf::RenderStates states=sf::RenderStates::Default) const noexcept;
-
     void handleKilled() noexcept override {}
-
-    void setPosition(sf::Vector2f position) noexcept override {
-        m_view.move(position.x - m_sprite.getPosition().x, 0.f);
-        Airplane::setPosition(position);
-    }
-
-    void move(sf::Vector2f offset) noexcept override {
-        Airplane::move(offset);
-        m_view.move(offset.x, 0.f);
-    }
-
-    void reset() noexcept {
-        setPosition({0.f, 0.f});
-        setHealth(3);
-        m_score = 0;
-    }
-private:
-    sf::View m_view;
-    int m_score;
 };
 
 #endif

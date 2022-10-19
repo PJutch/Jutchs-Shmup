@@ -26,7 +26,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 class Entity;
 class Player;
 
-class GameState {
+class GameState : public sf::Drawable {
 public:
     GameState(sf::Vector2f screenSize);
 
@@ -83,6 +83,10 @@ public:
         return *m_player;
     }
 
+    void addScore(int score) noexcept {
+        m_score += score;
+    }
+
     sf::Vector2f getScreenSize() const noexcept {
         return m_screenSize;
     }
@@ -92,6 +96,8 @@ public:
     void reset() noexcept;
 
     void update(sf::Time elapsedTime) noexcept;
+
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override;
 private:
     sf::Texture m_playerTexture;
     sf::Texture m_healthTexture;
@@ -105,9 +111,13 @@ private:
     std::vector<std::unique_ptr<Entity>> m_entities;
     Player* m_player;
 
+    int m_score;
+
     sf::Vector2f m_screenSize;
     float m_gameHeight;
     float m_spawnX;
+
+    sf::View getView() const noexcept;
 };
 
 class TextureLoadError : public std::runtime_error {

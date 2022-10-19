@@ -35,7 +35,7 @@ public:
         if (gameState.genRandom(canonicalDistribution) < 0.01) {
             Airplane::Builder<Enemy> builder{gameState};
 
-            builder.position(position).maxHealth(1);
+            builder.position(position).maxHealth(1).deletable(true);
 
             double value = gameState.genRandom(canonicalDistribution);
             if (value < 0.1) {
@@ -48,15 +48,9 @@ public:
 
             builder.shootControlComponent<BasicShootControlComponent>();
             builder.moveComponent<BasicMoveComponent>();
+            builder.deathComponent<LootDeathComponent>();
 
             gameState.addEntity(builder.build());
-        }
-    }
-
-    void handleKilled() noexcept override {
-        m_gameState.addScore(10);
-        if (m_gameState.genRandom(std::uniform_real_distribution{0.0, 1.0}) < 0.1) {
-            m_gameState.addEntity(new HealthPickup{m_sprite.getPosition(), m_gameState});
         }
     }
 };

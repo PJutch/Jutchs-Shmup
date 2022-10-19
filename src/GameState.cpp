@@ -47,7 +47,8 @@ using std::unique_ptr;
 GameState::GameState(Vector2f screenSize) : m_playerTexture{}, m_healthTexture{}, m_bulletTexture{}, 
         m_enemyTexture{}, m_digitTextures{}, m_healthPickupTexture{}, 
         m_randomEngine{random_device{}()}, m_entities{}, m_player{}, 
-        m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, m_score{0} {
+        m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
+        m_score{0}, m_shouldReset{false} {
     if (!m_playerTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0000.png")) 
         throw TextureLoadError{"Can't load player texture"};
     
@@ -68,10 +69,12 @@ GameState::GameState(Vector2f screenSize) : m_playerTexture{}, m_healthTexture{}
     if (!m_healthPickupTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0024.png")) 
         throw TextureLoadError{"Can't load health pickup texture"};
 
-    m_player = Airplane::Builder<Player>{*this}.position({0.f, 0.f}).maxHealth(3)
+    m_player = Airplane::Builder<Player>{*this}
+        .position({0.f, 0.f}).maxHealth(3).deletable(false)
         .shootComponent<BasicShootComponent>(true)
         .shootControlComponent<PlayerShootControlComponent>()
-        .moveComponent<PlayerMoveComponent>().build().release();
+        .moveComponent<PlayerMoveComponent>()
+        .deathComponent<PlayerDeathComponent>().build().release();
     m_entities.emplace_back(m_player);
 }
 
@@ -88,7 +91,7 @@ void GameState::update(Time elapsedTime) noexcept {
         return entity->shouldBeDeleted();
     });
 
-    if (m_player->isDead())
+    if (m_shouldReset)
         reset();
 
     while (m_player->getPosition().x + 4 * m_gameHeight > m_spawnX) {
@@ -103,6 +106,8 @@ void GameState::update(Time elapsedTime) noexcept {
 }
 
 void GameState::reset() noexcept {
+    m_shouldReset = false;
+
     m_player->setPosition({0.f, 0.f});
     m_player->setHealth(3);
 

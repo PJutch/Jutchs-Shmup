@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "ShootComponent.h"
 #include "ShootControlComponent.h"
 #include "MoveComponent.h"
+#include "DeathComponent.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -48,6 +49,11 @@ public:
             return *this;
         }
 
+        Builder<T>& deletable(bool deletable) noexcept {
+            m_build->m_deletable = deletable;
+            return *this;
+        }
+
         template<std::derived_from<ShootComponent> Component, typename... Args>
         Builder<T>& shootComponent(Args&&... args) noexcept {
             m_build->m_shootComponent.reset(
@@ -65,6 +71,13 @@ public:
         template<std::derived_from<MoveComponent> Component, typename... Args>
         Builder<T>& moveComponent(Args&&... args) noexcept {
             m_build->m_moveComponent.reset(
+                new Component{*m_build, m_gameState, std::forward<Args>(args)...});
+            return *this;
+        }
+
+        template<std::derived_from<DeathComponent> Component, typename... Args>
+        Builder<T>& deathComponent(Args&&... args) noexcept {
+            m_build->m_deathComponent.reset(
                 new Component{*m_build, m_gameState, std::forward<Args>(args)...});
             return *this;
         }
@@ -124,10 +137,8 @@ public:
     }
 
     void handleDamaged() noexcept {
-        if (-- m_health <= 0) handleKilled();
+        if (-- m_health <= 0) m_deathComponent->handleDeath();
     }
-
-    virtual void handleKilled() noexcept = 0;
 
     // return true if success
     bool addHealth(int health) noexcept { 
@@ -153,7 +164,8 @@ public:
     }
 
     bool shouldBeDeleted() const noexcept override {
-        return m_health <= 0 || !m_gameState.inActiveArea(m_sprite.getPosition().x);
+        return m_deletable 
+            && (m_health <= 0 || !m_gameState.inActiveArea(m_sprite.getPosition().x));
     }
 
     bool isDead() const noexcept {
@@ -165,9 +177,12 @@ protected:
     std::unique_ptr<ShootComponent> m_shootComponent;
     std::unique_ptr<ShootControlComponent> m_shootControlComponent;
     std::unique_ptr<MoveComponent> m_moveComponent;
+    std::unique_ptr<DeathComponent> m_deathComponent;
 
     int m_health;
     int m_maxHealth;
+
+    bool m_deletable;
 
     void setTexture(const sf::Texture& texture) {
         m_sprite.setTexture(texture);

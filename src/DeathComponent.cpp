@@ -11,20 +11,16 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef PLAYER_H_
-#define PLAYER_H_
+#include "DeathComponent.h"
 
-#include "Airplane.h"
-#include "Entity.h"
+#include "HealthPickup.h"
 
-#include <SFML/Graphics.hpp>
+DeathComponent::DeathComponent(Airplane& owner, GameState& gameState) : 
+        m_owner{owner}, m_gameState{gameState} {}
 
-#include <span>
-#include <vector>
-
-class Player : public Airplane {
-public:
-    Player(GameState& GameState) noexcept;
-};
-
-#endif
+void LootDeathComponent::handleDeath() noexcept {
+    m_gameState.addScore(10);
+    if (m_gameState.genRandom(std::uniform_real_distribution{0.0, 1.0}) < 0.1) {
+        m_gameState.addEntity(new HealthPickup{m_owner.getPosition(), m_gameState});
+    }
+}

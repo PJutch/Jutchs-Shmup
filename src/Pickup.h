@@ -53,7 +53,9 @@ public:
 
     virtual void apply(Airplane& airplane) noexcept = 0;
 
-    bool shouldBeDeleted() const noexcept override;
+    bool shouldBeDeleted() const noexcept override {
+        return !(m_alive && m_gameState.inActiveArea(m_sprite.getPosition().x));
+    }
 protected:
     void die() noexcept {
         m_alive = false;

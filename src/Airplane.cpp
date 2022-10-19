@@ -30,4 +30,5 @@ using std::unique_ptr;
 
 Airplane::Airplane(GameState& gameState) noexcept : 
     Entity{gameState}, m_sprite{}, 
-    m_shootComponent{nullptr}, m_shootControlComponent{nullptr}, m_moveComponent{nullptr} {}
+    m_shootComponent{nullptr}, m_shootControlComponent{nullptr}, m_moveComponent{nullptr}, 
+    m_health{0}, m_maxHealth{0} {}

@@ -46,10 +46,3 @@ void Bullet::acceptCollide(Airplane& other) noexcept {
         other.handleDamaged();
     }
 }
-
-bool Bullet::shouldBeDeleted() const noexcept {
-    return !m_alive || m_sprite.getPosition().x + 2 * m_gameState.getGameHeight() 
-                        < m_gameState.getPlayer().getPosition().x
-                    || m_sprite.getPosition().x - 5 * m_gameState.getGameHeight() 
-                        > m_gameState.getPlayer().getPosition().x;
-}

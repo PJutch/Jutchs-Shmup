@@ -40,7 +40,9 @@ public:
     void acceptCollide(Bullet&) noexcept override {}
     void acceptCollide(Pickup&) noexcept override {}
 
-    bool shouldBeDeleted() const noexcept override;
+    bool shouldBeDeleted() const noexcept override {
+        return !(m_alive && m_gameState.inActiveArea(m_sprite.getPosition().x));
+    }
 
     void die() noexcept {
         m_alive = false;

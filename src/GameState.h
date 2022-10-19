@@ -87,6 +87,8 @@ public:
         return m_screenSize;
     }
 
+    bool inActiveArea(float x) const noexcept;
+
     void reset() noexcept;
 
     void update(sf::Time elapsedTime) noexcept;

@@ -27,8 +27,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <vector>
 #include <memory>
-
-class Player;
+#include <algorithm>
 
 class Airplane : public Entity {
 public:
@@ -37,6 +36,12 @@ public:
     public:
         template<typename... Args>
         Builder(GameState& gameState, Args&&... args);
+
+        Builder<T>& maxHealth(int maxHealth) noexcept {
+            m_build->m_maxHealth = maxHealth;
+            m_build->m_health = maxHealth;
+            return *this;
+        }
 
         Builder<T>& position(sf::Vector2f position) noexcept {
             m_build->m_sprite.setPosition(position);
@@ -93,34 +98,58 @@ public:
     }
 
     void startCollide(Entity& other) noexcept override {
-        if (shouldBeDeleted()) return;
+        if (isDead() || shouldBeDeleted()) return;
         other.acceptCollide(*this);
     }
 
     void acceptCollide(Airplane& other) noexcept override {
-        if (shouldBeDeleted()) return;
+        if (isDead() || shouldBeDeleted()) return;
         handleDamaged();
         other.handleDamaged();
     }
 
     void acceptCollide(Bullet& other) noexcept override {
-        if (shouldBeDeleted()) return;
+        if (isDead() || shouldBeDeleted()) return;
         handleDamaged();
         other.die();
     }
 
     void acceptCollide(Pickup& other) noexcept override {
-        if (shouldBeDeleted()) return;
+        if (isDead() || shouldBeDeleted()) return;
         other.apply(*this);
     }
 
-    virtual void handleDamaged() noexcept = 0;
-    virtual bool addHealth(int health) noexcept = 0; // return true if success
+    void handleDamaged() noexcept {
+        if (-- m_health <= 0) handleKilled();
+    }
+
+    virtual void handleKilled() noexcept = 0;
+
+    // return true if success
+    bool addHealth(int health) noexcept { 
+        if (m_health >= m_maxHealth) return false;
+        m_health = std::min(m_health + health, m_maxHealth);
+        return true;
+    }
+
+    void setHealth(int health) noexcept {
+        m_health = health;
+    }
 
     void update(sf::Time elapsedTime) noexcept override {
+        if (isDead() || shouldBeDeleted()) return;
+        
         m_shootComponent->update(elapsedTime);
         m_shootControlComponent->update(elapsedTime);
         m_moveComponent->update(elapsedTime);
+    }
+
+    bool shouldBeDeleted() const noexcept override {
+        return m_health <= 0 || !m_gameState.inActiveArea(m_sprite.getPosition().x);
+    }
+
+    bool isDead() const noexcept {
+        return m_health <= 0;
     }
 protected:
     sf::Sprite m_sprite;
@@ -128,6 +157,9 @@ protected:
     std::unique_ptr<ShootComponent> m_shootComponent;
     std::unique_ptr<ShootControlComponent> m_shootControlComponent;
     std::unique_ptr<MoveComponent> m_moveComponent;
+
+    int m_health;
+    int m_maxHealth;
 
     void setTexture(const sf::Texture& texture) {
         m_sprite.setTexture(texture);

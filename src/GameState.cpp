@@ -51,13 +51,14 @@ GameState::GameState(Vector2f screenSize) : m_playerTexture{}, m_healthTexture{}
         throw TextureLoadError{"Can't load enemy texture"};
     
     for (int i = 0; i < ssize(m_digitTextures); ++ i) 
-        if (!m_digitTextures[i].loadFromFile(format("resources/kenney_pixelshmup/Digits/digit_{}.png", i))) 
+        if (!m_digitTextures[i].loadFromFile(
+                format("resources/kenney_pixelshmup/Digits/digit_{}.png", i))) 
             throw TextureLoadError{format("Can't load digit {} texture", i)};
 
     if (!m_healthPickupTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0024.png")) 
         throw TextureLoadError{"Can't load health pickup texture"};
 
-    m_player = Airplane::Builder<Player>{*this}.position({0.f, 0.f})
+    m_player = Airplane::Builder<Player>{*this}.position({0.f, 0.f}).maxHealth(3)
         .shootComponent<BasicShootComponent>(true)
         .shootControlComponent<PlayerShootControlComponent>()
         .moveComponent<PlayerMoveComponent>().build().release();
@@ -97,4 +98,9 @@ void GameState::reset() noexcept {
         return entity.get() != m_player;
     });
     m_spawnX = m_gameHeight * 4;
+}
+
+bool GameState::inActiveArea(float x) const noexcept {
+    return x + 2 * getGameHeight() >= getPlayer().getPosition().x 
+        && x - 5 * getGameHeight() <= getPlayer().getPosition().x;
 }

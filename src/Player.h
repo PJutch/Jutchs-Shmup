@@ -44,8 +44,6 @@ public:
 
     void handleMouseButtonPressed(sf::Event::MouseButtonEvent event);
 
-    void update(sf::Time elapsedTime) noexcept override;
-
     bool shouldBeDeleted() const noexcept override {
         return false;
     }
@@ -53,20 +51,7 @@ public:
     void drawGui(sf::RenderTarget& target, 
         sf::RenderStates states=sf::RenderStates::Default) const noexcept;
 
-    void handleDamaged() noexcept override {
-        -- m_health;
-    }
-
-    bool addHealth(int health) noexcept override {
-        if (isDead() || m_health >= 3) return false;
-
-        m_health = std::min(m_health + health, 3);
-        return true;
-    }
-
-    bool isDead() const noexcept {
-        return m_health <= 0;
-    }
+    void handleKilled() noexcept override {}
 
     void setPosition(sf::Vector2f position) noexcept override {
         m_view.move(position.x - m_sprite.getPosition().x, 0.f);
@@ -79,14 +64,12 @@ public:
     }
 
     void reset() noexcept {
-        m_view.move(-m_sprite.getPosition().x, 0);
-        m_sprite.setPosition(0, 0);
-        m_health = 3;
+        setPosition({0.f, 0.f});
+        setHealth(3);
         m_score = 0;
     }
 private:
     sf::View m_view;
-    int m_health;
     int m_score;
 };
 

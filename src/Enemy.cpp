@@ -32,13 +32,7 @@ using std::mt19937_64;
 #include <memory>
 using std::unique_ptr;
 
-Enemy::Enemy(GameState& gameState) noexcept : 
-        Airplane{gameState}, m_alive{true} {
+Enemy::Enemy(GameState& gameState) noexcept : Airplane{gameState} {
     setTexture(gameState.getEnemyTexture());
     m_sprite.setRotation(-90.f);
-}
-
-void Enemy::update(Time elapsedTime) noexcept {
-    if (!m_alive) return;
-    Airplane::update(elapsedTime);
 }

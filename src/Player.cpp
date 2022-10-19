@@ -48,19 +48,13 @@ Player::Player(GameState& gameState) noexcept :
         m_view{{-gameState.getGameHeight() / 2.f, -gameState.getGameHeight() / 2.f, 
                 gameState.getGameHeight() * gameState.getScreenSize().x / gameState.getScreenSize().y, 
                 gameState.getGameHeight()}}, 
-        m_health{3}, m_score{0} {
+        m_score{0} {
     setTexture(gameState.getPlayerTexture());    
     m_sprite.setRotation(90.f);
 }
 
 void Player::handleMouseButtonPressed(sf::Event::MouseButtonEvent event) {
     m_shootControlComponent->handleMouseButtonPressed(event);
-}
-
-void Player::update(Time elapsedTime) noexcept {
-    if (isDead()) return;
-
-    Airplane::update(elapsedTime);
 }
 
 void Player::drawGui(RenderTarget& target, RenderStates states) const noexcept {

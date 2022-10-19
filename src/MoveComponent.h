@@ -22,7 +22,7 @@ class Airplane;
 
 class MoveComponent {
 public:
-    MoveComponent(Airplane& owner, GameState& gameState);
+    MoveComponent(Airplane& owner, GameState& gameState, sf::Vector2f speed) noexcept;
     virtual ~MoveComponent() = default;
 
     virtual void update(sf::Time elapsedTime) noexcept = 0;
@@ -31,6 +31,7 @@ public:
 protected:
     Airplane& m_owner;
     GameState& m_gameState;
+    sf::Vector2f m_speed;
 };
 
 class BasicMoveComponent : public MoveComponent {

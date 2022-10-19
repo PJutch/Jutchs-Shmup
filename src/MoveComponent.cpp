@@ -19,24 +19,24 @@ If not, see <https://www.gnu.org/licenses/>. */
 using sf::Time;
 using sf::Keyboard;
 
-MoveComponent::MoveComponent(Airplane& owner, GameState& gameState) : 
-        m_owner{owner}, m_gameState{gameState} {}
+MoveComponent::MoveComponent(Airplane& owner, GameState& gameState, sf::Vector2f speed) noexcept : 
+        m_owner{owner}, m_gameState{gameState}, m_speed{speed} {}
 
 void BasicMoveComponent::update(Time elapsedTime) noexcept {
-    float movedX = 250.f * elapsedTime.asSeconds();
+    float movedX = m_speed.x * elapsedTime.asSeconds();
     m_owner.move({-movedX, 0.f});
 }
 
 void PlayerMoveComponent::update(Time elapsedTime) noexcept {
     if (Keyboard::isKeyPressed(Keyboard::W)) {
-        m_owner.move({0.f, -250.f * elapsedTime.asSeconds()});
+        m_owner.move({0.f, -m_speed.y * elapsedTime.asSeconds()});
 
         auto globalBounds = m_owner.getGlobalBounds();
         if (globalBounds.top < -m_gameState.getGameHeight() / 2)
             m_owner.setPosition({m_owner.getPosition().x, 
                                  -m_gameState.getGameHeight() / 2 + globalBounds.height / 2.f});
     } else if (Keyboard::isKeyPressed(Keyboard::S)) {
-        m_owner.move({0.f, 250.f * elapsedTime.asSeconds()});
+        m_owner.move({0.f, m_speed.y * elapsedTime.asSeconds()});
 
         auto globalBounds = m_owner.getGlobalBounds();
         if (globalBounds.top + globalBounds.width > m_gameState.getGameHeight() / 2)
@@ -44,7 +44,7 @@ void PlayerMoveComponent::update(Time elapsedTime) noexcept {
                                  m_gameState.getGameHeight() / 2 - globalBounds.height / 2.f});
     }
 
-    float movedX = 250.f * elapsedTime.asSeconds();
+    float movedX = m_speed.x * elapsedTime.asSeconds();
     if (Keyboard::isKeyPressed(Keyboard::D)) movedX *= 2;
 
     m_owner.move({movedX, 0.f});

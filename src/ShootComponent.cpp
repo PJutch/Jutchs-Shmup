@@ -30,7 +30,7 @@ using std::vector;
 #include <memory>
 using std::unique_ptr;
 
-ShootComponent::ShootComponent(bool shootRight, Airplane& owner, GameState& gameState) noexcept : 
+ShootComponent::ShootComponent(Airplane& owner, GameState& gameState, bool shootRight) noexcept : 
         m_shootCooldown{Time::Zero}, m_owner{owner}, m_gameState{gameState}, m_shootRight{shootRight} {};
 
 void ShootComponent::shoot(Vector2f position) noexcept {
@@ -77,5 +77,6 @@ void VolleyShootComponent::update(sf::Time elapsedTime) noexcept {
     }
 }
 
-VolleyShootComponent::VolleyShootComponent(bool shootRight, Airplane& owner, GameState& gameState) noexcept : 
-    ShootComponent{shootRight, owner, gameState}, m_shots{0} {};
+VolleyShootComponent::VolleyShootComponent(Airplane& owner, GameState& gameState, 
+                                           bool shootRight) noexcept : 
+    ShootComponent{owner, gameState, shootRight}, m_shots{0} {};

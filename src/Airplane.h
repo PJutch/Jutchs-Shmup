@@ -35,35 +35,38 @@ public:
     template<std::derived_from<Airplane> T>
     class Builder {
     public:
-        Builder(GameState& gameState);
+        template<typename... Args>
+        Builder(GameState& gameState, Args&&... args);
 
         Builder<T>& position(sf::Vector2f position) noexcept {
             m_build->m_sprite.setPosition(position);
             return *this;
         }
 
-        template<std::derived_from<ShootComponent> Component>
-        Builder<T>& shootComponent(bool shootRight) noexcept {
+        template<std::derived_from<ShootComponent> Component, typename... Args>
+        Builder<T>& shootComponent(Args&&... args) noexcept {
             m_build->m_shootComponent = unique_ptr<ShootComponent>(
-                new Component{shootRight, *m_build, m_gameState});
+                new Component{*m_build, m_gameState, std::forward<Args>(args)...});
             return *this;
         }
 
-        template<std::derived_from<ShootControlComponent> Component>
-        Builder<T>& shootControlComponent() noexcept {
+        template<std::derived_from<ShootControlComponent> Component, typename... Args>
+        Builder<T>& shootControlComponent(Args&&... args) noexcept {
             m_build->m_shootControlComponent = unique_ptr<ShootControlComponent>(
-                new Component{});
+                new Component{std::forward<Args>(args)...});
             return *this;
         }
 
-        template<std::derived_from<MoveComponent> Component>
-        Builder<T>& moveComponent() noexcept {
-            m_build->m_moveComponent = unique_ptr<MoveComponent>(new Component{});
+        template<std::derived_from<MoveComponent> Component, typename... Args>
+        Builder<T>& moveComponent(Args&&... args) noexcept {
+            m_build->m_moveComponent = unique_ptr<MoveComponent>(
+                new Component{std::forward<Args>(args)...});
             return *this;
         }
 
         std::unique_ptr<T> build() noexcept {
-            m_build->m_shootControlComponent->registerShootComponent(m_build->m_shootComponent.get());
+            m_build->m_shootControlComponent
+                ->registerShootComponent(m_build->m_shootComponent.get());
             return std::move(m_build);
         };
     private:
@@ -137,6 +140,8 @@ private:
 };
 
 template<std::derived_from<Airplane> T>
-Airplane::Builder<T>::Builder(GameState& gameState) : m_build{new T{gameState}}, m_gameState{gameState} {}
+template<typename... Args>
+Airplane::Builder<T>::Builder(GameState& gameState, Args&&... args) : 
+    m_build{new T{gameState, std::forward<Args>(args)...}}, m_gameState{gameState} {}
 
 #endif

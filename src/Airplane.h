@@ -20,6 +20,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Pickup.h"
 #include "ShootComponent.h"
 #include "ShootControlComponent.h"
+#include "MoveComponent.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -55,6 +56,12 @@ public:
             return *this;
         }
 
+        template<std::derived_from<MoveComponent> Component>
+        Builder<T>& moveComponent() noexcept {
+            m_build->m_moveComponent = unique_ptr<MoveComponent>(new Component{});
+            return *this;
+        }
+
         std::unique_ptr<T> build() noexcept {
             m_build->m_shootControlComponent->registerShootComponent(m_build->m_shootComponent.get());
             return std::move(m_build);
@@ -72,6 +79,14 @@ public:
 
     sf::FloatRect getGlobalBounds() const noexcept override {
         return m_sprite.getGlobalBounds();
+    }
+
+    virtual void setPosition(sf::Vector2f position) noexcept {
+        m_sprite.setPosition(position);
+    }
+
+    virtual void move(sf::Vector2f offset) noexcept {
+        m_sprite.move(offset);
     }
 
     void startCollide(Entity& other) noexcept override {
@@ -108,6 +123,7 @@ protected:
 
     std::unique_ptr<ShootComponent> m_shootComponent;
     std::unique_ptr<ShootControlComponent> m_shootControlComponent;
+    std::unique_ptr<MoveComponent> m_moveComponent;
 
     void setTexture(const sf::Texture& texture) {
         m_sprite.setTexture(texture);

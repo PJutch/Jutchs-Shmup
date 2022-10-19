@@ -46,7 +46,7 @@ public:
 
     void update(sf::Time elapsedTime) noexcept override;
 
-    bool shouldBeDeleted() const noexcept {
+    bool shouldBeDeleted() const noexcept override {
         return false;
     }
 
@@ -66,6 +66,16 @@ public:
 
     bool isDead() const noexcept {
         return m_health <= 0;
+    }
+
+    void setPosition(sf::Vector2f position) noexcept override {
+        m_view.move(position.x - m_sprite.getPosition().x, 0.f);
+        Airplane::setPosition(position);
+    }
+
+    void move(sf::Vector2f offset) noexcept override {
+        Airplane::move(offset);
+        m_view.move(offset.x, 0.f);
     }
 
     void reset() noexcept {

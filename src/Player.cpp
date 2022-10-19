@@ -61,28 +61,6 @@ void Player::update(Time elapsedTime) noexcept {
     if (isDead()) return;
 
     Airplane::update(elapsedTime);
-
-    if (Keyboard::isKeyPressed(Keyboard::W)) {
-        m_sprite.move(0, -250.f * elapsedTime.asSeconds());
-
-        auto globalBounds = m_sprite.getGlobalBounds();
-        if (globalBounds.top < -m_gameState.getGameHeight() / 2)
-            m_sprite.setPosition(m_sprite.getPosition().x, 
-                                 -m_gameState.getGameHeight() / 2 + globalBounds.height / 2.f);
-    } else if (Keyboard::isKeyPressed(Keyboard::S)) {
-        m_sprite.move(0, 250.f * elapsedTime.asSeconds());
-
-        auto globalBounds = m_sprite.getGlobalBounds();
-        if (globalBounds.top + globalBounds.width > m_gameState.getGameHeight() / 2)
-            m_sprite.setPosition(m_sprite.getPosition().x, 
-                                 m_gameState.getGameHeight() / 2 - globalBounds.height / 2.f);
-    }
-
-    float movedX = 250.f * elapsedTime.asSeconds();
-    if (Keyboard::isKeyPressed(Keyboard::D)) movedX *= 2;
-
-    m_sprite.move(movedX, 0.f);
-    m_view.move(movedX, 0);
 }
 
 void Player::drawGui(RenderTarget& target, RenderStates states) const noexcept {

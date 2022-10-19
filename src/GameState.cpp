@@ -59,7 +59,8 @@ GameState::GameState(Vector2f screenSize) : m_playerTexture{}, m_healthTexture{}
 
     m_player = Airplane::Builder<Player>{*this}.position({0.f, 0.f})
         .shootComponent<BasicShootComponent>(true)
-        .shootControlComponent<PlayerShootControlComponent>().build().release();
+        .shootControlComponent<PlayerShootControlComponent>()
+        .moveComponent<PlayerMoveComponent>().build().release();
     m_entities.emplace_back(m_player);
 }
 

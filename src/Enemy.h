@@ -46,6 +46,7 @@ public:
             }
 
             builder.shootControlComponent<BasicShootControlComponent>();
+            builder.moveComponent<BasicMoveComponent>();
 
             gameState.addEntity(builder.build());
         }

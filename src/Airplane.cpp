@@ -29,4 +29,5 @@ using std::vector;
 using std::unique_ptr;
 
 Airplane::Airplane(GameState& gameState) noexcept : 
-        Entity{gameState}, m_sprite{}, m_shootComponent{nullptr}, m_shootControlComponent{nullptr} {}
+    Entity{gameState}, m_sprite{}, 
+    m_shootComponent{nullptr}, m_shootControlComponent{nullptr}, m_moveComponent{nullptr} {}

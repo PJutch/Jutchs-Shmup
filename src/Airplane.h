@@ -45,22 +45,22 @@ public:
 
         template<std::derived_from<ShootComponent> Component, typename... Args>
         Builder<T>& shootComponent(Args&&... args) noexcept {
-            m_build->m_shootComponent = unique_ptr<ShootComponent>(
+            m_build->m_shootComponent.reset(
                 new Component{*m_build, m_gameState, std::forward<Args>(args)...});
             return *this;
         }
 
         template<std::derived_from<ShootControlComponent> Component, typename... Args>
         Builder<T>& shootControlComponent(Args&&... args) noexcept {
-            m_build->m_shootControlComponent = unique_ptr<ShootControlComponent>(
+            m_build->m_shootControlComponent.reset(
                 new Component{std::forward<Args>(args)...});
             return *this;
         }
 
         template<std::derived_from<MoveComponent> Component, typename... Args>
         Builder<T>& moveComponent(Args&&... args) noexcept {
-            m_build->m_moveComponent = unique_ptr<MoveComponent>(
-                new Component{std::forward<Args>(args)...});
+            m_build->m_moveComponent.reset(
+                new Component{*m_build, m_gameState, std::forward<Args>(args)...});
             return *this;
         }
 
@@ -120,6 +120,7 @@ public:
     void update(sf::Time elapsedTime) noexcept override {
         m_shootComponent->update(elapsedTime);
         m_shootControlComponent->update(elapsedTime);
+        m_moveComponent->update(elapsedTime);
     }
 protected:
     sf::Sprite m_sprite;

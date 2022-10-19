@@ -13,7 +13,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Bullet.h"  
 
-#include "Player.h"
 #include "Airplane.h"
 
 #include <SFML/Graphics.hpp>

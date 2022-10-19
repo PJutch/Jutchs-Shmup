@@ -25,7 +25,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <memory>
 #include <exception>
 
-class Player;
+class Airplane;
 
 class GameState : public sf::Drawable {
 public:
@@ -76,11 +76,11 @@ public:
         m_entities.push_back(std::move(entity));
     }
 
-    const Player& getPlayer() const noexcept {
+    const Airplane& getPlayer() const noexcept {
         return *m_player;
     }
 
-    Player& getPlayer() noexcept {
+    Airplane& getPlayer() noexcept {
         return *m_player;
     }
 
@@ -97,8 +97,6 @@ public:
     void setShouldReset() noexcept {
         m_shouldReset = true;
     }
-
-    void reset() noexcept;
 
     void handleEvent(sf::Event event) noexcept {
         for (const auto& entity : getEntities()) {
@@ -120,7 +118,7 @@ private:
     std::mt19937_64 m_randomEngine;
 
     std::vector<std::unique_ptr<Entity>> m_entities;
-    Player* m_player;
+    Airplane* m_player;
 
     int m_score;
 
@@ -131,6 +129,10 @@ private:
     float m_spawnX;
 
     sf::View getView() const noexcept;
+
+    void reset() noexcept;
+
+    void trySpawnEnemy(sf::Vector2f position) noexcept;
 };
 
 class TextureLoadError : public std::runtime_error {

@@ -12,8 +12,8 @@ You should have received a copy of the GNU General Public License along with Jut
 If not, see <https://www.gnu.org/licenses/>. */
 
 #include "GameState.h"
-#include "Player.h"
-#include "Enemy.h"
+
+#include "Airplane.h"
 
 #include <SFML/Graphics.hpp>
 using sf::RenderTarget;
@@ -44,7 +44,8 @@ using std::ssize;
 #include <memory>
 using std::unique_ptr;
 
-GameState::GameState(Vector2f screenSize) : m_playerTexture{}, m_healthTexture{}, m_bulletTexture{}, 
+GameState::GameState(Vector2f screenSize) : 
+        m_playerTexture{}, m_healthTexture{}, m_bulletTexture{}, 
         m_enemyTexture{}, m_digitTextures{}, m_healthPickupTexture{}, 
         m_randomEngine{random_device{}()}, m_entities{}, m_player{}, 
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
@@ -69,8 +70,8 @@ GameState::GameState(Vector2f screenSize) : m_playerTexture{}, m_healthTexture{}
     if (!m_healthPickupTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0024.png")) 
         throw TextureLoadError{"Can't load health pickup texture"};
 
-    m_player = Airplane::Builder<Player>{*this}
-        .position({0.f, 0.f}).maxHealth(3).deletable(false)
+    m_player = Airplane::Builder{*this}
+        .position({0.f, 0.f}).maxHealth(3).deletable(false).texture(m_playerTexture)
         .shootComponent<BasicShootComponent>(true)
         .shootControlComponent<PlayerShootControlComponent>()
         .moveComponent<PlayerMoveComponent>()
@@ -98,7 +99,7 @@ void GameState::update(Time elapsedTime) noexcept {
         Vector2u enemySize = m_enemyTexture.getSize();
         for (float y = (enemySize.y - m_gameHeight) / 2; 
                 y < (m_gameHeight- enemySize.y) / 2; y += enemySize.y) {
-            Enemy::trySpawn(Vector2f{m_spawnX, y}, *this);
+            trySpawnEnemy(Vector2f{m_spawnX, y});
         }
         m_spawnX += enemySize.x;
         addScore(1);
@@ -155,4 +156,29 @@ View GameState::getView() const noexcept {
                  -getGameHeight() / 2.f, 
                  getGameHeight() * getScreenSize().x / getScreenSize().y, 
                  getGameHeight()}};
+}
+
+void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
+    std::uniform_real_distribution canonicalDistribution{0.0, 1.0};
+    if (genRandom(canonicalDistribution) < 0.01) {
+        Airplane::Builder builder{*this};
+
+        builder.position(position).maxHealth(1).deletable(true);
+        builder.texture(m_enemyTexture);
+
+        double value = genRandom(canonicalDistribution);
+        if (value < 0.1) {
+            builder.shootComponent<TripleShootComponent>(false);
+        } else if (value < 0.2) {
+            builder.shootComponent<VolleyShootComponent>(false);
+        } else {
+            builder.shootComponent<BasicShootComponent>(false);
+        }
+
+        builder.shootControlComponent<BasicShootControlComponent>();
+        builder.moveComponent<BasicMoveComponent>();
+        builder.deathComponent<LootDeathComponent>();
+
+        addEntity(builder.build());
+    }
 }

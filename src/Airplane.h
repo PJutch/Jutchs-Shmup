@@ -32,63 +32,71 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class Airplane : public Entity {
 public:
-    template<std::derived_from<Airplane> T>
     class Builder {
     public:
         template<typename... Args>
         Builder(GameState& gameState, Args&&... args);
 
-        Builder<T>& maxHealth(int maxHealth) noexcept {
+        Builder& maxHealth(int maxHealth) noexcept {
             m_build->m_maxHealth = maxHealth;
             m_build->m_health = maxHealth;
             return *this;
         }
 
-        Builder<T>& position(sf::Vector2f position) noexcept {
+        Builder& position(sf::Vector2f position) noexcept {
             m_build->m_sprite.setPosition(position);
             return *this;
         }
 
-        Builder<T>& deletable(bool deletable) noexcept {
+        Builder& deletable(bool deletable) noexcept {
             m_build->m_deletable = deletable;
             return *this;
         }
 
+        Builder& texture(const sf::Texture& texture) noexcept {
+            m_build->m_sprite.setTexture(texture);
+
+            auto size = texture.getSize();
+            m_build->m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
+
+            return *this;
+        }
+
         template<std::derived_from<ShootComponent> Component, typename... Args>
-        Builder<T>& shootComponent(Args&&... args) noexcept {
+        Builder& shootComponent(Args&&... args) noexcept {
             m_build->m_shootComponent.reset(
                 new Component{*m_build, m_gameState, std::forward<Args>(args)...});
             return *this;
         }
 
         template<std::derived_from<ShootControlComponent> Component, typename... Args>
-        Builder<T>& shootControlComponent(Args&&... args) noexcept {
+        Builder& shootControlComponent(Args&&... args) noexcept {
             m_build->m_shootControlComponent.reset(
                 new Component{std::forward<Args>(args)...});
             return *this;
         }
 
         template<std::derived_from<MoveComponent> Component, typename... Args>
-        Builder<T>& moveComponent(Args&&... args) noexcept {
+        Builder& moveComponent(Args&&... args) noexcept {
             m_build->m_moveComponent.reset(
                 new Component{*m_build, m_gameState, std::forward<Args>(args)...});
             return *this;
         }
 
         template<std::derived_from<DeathComponent> Component, typename... Args>
-        Builder<T>& deathComponent(Args&&... args) noexcept {
+        Builder& deathComponent(Args&&... args) noexcept {
             m_build->m_deathComponent.reset(
                 new Component{*m_build, m_gameState, std::forward<Args>(args)...});
             return *this;
         }
 
-        std::unique_ptr<T> build() noexcept {
+        std::unique_ptr<Airplane> build() noexcept {
             m_build->m_shootControlComponent
                 ->registerShootComponent(m_build->m_shootComponent.get());
             return std::move(m_build);
         };
     private:
-        std::unique_ptr<T> m_build;
+        std::unique_ptr<Airplane> m_build;
         GameState& m_gameState;
     };
 
@@ -161,6 +169,8 @@ public:
         m_shootComponent->update(elapsedTime);
         m_shootControlComponent->update(elapsedTime);
         m_moveComponent->update(elapsedTime);
+
+        m_sprite.setRotation(m_moveComponent->getRotation());
     }
 
     bool shouldBeDeleted() const noexcept override {
@@ -183,21 +193,14 @@ protected:
     int m_maxHealth;
 
     bool m_deletable;
-
-    void setTexture(const sf::Texture& texture) {
-        m_sprite.setTexture(texture);
-        auto size = texture.getSize();
-        m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
-    }
 private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
         target.draw(m_sprite, states);
     }
 };
 
-template<std::derived_from<Airplane> T>
 template<typename... Args>
-Airplane::Builder<T>::Builder(GameState& gameState, Args&&... args) : 
-    m_build{new T{gameState, std::forward<Args>(args)...}}, m_gameState{gameState} {}
+Airplane::Builder::Builder(GameState& gameState, Args&&... args) : 
+    m_build{new Airplane{gameState, std::forward<Args>(args)...}}, m_gameState{gameState} {}
 
 #endif

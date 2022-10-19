@@ -13,8 +13,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Pickup.h"
 
-#include "Player.h"
-
 #include <SFML/Graphics.hpp>
 using sf::Texture;
 

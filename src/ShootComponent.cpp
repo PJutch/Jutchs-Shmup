@@ -14,7 +14,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "ShootComponent.h"
 
 #include "Airplane.h"
-#include "Player.h"
 
 #include <SFML/Graphics.hpp>
 using sf::Texture;

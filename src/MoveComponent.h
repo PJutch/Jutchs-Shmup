@@ -26,6 +26,8 @@ public:
     virtual ~MoveComponent() = default;
 
     virtual void update(sf::Time elapsedTime) noexcept = 0;
+
+    virtual float getRotation() const noexcept = 0;
 protected:
     Airplane& m_owner;
     GameState& m_gameState;
@@ -36,6 +38,10 @@ public:
     using MoveComponent::MoveComponent;
 
     void update(sf::Time elapsedTime) noexcept override;
+
+    virtual float getRotation() const noexcept {
+        return -90.f;
+    }
 };
 
 class PlayerMoveComponent : public MoveComponent {
@@ -43,6 +49,10 @@ public:
     using MoveComponent::MoveComponent;
 
     void update(sf::Time elapsedTime) noexcept override;
+
+    virtual float getRotation() const noexcept {
+        return 90.f;
+    }
 };
 
 #endif

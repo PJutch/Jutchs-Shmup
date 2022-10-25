@@ -166,18 +166,27 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
         builder.position(position).maxHealth(1).deletable(true);
         builder.texture(m_enemyTexture);
 
-        double value = genRandom(canonicalDistribution);
-        if (value < 0.1) {
+        double valueShoot = genRandom(canonicalDistribution);
+        if (valueShoot < 0.1) {
             builder.shootComponent<TripleShootComponent>(false);
-        } else if (value < 0.2) {
+        } else if (valueShoot < 0.2) {
             builder.shootComponent<VolleyShootComponent>(false);
         } else {
             builder.shootComponent<BasicShootComponent>(false);
         }
 
         builder.shootControlComponent<BasicShootControlComponent>();
-        builder.moveComponent<BasicMoveComponent>(
-            Vector2f{genRandom(canonicalDistribution) < 0.1 ? 500.f : 250.f, 250.f});
+
+        Vector2f speed{genRandom(canonicalDistribution) < 0.1 ? 500.f : 250.f, 250.f};
+        double valueMove = genRandom(canonicalDistribution);
+        if (valueMove < 0.1) {
+            builder.moveComponent<PeriodicalMoveComponent>(speed);
+        } else if (valueMove < 0.2) {
+            builder.moveComponent<FollowPlayerMoveComponent>(speed);
+        } else {
+            builder.moveComponent<BasicMoveComponent>(speed);
+        }
+
         builder.deathComponent<LootDeathComponent>();
 
         addEntity(builder.build());

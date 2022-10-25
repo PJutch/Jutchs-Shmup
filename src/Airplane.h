@@ -181,6 +181,10 @@ public:
     bool isDead() const noexcept {
         return m_health <= 0;
     }
+
+    bool isPassable() const noexcept override {
+        return false;
+    }
 protected:
     sf::Sprite m_sprite;
 

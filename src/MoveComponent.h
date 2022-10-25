@@ -45,6 +45,32 @@ public:
     }
 };
 
+class PeriodicalMoveComponent : public MoveComponent {
+public:
+    PeriodicalMoveComponent(Airplane& owner, GameState& gameState, sf::Vector2f speed) noexcept;
+
+    void update(sf::Time elapsedTime) noexcept override;
+
+    virtual float getRotation() const noexcept {
+        return -90.f;
+    }
+private:
+    bool m_moveUp;
+};
+
+class FollowPlayerMoveComponent : public MoveComponent {
+public:
+    using MoveComponent::MoveComponent;
+
+    void update(sf::Time elapsedTime) noexcept override;
+
+    virtual float getRotation() const noexcept {
+        return -90.f;
+    }
+private:
+    bool m_moveUp;
+};
+
 class PlayerMoveComponent : public MoveComponent {
 public:
     using MoveComponent::MoveComponent;

@@ -45,6 +45,10 @@ public:
         return !(m_alive && m_gameState.inActiveArea(m_sprite.getPosition().x));
     }
 
+    bool isPassable() const noexcept override {
+        return true;
+    }
+
     void die() noexcept {
         m_alive = false;
     }

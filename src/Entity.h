@@ -39,6 +39,8 @@ public:
     virtual void acceptCollide(Bullet& other) noexcept = 0;
     virtual void acceptCollide(Pickup& other) noexcept = 0;
 
+    virtual bool isPassable() const noexcept = 0;
+
     virtual bool shouldBeDeleted() const noexcept = 0;
 protected:
     GameState& m_gameState;

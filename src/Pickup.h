@@ -57,6 +57,10 @@ public:
     bool shouldBeDeleted() const noexcept override {
         return !(m_alive && m_gameState.inActiveArea(m_sprite.getPosition().x));
     }
+
+    bool isPassable() const noexcept override {
+        return true;
+    }
 protected:
     void die() noexcept {
         m_alive = false;

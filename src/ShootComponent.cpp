@@ -36,6 +36,16 @@ void ShootComponent::shoot(Vector2f position) noexcept {
     m_gameState.addEntity(new Bullet{&m_owner, m_shootRight, position, m_gameState});
 }
 
+sf::FloatRect ShootComponent::getAffectedArea() const noexcept {
+    auto position = m_owner.getPosition();
+    auto size = Bullet::getSize(m_gameState);
+    if (m_shootRight) {
+        return {position.x - size.x / 2.f, position.y - size.y / 2.f, INFINITY, size.y};
+    } else {
+        return {position.x + size.x / 2.f, position.y - size.y / 2.f, -INFINITY, size.y};
+    }
+}   
+
 void BasicShootComponent::tryShoot() noexcept {
     if (m_shootCooldown <= Time::Zero) {
         shoot(m_owner.getPosition());
@@ -48,11 +58,25 @@ void TripleShootComponent::tryShoot() noexcept {
         auto position = m_owner.getPosition();
         float height = m_owner.getGlobalBounds().height;
 
-        shoot(m_owner.getPosition());
+        shoot(position);
         shoot({position.x, position.y + height / 2});
         shoot({position.x, position.y - height / 2});
 
         m_shootCooldown = seconds(0.5f);
+    }
+}
+
+sf::FloatRect TripleShootComponent::getAffectedArea() const noexcept {
+    auto position = m_owner.getPosition();
+    float ownerHeight = m_owner.getGlobalBounds().height;
+    auto size = Bullet::getSize(m_gameState);
+    
+    float areaHeight = ownerHeight + size.y;
+
+    if (m_shootRight) {
+        return {position.x - size.x / 2.f, position.y - areaHeight / 2.f, INFINITY, areaHeight};
+    } else {
+        return {position.x + size.x / 2.f, position.y - areaHeight / 2.f, -INFINITY, areaHeight};
     }
 }
 

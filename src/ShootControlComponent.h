@@ -15,12 +15,15 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define SHOOT_CONTROL_COMPONENT_H_
 
 #include "ShootComponent.h"
+#include "GameState.h"
 
 #include <SFML/System.hpp>
 
+class Airplane;
+
 class ShootControlComponent {
 public:
-    ShootControlComponent() : m_shootComponent{nullptr} {}
+    ShootControlComponent(Airplane& owner, GameState& gameState) noexcept;
     virtual ~ShootControlComponent() = default;
 
     void registerShootComponent(ShootComponent* shootComponent) noexcept {
@@ -32,6 +35,8 @@ public:
     virtual void update(sf::Time elapsedTime) noexcept = 0;
 protected:
     ShootComponent* m_shootComponent;
+    Airplane& m_owner;
+    GameState& m_gameState;
 };
 
 class BasicShootControlComponent : public ShootControlComponent {
@@ -41,6 +46,13 @@ public:
     void update(sf::Time elapsedTime) noexcept override {
         m_shootComponent->tryShoot();
     }
+};
+
+class TargetPlayerShootControlComponent : public ShootControlComponent {
+public:
+    using ShootControlComponent::ShootControlComponent;
+
+    void update(sf::Time elapsedTime) noexcept override;
 };
 
 class PlayerShootControlComponent : public ShootControlComponent {

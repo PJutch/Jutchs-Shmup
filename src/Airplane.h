@@ -72,7 +72,7 @@ public:
         template<std::derived_from<ShootControlComponent> Component, typename... Args>
         Builder& shootControlComponent(Args&&... args) noexcept {
             m_build->m_shootControlComponent.reset(
-                new Component{std::forward<Args>(args)...});
+                new Component{*m_build, m_gameState, std::forward<Args>(args)...});
             return *this;
         }
 

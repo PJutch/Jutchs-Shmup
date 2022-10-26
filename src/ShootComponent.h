@@ -22,6 +22,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <vector>
 #include <memory>
+#include <tuple>
+#include <cmath>
 
 class Airplane;
 class Player;
@@ -37,6 +39,10 @@ public:
     }
 
     virtual void tryShoot() noexcept = 0;
+
+    // width or height can be infintiy
+    // left or top can be negative
+    virtual sf::FloatRect getAffectedArea() const noexcept;
 protected:
     void shoot(sf::Vector2f position) noexcept;
 
@@ -60,6 +66,8 @@ public:
     using ShootComponent::ShootComponent;
 
     void tryShoot() noexcept override;
+
+    sf::FloatRect getAffectedArea() const noexcept override;
 };
 
 class VolleyShootComponent : public ShootComponent {

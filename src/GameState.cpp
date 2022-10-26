@@ -175,7 +175,11 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
             builder.shootComponent<BasicShootComponent>(false);
         }
 
-        builder.shootControlComponent<BasicShootControlComponent>();
+        if (genRandom(canonicalDistribution) < 0.1) {
+            builder.shootControlComponent<TargetPlayerShootControlComponent>();
+        } else {
+            builder.shootControlComponent<BasicShootControlComponent>();
+        }
 
         Vector2f speed{genRandom(canonicalDistribution) < 0.1 ? 500.f : 250.f, 250.f};
         double valueMove = genRandom(canonicalDistribution);

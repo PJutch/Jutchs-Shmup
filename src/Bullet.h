@@ -25,6 +25,11 @@ class Player;
 class Bullet : public Entity {
 public:
     Bullet(Airplane* owner, bool moveRight, sf::Vector2f position, GameState& gameState) noexcept;
+    
+    static sf::Vector2f getSize(GameState& gameState) noexcept {
+        auto size = gameState.getBulletTexture().getSize();
+        return sf::Vector2f(size.x, size.y);
+    }
 
     void update(sf::Time elapsedTime) noexcept;
 

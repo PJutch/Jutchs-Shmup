@@ -18,6 +18,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <SFML/System.hpp>
 
+#include <tuple>
+
 class Airplane;
 
 class MoveComponent {
@@ -32,6 +34,8 @@ protected:
     Airplane& m_owner;
     GameState& m_gameState;
     sf::Vector2f m_speed;
+
+    std::tuple<float, float> minmaxY() const noexcept;
 };
 
 class BasicMoveComponent : public MoveComponent {

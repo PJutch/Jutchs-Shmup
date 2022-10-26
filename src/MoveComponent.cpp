@@ -24,6 +24,9 @@ using sf::Vector2f;
 using std::cout;
 using std::endl;
 
+#include <tuple>
+using std::tuple;
+
 #include <algorithm>
 using std::minmax;
 using std::min;
@@ -33,9 +36,34 @@ using std::fmod;
 MoveComponent::MoveComponent(Airplane& owner, GameState& gameState, Vector2f speed) noexcept : 
         m_owner{owner}, m_gameState{gameState}, m_speed{speed} {}
 
+tuple<float, float> MoveComponent::minmaxY() const noexcept {
+    auto globalBounds = m_owner.getGlobalBounds();
+
+    float minTop = -m_gameState.getGameHeight();
+    float maxTop =  m_gameState.getGameHeight();
+    for (auto& entity : m_gameState.getEntities()) {
+        if (entity->isPassable() || entity.get() == &m_owner) continue;
+
+        auto globalBounds2 = entity->getGlobalBounds();
+        if (globalBounds.left  <= globalBounds2.left + globalBounds2.width 
+         && globalBounds2.left <= globalBounds.left  + globalBounds.width) {
+            if (globalBounds2.top + globalBounds2.height < globalBounds.top) {
+                minTop = max(globalBounds2.top + globalBounds2.height, maxTop);
+            }
+
+            if (globalBounds2.top > globalBounds.top + globalBounds.height) {
+                maxTop = min(globalBounds2.top, minTop);
+            }
+        }
+    }
+
+    float posOffset = m_owner.getPosition().y - globalBounds.top;
+    return tuple<float, float>{minTop + posOffset, maxTop - globalBounds.height + posOffset};
+}
+
 void BasicMoveComponent::update(Time elapsedTime) noexcept {
-    float movedX = - m_speed.x * elapsedTime.asSeconds();
-    m_owner.move({movedX, 0.f});
+    auto moved = m_speed * elapsedTime.asSeconds();
+    m_owner.move({-moved.x, 0.f});
 }
 
 PeriodicalMoveComponent::PeriodicalMoveComponent(
@@ -43,27 +71,10 @@ PeriodicalMoveComponent::PeriodicalMoveComponent(
     MoveComponent(owner, gameState, speed), m_moveUp{true} {}
 
 void PeriodicalMoveComponent::update(Time elapsedTime) noexcept {
-    float movedX = - m_speed.x * elapsedTime.asSeconds();
+    auto moved = m_speed * elapsedTime.asSeconds();
 
-    auto globalBounds = m_owner.getGlobalBounds();
-
-    float maxY =  m_gameState.getGameHeight();
-    float minY = -m_gameState.getGameHeight() + globalBounds.height;
-    for (auto& entity : m_gameState.getEntities()) {
-        if (entity->isPassable() || entity.get() == &m_owner) continue;
-
-        auto globalBounds2 = entity->getGlobalBounds();
-        if (globalBounds.left  <= globalBounds2.left + globalBounds2.width 
-         && globalBounds2.left <= globalBounds.left  + globalBounds.width) {
-            if (globalBounds2.top > globalBounds.top) {
-                maxY = min(globalBounds2.top, maxY);
-            } else {
-                minY = max(globalBounds2.top, minY);
-            }
-        }
-    }
-    
-    float y = m_owner.getPosition().y + (m_moveUp ? 1.f : -1.f) * m_speed.y * elapsedTime.asSeconds();
+    auto [minY, maxY] = minmaxY();  
+    float y = m_owner.getPosition().y + (m_moveUp ? 1.f : -1.f) * moved.y;
     if (y > maxY) {
         y = maxY - (y - maxY);
         m_moveUp = false;
@@ -72,47 +83,27 @@ void PeriodicalMoveComponent::update(Time elapsedTime) noexcept {
         m_moveUp = true;
     }
     
-    m_owner.setPosition({m_owner.getPosition().x + movedX, y});
+    m_owner.setPosition({m_owner.getPosition().x - moved.x, y});
 }
 
 void FollowPlayerMoveComponent::update(Time elapsedTime) noexcept {
-    float movedX = - m_speed.x * elapsedTime.asSeconds();
+    auto moved = m_speed * elapsedTime.asSeconds();
 
-    auto globalBounds = m_owner.getGlobalBounds();
-
-    float maxY =  m_gameState.getGameHeight();
-    float minY = -m_gameState.getGameHeight() + globalBounds.height;
-    for (auto& entity : m_gameState.getEntities()) {
-        if (entity->isPassable() || entity.get() == &m_owner) continue;
-
-        auto globalBounds2 = entity->getGlobalBounds();
-        if (globalBounds.left  <= globalBounds2.left + globalBounds2.width 
-         && globalBounds2.left <= globalBounds.left  + globalBounds.width) {
-            if (globalBounds2.top > globalBounds.top) {
-                maxY = min(globalBounds2.top, maxY);
-            } else {
-                minY = max(globalBounds2.top, minY);
-            }
-        }
-    }
-    
+    auto [minY, maxY] = minmaxY();  
     float playerY = m_gameState.getPlayer().getPosition().y;
     float y = m_owner.getPosition().y;
-    float movedY = m_speed.y * elapsedTime.asSeconds();
-    if (abs(playerY - y) < movedY) {
+    if (abs(playerY - y) < moved.y) {
         y = playerY;
     } else {
-        y = y + (playerY > y ? 1.f : -1.f) * movedY;
+        y = y + (playerY > y ? 1.f : -1.f) * moved.y;
         if (y > maxY) {
-            y = maxY - (y - maxY);
-            m_moveUp = false;
+            y = maxY;
         } else if (y < minY) {
-            y = minY + (minY - y);
-            m_moveUp = true;
+            y = minY;
         }
     }
     
-    m_owner.setPosition({m_owner.getPosition().x + movedX, y});
+    m_owner.setPosition({m_owner.getPosition().x - moved.x, y});
 }
 
 void PlayerMoveComponent::update(Time elapsedTime) noexcept {

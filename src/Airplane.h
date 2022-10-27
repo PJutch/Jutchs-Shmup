@@ -163,7 +163,10 @@ public:
     }
 
     void handleDamaged() noexcept {
-        if (-- m_health <= 0) m_deathComponent->handleDeath();
+        if (m_damageCooldown <= sf::Time::Zero) {
+            m_damageCooldown = sf::seconds(0.1f);
+            if (-- m_health <= 0) m_deathComponent->handleDeath();
+        }
     }
 
     // return true if success
@@ -195,6 +198,8 @@ public:
 
     void update(sf::Time elapsedTime) noexcept override {
         if (isDead() || shouldBeDeleted()) return;
+
+        m_damageCooldown -= elapsedTime;
         
         m_shootComponent->update(elapsedTime);
         m_shootControlComponent->update(elapsedTime);
@@ -229,6 +234,7 @@ protected:
 
     int m_health;
     int m_maxHealth;
+    sf::Time m_damageCooldown;
 
     bool m_deletable;
 private:

@@ -36,11 +36,11 @@ using std::fmod;
 MoveComponent::MoveComponent(Airplane& owner, GameState& gameState) noexcept : 
         m_owner{owner}, m_gameState{gameState}, m_speed{Vector2f{0.f, 0.f}} {}
 
-tuple<float, float> MoveComponent::minmaxY() const noexcept {
+tuple<float, float> MoveComponent::getMinmaxY() const noexcept {
     auto globalBounds = m_owner.getGlobalBounds();
 
     float minTop = -m_gameState.getGameHeight();
-    float maxTop =  m_gameState.getGameHeight();
+    float maxBottom =  m_gameState.getGameHeight();
     for (auto& entity : m_gameState.getEntities()) {
         if (entity->isPassable() || entity.get() == &m_owner) continue;
 
@@ -48,17 +48,17 @@ tuple<float, float> MoveComponent::minmaxY() const noexcept {
         if (globalBounds.left  <= globalBounds2.left + globalBounds2.width 
          && globalBounds2.left <= globalBounds.left  + globalBounds.width) {
             if (globalBounds2.top + globalBounds2.height < globalBounds.top) {
-                minTop = max(globalBounds2.top + globalBounds2.height, maxTop);
+                minTop = max(globalBounds2.top + globalBounds2.height, minTop);
             }
 
             if (globalBounds2.top > globalBounds.top + globalBounds.height) {
-                maxTop = min(globalBounds2.top, minTop);
+                maxBottom = min(globalBounds2.top, maxBottom);
             }
         }
     }
 
     float posOffset = m_owner.getPosition().y - globalBounds.top;
-    return tuple<float, float>{minTop + posOffset, maxTop - globalBounds.height + posOffset};
+    return tuple<float, float>{minTop + posOffset, maxBottom - globalBounds.height + posOffset};
 }
 
 void BasicMoveComponent::update(Time elapsedTime) noexcept {

@@ -33,8 +33,8 @@ using std::min;
 using std::max;
 using std::fmod;
 
-MoveComponent::MoveComponent(Airplane& owner, GameState& gameState, Vector2f speed) noexcept : 
-        m_owner{owner}, m_gameState{gameState}, m_speed{speed} {}
+MoveComponent::MoveComponent(Airplane& owner, GameState& gameState) noexcept : 
+        m_owner{owner}, m_gameState{gameState}, m_speed{Vector2f{0.f, 0.f}} {}
 
 tuple<float, float> MoveComponent::minmaxY() const noexcept {
     auto globalBounds = m_owner.getGlobalBounds();
@@ -66,9 +66,8 @@ void BasicMoveComponent::update(Time elapsedTime) noexcept {
     m_owner.move({-moved.x, 0.f});
 }
 
-PeriodicalMoveComponent::PeriodicalMoveComponent(
-        Airplane& owner, GameState& gameState, Vector2f speed) noexcept :
-    MoveComponent(owner, gameState, speed), m_moveUp{true} {}
+PeriodicalMoveComponent::PeriodicalMoveComponent(Airplane& owner, GameState& gameState) noexcept :
+    MoveComponent(owner, gameState), m_moveUp{true} {}
 
 void PeriodicalMoveComponent::update(Time elapsedTime) noexcept {
     auto moved = m_speed * elapsedTime.asSeconds();

@@ -26,15 +26,10 @@ public:
     ShootControlComponent(Airplane& owner, GameState& gameState) noexcept;
     virtual ~ShootControlComponent() = default;
 
-    void registerShootComponent(ShootComponent* shootComponent) noexcept {
-        m_shootComponent = shootComponent;
-    }
-
     virtual void handleEvent(sf::Event event) noexcept {}
 
     virtual void update(sf::Time elapsedTime) noexcept = 0;
 protected:
-    ShootComponent* m_shootComponent;
     Airplane& m_owner;
     GameState& m_gameState;
 };
@@ -43,9 +38,7 @@ class BasicShootControlComponent : public ShootControlComponent {
 public:
     using ShootControlComponent::ShootControlComponent;
 
-    void update(sf::Time elapsedTime) noexcept override {
-        m_shootComponent->tryShoot();
-    }
+    void update(sf::Time elapsedTime) noexcept override;
 };
 
 class TargetPlayerShootControlComponent : public ShootControlComponent {
@@ -59,14 +52,8 @@ class PlayerShootControlComponent : public ShootControlComponent {
 public:
     using ShootControlComponent::ShootControlComponent;
 
-    void handleEvent(sf::Event event) noexcept override {
-        if (event.type == sf::Event::MouseButtonPressed 
-            && event.mouseButton.button == sf::Mouse::Left) m_shootComponent->tryShoot();
-    }
-
-    void update(sf::Time elapsedTime) noexcept override {
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) m_shootComponent->tryShoot();
-    }
+    void handleEvent(sf::Event event) noexcept override;
+    void update(sf::Time elapsedTime) noexcept override;
 };
 
 #endif

@@ -72,9 +72,9 @@ GameState::GameState(Vector2f screenSize) :
 
     m_player = Airplane::Builder{*this}
         .position({0.f, 0.f}).maxHealth(3).deletable(false).texture(m_playerTexture)
-        .shootComponent<BasicShootComponent>(true)
+        .shootComponent<BasicShootComponent>().shootRight(true)
         .shootControlComponent<PlayerShootControlComponent>()
-        .moveComponent<PlayerMoveComponent>(Vector2f{250.f, 250.f})
+        .moveComponent<PlayerMoveComponent>().speed({250.f, 250.f})
         .deathComponent<PlayerDeathComponent>().build().release();
     m_entities.emplace_back(m_player);
 }
@@ -163,16 +163,16 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
     if (genRandom(canonicalDistribution) < 0.01) {
         Airplane::Builder builder{*this};
 
-        builder.position(position).maxHealth(1).deletable(true);
+        builder.position(position).maxHealth(1).deletable(true).shootRight(false);
         builder.texture(m_enemyTexture);
 
         double valueShoot = genRandom(canonicalDistribution);
         if (valueShoot < 0.1) {
-            builder.shootComponent<TripleShootComponent>(false);
+            builder.shootComponent<TripleShootComponent>();
         } else if (valueShoot < 0.2) {
-            builder.shootComponent<VolleyShootComponent>(false);
+            builder.shootComponent<VolleyShootComponent>();
         } else {
-            builder.shootComponent<BasicShootComponent>(false);
+            builder.shootComponent<BasicShootComponent>();
         }
 
         if (genRandom(canonicalDistribution) < 0.1) {
@@ -181,14 +181,15 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
             builder.shootControlComponent<BasicShootControlComponent>();
         }
 
-        Vector2f speed{genRandom(canonicalDistribution) < 0.1 ? 500.f : 250.f, 250.f};
+        builder.speed({genRandom(canonicalDistribution) < 0.1 ? 500.f : 250.f, 250.f});
+
         double valueMove = genRandom(canonicalDistribution);
         if (valueMove < 0.1) {
-            builder.moveComponent<PeriodicalMoveComponent>(speed);
+            builder.moveComponent<PeriodicalMoveComponent>();
         } else if (valueMove < 0.2) {
-            builder.moveComponent<FollowPlayerMoveComponent>(speed);
+            builder.moveComponent<FollowPlayerMoveComponent>();
         } else {
-            builder.moveComponent<BasicMoveComponent>(speed);
+            builder.moveComponent<BasicMoveComponent>();
         }
 
         builder.deathComponent<LootDeathComponent>();

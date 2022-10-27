@@ -62,6 +62,16 @@ public:
             return *this;
         }
 
+        Builder& speed(sf::Vector2f speed) noexcept {
+            m_speed = speed;
+            return *this;
+        }
+
+        Builder& shootRight(bool shootRight) noexcept {
+            m_shootRight = shootRight;
+            return *this;
+        }
+
         template<std::derived_from<ShootComponent> Component, typename... Args>
         Builder& shootComponent(Args&&... args) noexcept {
             m_build->m_shootComponent.reset(
@@ -91,12 +101,15 @@ public:
         }
 
         std::unique_ptr<Airplane> build() noexcept {
-            m_build->m_shootControlComponent
-                ->registerShootComponent(m_build->m_shootComponent.get());
+            m_build->m_moveComponent->setSpeed(m_speed);
+            m_build->m_shootComponent->setShootRight(m_shootRight);
             return std::move(m_build);
         };
     private:
         std::unique_ptr<Airplane> m_build;
+        sf::Vector2f m_speed;
+        bool m_shootRight;
+
         GameState& m_gameState;
     };
 
@@ -161,6 +174,14 @@ public:
 
     int getHealth() const noexcept {
         return m_health;
+    }
+
+    const ShootComponent& getShootComponent() const noexcept {
+        return *m_shootComponent;
+    }
+
+    ShootComponent& getShootComponent() noexcept {
+        return *m_shootComponent;
     }
 
     void update(sf::Time elapsedTime) noexcept override {

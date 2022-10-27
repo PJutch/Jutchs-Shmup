@@ -29,8 +29,8 @@ using std::vector;
 #include <memory>
 using std::unique_ptr;
 
-ShootComponent::ShootComponent(Airplane& owner, GameState& gameState, bool shootRight) noexcept : 
-        m_shootCooldown{Time::Zero}, m_owner{owner}, m_gameState{gameState}, m_shootRight{shootRight} {};
+ShootComponent::ShootComponent(Airplane& owner, GameState& gameState) noexcept : 
+        m_shootCooldown{Time::Zero}, m_owner{owner}, m_gameState{gameState}, m_shootRight{false} {};
 
 void ShootComponent::shoot(Vector2f position) noexcept {
     m_gameState.addEntity(new Bullet{&m_owner, m_shootRight, position, m_gameState});
@@ -100,6 +100,5 @@ void VolleyShootComponent::update(sf::Time elapsedTime) noexcept {
     }
 }
 
-VolleyShootComponent::VolleyShootComponent(Airplane& owner, GameState& gameState, 
-                                           bool shootRight) noexcept : 
-    ShootComponent{owner, gameState, shootRight}, m_shots{0} {};
+VolleyShootComponent::VolleyShootComponent(Airplane& owner, GameState& gameState) noexcept : 
+    ShootComponent{owner, gameState}, m_shots{0} {};

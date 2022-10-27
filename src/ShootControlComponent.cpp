@@ -15,11 +15,30 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Airplane.h"
 
-ShootControlComponent::ShootControlComponent(Airplane& owner, GameState& gameState) noexcept : 
-    m_shootComponent{nullptr}, m_owner{owner}, m_gameState{gameState} {}
+#include "SFML/System.hpp"
+using sf::Time;
+using sf::Event;
+using sf::Mouse;
 
-void TargetPlayerShootControlComponent::update(sf::Time elapsedTime) noexcept {
-    if (m_gameState.getPlayer().getGlobalBounds().intersects(m_shootComponent->getAffectedArea())) {
-        m_shootComponent->tryShoot();
+ShootControlComponent::ShootControlComponent(Airplane& owner, GameState& gameState) noexcept : 
+    m_owner{owner}, m_gameState{gameState} {}
+
+void BasicShootControlComponent::update(Time elapsedTime) noexcept {
+    m_owner.getShootComponent().tryShoot();
+}
+
+void TargetPlayerShootControlComponent::update(Time elapsedTime) noexcept {
+    auto& shootComponent = m_owner.getShootComponent();
+    if (m_gameState.getPlayer().getGlobalBounds().intersects(shootComponent.getAffectedArea())) {
+        shootComponent.tryShoot();
     }
+}
+
+void PlayerShootControlComponent::handleEvent(Event event) noexcept {
+    if (event.type == Event::MouseButtonPressed 
+        && event.mouseButton.button == Mouse::Left) m_owner.getShootComponent().tryShoot();
+}
+
+void PlayerShootControlComponent::update(Time elapsedTime) noexcept {
+    if (Mouse::isButtonPressed(Mouse::Left)) m_owner.getShootComponent().tryShoot();
 }

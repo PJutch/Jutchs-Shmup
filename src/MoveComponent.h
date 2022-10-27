@@ -24,8 +24,12 @@ class Airplane;
 
 class MoveComponent {
 public:
-    MoveComponent(Airplane& owner, GameState& gameState, sf::Vector2f speed) noexcept;
+    MoveComponent(Airplane& owner, GameState& gameState) noexcept;
     virtual ~MoveComponent() = default;
+
+    void setSpeed(sf::Vector2f speed) noexcept {
+        m_speed = speed;
+    }
 
     virtual void update(sf::Time elapsedTime) noexcept = 0;
 
@@ -51,7 +55,7 @@ public:
 
 class PeriodicalMoveComponent : public MoveComponent {
 public:
-    PeriodicalMoveComponent(Airplane& owner, GameState& gameState, sf::Vector2f speed) noexcept;
+    PeriodicalMoveComponent(Airplane& owner, GameState& gameState) noexcept;
 
     void update(sf::Time elapsedTime) noexcept override;
 

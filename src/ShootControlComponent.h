@@ -102,6 +102,13 @@ public:
     bool shouldShoot() noexcept override;
 };
 
+class CanHitPlayerShootControlComponent : public ShootControlComponent {
+public:
+    using ShootControlComponent::ShootControlComponent;
+
+    bool shouldShoot() noexcept override;
+};
+
 class PlayerShootControlComponent : public ShootControlComponent {
 public:
     PlayerShootControlComponent(Airplane& owner, GameState& gameState) noexcept;

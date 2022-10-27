@@ -44,6 +44,9 @@ using std::ssize;
 #include <memory>
 using std::unique_ptr;
 
+#include <utility>
+using std::move;
+
 GameState::GameState(Vector2f screenSize) : 
         m_playerTexture{}, m_healthTexture{}, m_bulletTexture{}, 
         m_enemyTexture{}, m_digitTextures{}, m_healthPickupTexture{}, 
@@ -176,13 +179,17 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
         }
 
         double shootControlSeed = genRandom(canonicalDistribution);
+        unique_ptr<ShootControlComponent> shootControl{nullptr};
         if (shootControlSeed < 0.1) {
-            builder.shootControlComponent<TargetPlayerShootControlComponent>();
+            shootControl = builder.createShootControlComponent<TargetPlayerShootControlComponent>();
         } else if (shootControlSeed < 0.2) {
-            builder.shootControlComponent<NeverShootControlComponent>();
+            shootControl = builder.createShootControlComponent<NeverShootControlComponent>();
         } else {
-            builder.shootControlComponent<AlwaysShootControlComponent>();
+            shootControl = builder.createShootControlComponent<AlwaysShootControlComponent>();
         }
+
+        builder.shootControlComponent<AndShootControlComponent>(move(shootControl), 
+            builder.createShootControlComponent<CanHitPlayerShootControlComponent>());
 
         builder.speed({genRandom(canonicalDistribution) < 0.1 ? 500.f : 250.f, 250.f});
 

@@ -20,6 +20,10 @@ using sf::Time;
 using sf::Event;
 using sf::Mouse;
 
+#include <algorithm>
+using std::max;
+using std::min;
+
 #include <memory>
 using std::unique_ptr;
 
@@ -34,7 +38,8 @@ bool TargetPlayerShootControlComponent::shouldShoot() noexcept {
            m_owner.getShootComponent().getAffectedArea());
 }
 
-PlayerShootControlComponent::PlayerShootControlComponent(Airplane& owner, GameState& gameState) noexcept :
+PlayerShootControlComponent::PlayerShootControlComponent(
+        Airplane& owner, GameState& gameState) noexcept :
     ShootControlComponent(owner, gameState), m_shouldShoot{false} {}
 
 void PlayerShootControlComponent::handleEvent(Event event) noexcept {
@@ -63,3 +68,41 @@ AndShootControlComponent::AndShootControlComponent(Airplane& owner, GameState& g
         unique_ptr<ShootControlComponent>&& component2) noexcept : 
     ShootControlComponent(owner, gameState), 
     m_component1{move(component1)}, m_component2{move(component2)} {}
+
+bool CanHitPlayerShootControlComponent::shouldShoot() noexcept {
+    auto playerBounds = m_gameState.getPlayer().getGlobalBounds();
+    float playerRight = playerBounds.left + playerBounds.width;    
+
+    auto ownerBounds = m_owner.getGlobalBounds();
+    float ownerRight = ownerBounds.left + ownerBounds.width;
+
+    if (playerRight < ownerBounds.left) {
+        if (m_owner.getShootComponent().isShootingRight()) 
+            return false;
+
+        for (auto& entity : m_gameState.getEntities()) {
+            auto globalBounds = entity->getGlobalBounds();
+            float right = globalBounds.left + globalBounds.width;
+
+            if (    globalBounds.top < ownerBounds.top + ownerBounds.height 
+                 && globalBounds.top + globalBounds.height > ownerBounds.top
+                 && right < ownerBounds.left && right > playerRight)
+                return false;
+        }
+    } else if (playerBounds.left > ownerRight) {
+        if (!m_owner.getShootComponent().isShootingRight()) 
+            return false;
+
+        float minLeft = playerBounds.left;
+        for (auto& entity : m_gameState.getEntities()) {
+            auto globalBounds = entity->getGlobalBounds();
+
+            if (    globalBounds.top < ownerBounds.top + ownerBounds.height 
+                 && globalBounds.top + globalBounds.height > ownerBounds.top
+                 && globalBounds.left > ownerRight && globalBounds.left < playerBounds.left)
+                return false;
+        }    
+    }
+
+    return true;
+}

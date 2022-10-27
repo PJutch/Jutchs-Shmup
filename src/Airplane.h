@@ -87,8 +87,8 @@ public:
         }
 
         template<std::derived_from<ShootControlComponent> Component, typename... Args>
-        std::unique_ptr<Component> createShootControlComponent(Args&&... args) noexcept {
-            return make_unique<Component>(*m_build, m_gameState, std::forward<Args>(args)...);
+        std::unique_ptr<ShootControlComponent> createShootControlComponent(Args&&... args) noexcept {
+            return std::make_unique<Component>(*m_build, m_gameState, std::forward<Args>(args)...);
         }
 
         template<std::derived_from<MoveComponent> Component, typename... Args>

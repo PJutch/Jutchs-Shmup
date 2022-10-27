@@ -53,6 +53,10 @@ public:
         auto speed = Bullet::getSpeed();
         return {(m_shootRight ? 1 : -1) * speed.x, speed.y};
     }
+
+    bool isShootingRight() const noexcept {
+        return m_shootRight;
+    }
 protected:
     void shoot(sf::Vector2f position) noexcept;
 

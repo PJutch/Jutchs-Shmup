@@ -72,7 +72,7 @@ PeriodicalMoveComponent::PeriodicalMoveComponent(Airplane& owner, GameState& gam
 void PeriodicalMoveComponent::update(Time elapsedTime) noexcept {
     auto moved = m_speed * elapsedTime.asSeconds();
 
-    auto [minY, maxY] = minmaxY();  
+    auto [minY, maxY] = getMinmaxY();  
     float y = m_owner.getPosition().y + (m_moveUp ? 1.f : -1.f) * moved.y;
     if (y > maxY) {
         y = maxY - (y - maxY);
@@ -88,7 +88,7 @@ void PeriodicalMoveComponent::update(Time elapsedTime) noexcept {
 void FollowPlayerMoveComponent::update(Time elapsedTime) noexcept {
     auto moved = m_speed * elapsedTime.asSeconds();
 
-    auto [minY, maxY] = minmaxY();  
+    auto [minY, maxY] = getMinmaxY();  
     float playerY = m_gameState.getPlayer().getPosition().y;
     float y = m_owner.getPosition().y;
     if (abs(playerY - y) < moved.y) {

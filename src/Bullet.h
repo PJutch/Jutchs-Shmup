@@ -31,6 +31,10 @@ public:
         return sf::Vector2f(size.x, size.y);
     }
 
+    static sf::Vector2f getSpeed() noexcept {
+        return {750.f, 0.f};
+    }
+
     void update(sf::Time elapsedTime) noexcept;
 
     sf::FloatRect getGlobalBounds() const noexcept override {

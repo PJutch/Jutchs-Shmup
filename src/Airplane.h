@@ -176,6 +176,10 @@ public:
         return m_health;
     }
 
+    sf::Vector2f getMinSpeed() const noexcept {
+        return m_moveComponent->getMinSpeed();
+    }
+
     const ShootComponent& getShootComponent() const noexcept {
         return *m_shootComponent;
     }

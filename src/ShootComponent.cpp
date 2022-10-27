@@ -46,6 +46,12 @@ sf::FloatRect ShootComponent::getAffectedArea() const noexcept {
     }
 }   
 
+sf::FloatRect ShootComponent::getStartShotBounds() const noexcept {
+    auto position = m_owner.getPosition();
+    auto size = Bullet::getSize(m_gameState);
+    return {position.x - size.x / 2.f, position.y - size.y / 2.f, size.x, size.y};
+}   
+
 void BasicShootComponent::tryShoot() noexcept {
     if (m_shootCooldown <= Time::Zero) {
         shoot(m_owner.getPosition());
@@ -79,6 +85,16 @@ sf::FloatRect TripleShootComponent::getAffectedArea() const noexcept {
         return {position.x + size.x / 2.f, position.y - areaHeight / 2.f, -INFINITY, areaHeight};
     }
 }
+
+sf::FloatRect TripleShootComponent::getStartShotBounds() const noexcept {
+    auto position = m_owner.getPosition();
+    auto size = Bullet::getSize(m_gameState);
+    float ownerHeight = m_owner.getGlobalBounds().height;   
+
+    float areaHeight = ownerHeight + size.y;
+
+    return {position.x - size.x / 2.f, position.y - areaHeight / 2.f, size.x, areaHeight};
+}  
 
 void VolleyShootComponent::tryShoot() noexcept {
     if (m_shootCooldown <= Time::Zero) {

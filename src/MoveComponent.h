@@ -34,12 +34,14 @@ public:
     virtual void update(sf::Time elapsedTime) noexcept = 0;
 
     virtual float getRotation() const noexcept = 0;
+
+    virtual sf::Vector2f getMinSpeed() const noexcept = 0;
 protected:
     Airplane& m_owner;
     GameState& m_gameState;
     sf::Vector2f m_speed;
 
-    std::tuple<float, float> minmaxY() const noexcept;
+    std::tuple<float, float> getMinmaxY() const noexcept;
 };
 
 class BasicMoveComponent : public MoveComponent {
@@ -51,6 +53,10 @@ public:
     virtual float getRotation() const noexcept {
         return -90.f;
     }
+
+    sf::Vector2f getMinSpeed() const noexcept override {
+        return {-m_speed.x, 0};
+    }
 };
 
 class PeriodicalMoveComponent : public MoveComponent {
@@ -61,6 +67,10 @@ public:
 
     virtual float getRotation() const noexcept {
         return -90.f;
+    }
+
+    sf::Vector2f getMinSpeed() const noexcept override {
+        return {-m_speed.x, 0};
     }
 private:
     bool m_moveUp;
@@ -75,6 +85,10 @@ public:
     virtual float getRotation() const noexcept {
         return -90.f;
     }
+
+    sf::Vector2f getMinSpeed() const noexcept override {
+        return {-m_speed.x, 0};
+    }
 private:
     bool m_moveUp;
 };
@@ -87,6 +101,10 @@ public:
 
     virtual float getRotation() const noexcept {
         return 90.f;
+    }
+
+    sf::Vector2f getMinSpeed() const noexcept override {
+        return {m_speed.x, 0};
     }
 };
 

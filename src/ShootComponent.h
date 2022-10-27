@@ -46,6 +46,13 @@ public:
     // width or height can be infintiy
     // left or top can be negative
     virtual sf::FloatRect getAffectedArea() const noexcept;
+
+    virtual sf::FloatRect getStartShotBounds() const noexcept;
+
+    sf::Vector2f getShotSpeed() const noexcept {
+        auto speed = Bullet::getSpeed();
+        return {(m_shootRight ? 1 : -1) * speed.x, speed.y};
+    }
 protected:
     void shoot(sf::Vector2f position) noexcept;
 
@@ -71,6 +78,8 @@ public:
     void tryShoot() noexcept override;
 
     sf::FloatRect getAffectedArea() const noexcept override;
+
+    sf::FloatRect getStartShotBounds() const noexcept override;
 };
 
 class VolleyShootComponent : public ShootComponent {

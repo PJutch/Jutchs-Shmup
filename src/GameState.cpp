@@ -166,27 +166,30 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
         builder.position(position).maxHealth(1).deletable(true).shootRight(false);
         builder.texture(m_enemyTexture);
 
-        double valueShoot = genRandom(canonicalDistribution);
-        if (valueShoot < 0.1) {
+        double shootSeed = genRandom(canonicalDistribution);
+        if (shootSeed < 0.1) {
             builder.shootComponent<TripleShootComponent>();
-        } else if (valueShoot < 0.2) {
+        } else if (shootSeed < 0.2) {
             builder.shootComponent<VolleyShootComponent>();
         } else {
             builder.shootComponent<BasicShootComponent>();
         }
 
-        if (genRandom(canonicalDistribution) < 0.1) {
+        double shootControlSeed = genRandom(canonicalDistribution);
+        if (shootControlSeed < 0.1) {
             builder.shootControlComponent<TargetPlayerShootControlComponent>();
+        } else if (shootControlSeed < 0.2) {
+            builder.shootControlComponent<NeverShootControlComponent>();
         } else {
-            builder.shootControlComponent<BasicShootControlComponent>();
+            builder.shootControlComponent<AlwaysShootControlComponent>();
         }
 
         builder.speed({genRandom(canonicalDistribution) < 0.1 ? 500.f : 250.f, 250.f});
 
-        double valueMove = genRandom(canonicalDistribution);
-        if (valueMove < 0.1) {
+        double moveSeed = genRandom(canonicalDistribution);
+        if (moveSeed < 0.1) {
             builder.moveComponent<PeriodicalMoveComponent>();
-        } else if (valueMove < 0.2) {
+        } else if (moveSeed < 0.2) {
             builder.moveComponent<FollowPlayerMoveComponent>();
         } else {
             builder.moveComponent<BasicMoveComponent>();

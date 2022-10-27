@@ -20,6 +20,12 @@ using sf::Time;
 using sf::Event;
 using sf::Mouse;
 
+#include <memory>
+using std::unique_ptr;
+
+#include <utility>
+using std::move;
+
 ShootControlComponent::ShootControlComponent(Airplane& owner, GameState& gameState) noexcept : 
     m_owner{owner}, m_gameState{gameState} {}
 
@@ -41,3 +47,19 @@ bool PlayerShootControlComponent::shouldShoot() noexcept {
     m_shouldShoot = false;
     return shoot;
 }
+
+NotShootControlComponent::NotShootControlComponent(Airplane& owner, GameState& gameState, 
+        unique_ptr<ShootControlComponent>&& component) noexcept :
+    ShootControlComponent(owner, gameState), m_component{move(component)} {}
+
+OrShootControlComponent::OrShootControlComponent(Airplane& owner, GameState& gameState, 
+        unique_ptr<ShootControlComponent>&& component1, 
+        unique_ptr<ShootControlComponent>&& component2) noexcept : 
+    ShootControlComponent(owner, gameState), 
+    m_component1{move(component1)}, m_component2{move(component2)} {}
+
+AndShootControlComponent::AndShootControlComponent(Airplane& owner, GameState& gameState, 
+        unique_ptr<ShootControlComponent>&& component1, 
+        unique_ptr<ShootControlComponent>&& component2) noexcept : 
+    ShootControlComponent(owner, gameState), 
+    m_component1{move(component1)}, m_component2{move(component2)} {}

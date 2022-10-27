@@ -19,6 +19,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <SFML/System.hpp>
 
+#include <memory>
+
 class Airplane;
 
 class ShootControlComponent {
@@ -35,13 +37,62 @@ protected:
     GameState& m_gameState;
 };
 
-class BasicShootControlComponent : public ShootControlComponent {
+class AlwaysShootControlComponent : public ShootControlComponent {
 public:
     using ShootControlComponent::ShootControlComponent;
 
     bool shouldShoot() noexcept override {
         return true;
     }
+};
+
+class NeverShootControlComponent : public ShootControlComponent {
+public:
+    using ShootControlComponent::ShootControlComponent;
+
+    bool shouldShoot() noexcept override {
+        return false;
+    }
+};
+
+class NotShootControlComponent : public ShootControlComponent {
+public:
+    NotShootControlComponent(Airplane& owner, GameState& gameState, 
+                             std::unique_ptr<ShootControlComponent>&& component) noexcept;
+    
+    bool shouldShoot() noexcept override {
+        return !m_component->shouldShoot();
+    }
+private:
+    std::unique_ptr<ShootControlComponent> m_component;
+};
+
+class OrShootControlComponent : public ShootControlComponent {
+public:
+    OrShootControlComponent(Airplane& owner, GameState& gameState, 
+                            std::unique_ptr<ShootControlComponent>&& component1, 
+                            std::unique_ptr<ShootControlComponent>&& component2) noexcept;
+    
+    bool shouldShoot() noexcept override {
+        return m_component1->shouldShoot() || m_component2->shouldShoot();
+    }
+private:
+    std::unique_ptr<ShootControlComponent> m_component1;
+    std::unique_ptr<ShootControlComponent> m_component2;
+};
+
+class AndShootControlComponent : public ShootControlComponent {
+public:
+    AndShootControlComponent(Airplane& owner, GameState& gameState, 
+                             std::unique_ptr<ShootControlComponent>&& component1, 
+                             std::unique_ptr<ShootControlComponent>&& component2) noexcept;
+    
+    bool shouldShoot() noexcept override {
+        return m_component1->shouldShoot() && m_component2->shouldShoot();
+    }
+private:
+    std::unique_ptr<ShootControlComponent> m_component1;
+    std::unique_ptr<ShootControlComponent> m_component2;
 };
 
 class TargetPlayerShootControlComponent : public ShootControlComponent {

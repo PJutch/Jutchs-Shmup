@@ -27,8 +27,9 @@ public:
     virtual ~ShootControlComponent() = default;
 
     virtual void handleEvent(sf::Event event) noexcept {}
+    virtual void update(sf::Time elapsedTime) noexcept {}
 
-    virtual void update(sf::Time elapsedTime) noexcept = 0;
+    virtual bool shouldShoot() noexcept = 0;
 protected:
     Airplane& m_owner;
     GameState& m_gameState;
@@ -38,22 +39,26 @@ class BasicShootControlComponent : public ShootControlComponent {
 public:
     using ShootControlComponent::ShootControlComponent;
 
-    void update(sf::Time elapsedTime) noexcept override;
+    bool shouldShoot() noexcept override {
+        return true;
+    }
 };
 
 class TargetPlayerShootControlComponent : public ShootControlComponent {
 public:
     using ShootControlComponent::ShootControlComponent;
 
-    void update(sf::Time elapsedTime) noexcept override;
+    bool shouldShoot() noexcept override;
 };
 
 class PlayerShootControlComponent : public ShootControlComponent {
 public:
-    using ShootControlComponent::ShootControlComponent;
+    PlayerShootControlComponent(Airplane& owner, GameState& gameState) noexcept;
 
     void handleEvent(sf::Event event) noexcept override;
-    void update(sf::Time elapsedTime) noexcept override;
+    bool shouldShoot() noexcept override;
+private:
+    bool m_shouldShoot;
 };
 
 #endif

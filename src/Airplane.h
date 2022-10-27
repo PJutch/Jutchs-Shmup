@@ -195,6 +195,10 @@ public:
         m_shootControlComponent->update(elapsedTime);
         m_moveComponent->update(elapsedTime);
 
+        if (m_shootControlComponent->shouldShoot()) {
+            m_shootComponent->tryShoot();
+        }
+
         m_sprite.setRotation(m_moveComponent->getRotation());
     }
 

@@ -23,22 +23,21 @@ using sf::Mouse;
 ShootControlComponent::ShootControlComponent(Airplane& owner, GameState& gameState) noexcept : 
     m_owner{owner}, m_gameState{gameState} {}
 
-void BasicShootControlComponent::update(Time elapsedTime) noexcept {
-    m_owner.getShootComponent().tryShoot();
+bool TargetPlayerShootControlComponent::shouldShoot() noexcept {
+    return m_gameState.getPlayer().getGlobalBounds().intersects(
+           m_owner.getShootComponent().getAffectedArea());
 }
 
-void TargetPlayerShootControlComponent::update(Time elapsedTime) noexcept {
-    auto& shootComponent = m_owner.getShootComponent();
-    if (m_gameState.getPlayer().getGlobalBounds().intersects(shootComponent.getAffectedArea())) {
-        shootComponent.tryShoot();
-    }
-}
+PlayerShootControlComponent::PlayerShootControlComponent(Airplane& owner, GameState& gameState) noexcept :
+    ShootControlComponent(owner, gameState), m_shouldShoot{false} {}
 
 void PlayerShootControlComponent::handleEvent(Event event) noexcept {
     if (event.type == Event::MouseButtonPressed 
-        && event.mouseButton.button == Mouse::Left) m_owner.getShootComponent().tryShoot();
+        && event.mouseButton.button == Mouse::Left) m_shouldShoot = true;
 }
 
-void PlayerShootControlComponent::update(Time elapsedTime) noexcept {
-    if (Mouse::isButtonPressed(Mouse::Left)) m_owner.getShootComponent().tryShoot();
+bool PlayerShootControlComponent::shouldShoot() noexcept {
+    bool shoot = Mouse::isButtonPressed(Mouse::Left) || m_shouldShoot;
+    m_shouldShoot = false;
+    return shoot;
 }

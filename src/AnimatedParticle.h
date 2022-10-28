@@ -11,31 +11,21 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef BULLET_H_
-#define BULLET_H_
+#ifndef ANIMATED_PARTICLE_H_
+#define ANIMATED_PARTICLE_H_
 
 #include "Entity.h"
-#include "GameState.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-class Player;
+#include <span>
 
-class Bullet : public Entity {
+class AnimatedParticle : public Entity {
 public:
-    Bullet(Airplane* owner, bool playerSide, sf::Vector2f position, GameState& gameState) noexcept;
-    
-    static sf::Vector2f getSize(GameState& gameState) noexcept {
-        auto size = gameState.getBulletTexture().getSize();
-        return sf::Vector2f(size.x, size.y);
-    }
+    AnimatedParticle(std::span<sf::Texture> animation, sf::Time delay, GameState& gameState) noexcept;
 
-    static sf::Vector2f getSpeed() noexcept {
-        return {750.f, 0.f};
-    }
-
-    void update(sf::Time elapsedTime) noexcept;
+    void update(sf::Time elapsedTime) noexcept override;
 
     sf::FloatRect getGlobalBounds() const noexcept override {
         return m_sprite.getGlobalBounds();
@@ -45,34 +35,26 @@ public:
         other.acceptCollide(*this);
     }
 
-    void acceptCollide(Airplane& other) noexcept override;
-
-    bool shouldBeDeleted() const noexcept override {
-        return !(m_alive && m_gameState.inActiveArea(m_sprite.getPosition().x));
-    }
-
     bool isPassable() const noexcept override {
         return true;
     }
 
-    bool isOnPlayerSide() const noexcept {
-        return m_playerSide;
+    bool shouldBeDeleted() const noexcept override {
+        return m_currentTexture >= std::ssize(m_animation);
     }
 
-    void die() noexcept {
-        m_alive = false;
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
+        if (!shouldBeDeleted())
+            target.draw(m_sprite, states);
     }
 private:
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
-        target.draw(m_sprite, states);
-    }
+    std::span<sf::Texture> m_animation;
+    sf::Time m_delay;
 
     sf::Sprite m_sprite;
 
-    bool m_playerSide;
-    bool m_alive;
-    
-    Airplane* m_owner;
+    int m_currentTexture;
+    sf::Time m_untilNext;
 };
 
 #endif

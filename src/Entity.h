@@ -21,6 +21,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 class Airplane;
 class Bullet;
 class Pickup;
+class AnimatedParticle;
+
 class GameState;
 
 class Entity : public sf::Drawable {
@@ -35,9 +37,11 @@ public:
     virtual sf::FloatRect getGlobalBounds() const noexcept = 0;
 
     virtual void startCollide(Entity& other) noexcept = 0;
-    virtual void acceptCollide(Airplane& other) noexcept = 0;
-    virtual void acceptCollide(Bullet& other) noexcept = 0;
-    virtual void acceptCollide(Pickup& other) noexcept = 0;
+    
+    virtual void acceptCollide(Airplane& other) noexcept {}
+    virtual void acceptCollide(Bullet& other) noexcept {}
+    virtual void acceptCollide(Pickup& other) noexcept {}
+    virtual void acceptCollide(AnimatedParticle& other) noexcept {}
 
     virtual bool isPassable() const noexcept = 0;
 

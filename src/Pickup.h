@@ -49,9 +49,6 @@ public:
         apply(other);
     }
 
-    void acceptCollide(Bullet&) noexcept override {}
-    void acceptCollide(Pickup&) noexcept override {}
-
     virtual void apply(Airplane& airplane) noexcept = 0;
 
     bool shouldBeDeleted() const noexcept override {

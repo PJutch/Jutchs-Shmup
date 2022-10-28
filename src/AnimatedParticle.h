@@ -43,11 +43,6 @@ public:
     bool shouldBeDeleted() const noexcept override {
         return m_currentTexture >= std::ssize(m_animation);
     }
-
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
-        if (!shouldBeDeleted())
-            target.draw(m_sprite, states);
-    }
 private:
     std::span<const sf::Texture> m_animation;
     sf::Time m_delay;
@@ -56,6 +51,11 @@ private:
 
     int m_currentTexture;
     sf::Time m_untilNext;
+
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
+        if (!shouldBeDeleted())
+            target.draw(m_sprite, states);
+    }
 };
 
 #endif

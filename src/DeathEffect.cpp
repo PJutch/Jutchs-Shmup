@@ -11,15 +11,17 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#include "DeathComponent.h"
+#include "DeathEffect.h"
 
 #include "HealthPickup.h"
 
-DeathComponent::DeathComponent(Airplane& owner, GameState& gameState) : 
-        m_owner{owner}, m_gameState{gameState} {}
+DeathEffect::DeathEffect(Airplane& owner, GameState& gameState) noexcept : 
+    m_owner{owner}, m_gameState{gameState} {}
 
-void LootDeathComponent::handleDeath() noexcept {
-    m_gameState.addScore(10);
+ScoreDeathEffect::ScoreDeathEffect(Airplane& owner, GameState& gameState, int score) noexcept :
+    DeathEffect(owner, gameState), m_score{score} {}
+
+void LootDeathEffect::handleDeath() noexcept {
     if (m_gameState.genRandom(std::uniform_real_distribution{0.0, 1.0}) < 0.1) {
         m_gameState.addEntity(new HealthPickup{m_owner.getPosition(), m_gameState});
     }

@@ -10,7 +10,7 @@ include_directories(extlibs/SFML/include)
 
 add_executable(Jutchs_Shmup src/main.cpp src/Bullet.cpp src/Airplane.cpp 
                             src/Pickup.cpp src/ShootComponent.cpp src/Entity.cpp src/GameState.cpp 
-                            src/HealthPickup.cpp src/MoveComponent.cpp src/DeathComponent.cpp
+                            src/HealthPickup.cpp src/MoveComponent.cpp src/DeathEffect.cpp
                             src/ShootControlComponent.cpp src/AnimatedParticle.cpp)
 set_property(TARGET Jutchs_Shmup PROPERTY MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
 

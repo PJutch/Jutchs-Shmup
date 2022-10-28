@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "ShootComponent.h"
 #include "ShootControlComponent.h"
 #include "MoveComponent.h"
-#include "DeathComponent.h"
+#include "DeathEffect.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -81,15 +81,15 @@ public:
         }
 
         template<std::derived_from<ShootControlComponent> Component, typename... Args>
-        Builder& shootControlComponent(Args&&... args) noexcept {
-            m_build->m_shootControlComponent.reset(
-                new Component{*m_build, m_gameState, std::forward<Args>(args)...});
-            return *this;
+        std::unique_ptr<ShootControlComponent> createShootControlComponent(Args&&... args) noexcept {
+            return std::make_unique<Component>(*m_build, m_gameState, std::forward<Args>(args)...);
         }
 
         template<std::derived_from<ShootControlComponent> Component, typename... Args>
-        std::unique_ptr<ShootControlComponent> createShootControlComponent(Args&&... args) noexcept {
-            return std::make_unique<Component>(*m_build, m_gameState, std::forward<Args>(args)...);
+        Builder& shootControlComponent(Args&&... args) noexcept {
+            m_build->m_shootControlComponent
+                = createShootControlComponent<Component>(std::forward<Args>(args)...);
+            return *this;
         }
 
         template<std::derived_from<MoveComponent> Component, typename... Args>
@@ -99,9 +99,9 @@ public:
             return *this;
         }
 
-        template<std::derived_from<DeathComponent> Component, typename... Args>
-        Builder& deathComponent(Args&&... args) noexcept {
-            m_build->m_deathComponent.reset(
+        template<std::derived_from<DeathEffect> Component, typename... Args>
+        Builder& addDeathEffect(Args&&... args) noexcept {
+            m_build->m_deathEffects.emplace_back(
                 new Component{*m_build, m_gameState, std::forward<Args>(args)...});
             return *this;
         }
@@ -165,7 +165,9 @@ public:
     void handleDamaged() noexcept {
         if (m_damageCooldown <= sf::Time::Zero) {
             m_damageCooldown = sf::seconds(0.1f);
-            if (-- m_health <= 0) m_deathComponent->handleDeath();
+            if (-- m_health <= 0) 
+                for (auto& deathEffect : m_deathEffects) 
+                    deathEffect->handleDeath();
         }
     }
 
@@ -232,7 +234,8 @@ protected:
     std::unique_ptr<ShootComponent> m_shootComponent;
     std::unique_ptr<ShootControlComponent> m_shootControlComponent;
     std::unique_ptr<MoveComponent> m_moveComponent;
-    std::unique_ptr<DeathComponent> m_deathComponent;
+
+    std::vector<std::unique_ptr<DeathEffect>> m_deathEffects;
 
     int m_health;
     int m_maxHealth;

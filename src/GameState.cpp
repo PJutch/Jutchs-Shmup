@@ -78,7 +78,7 @@ GameState::GameState(Vector2f screenSize) :
         .shootComponent<BasicShootComponent>().playerSide(true)
         .shootControlComponent<PlayerShootControlComponent>()
         .moveComponent<PlayerMoveComponent>().speed({250.f, 250.f})
-        .deathComponent<PlayerDeathComponent>().build().release();
+        .addDeathEffect<LoseDeathEffect>().build().release();
     m_entities.emplace_back(m_player);
 }
 
@@ -202,7 +202,7 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
             builder.moveComponent<BasicMoveComponent>();
         }
 
-        builder.deathComponent<LootDeathComponent>();
+        builder.addDeathEffect<ScoreDeathEffect>(10).addDeathEffect<LootDeathEffect>();
 
         addEntity(builder.build());
     }

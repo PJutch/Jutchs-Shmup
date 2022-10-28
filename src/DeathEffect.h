@@ -11,8 +11,8 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef DEATH_COMPONENT_H_
-#define DEATH_COMPONENT_H_
+#ifndef DEATH_EFFECT_H_
+#define DEATH_EFFECT_H_
 
 #include "GameState.h"
 
@@ -21,10 +21,10 @@ If not, see <https://www.gnu.org/licenses/>. */
 class Airplane;
 
 // Death effect
-class DeathComponent {
+class DeathEffect {
 public:
-    DeathComponent(Airplane& owner, GameState& gameState);
-    virtual ~DeathComponent() = default;
+    DeathEffect(Airplane& owner, GameState& gameState) noexcept;
+    virtual ~DeathEffect() = default;
 
     virtual void handleDeath() noexcept = 0;
 protected:
@@ -32,18 +32,29 @@ protected:
     GameState& m_gameState;
 };
 
-class PlayerDeathComponent : public DeathComponent {
+class LoseDeathEffect : public DeathEffect {
 public:
-    using DeathComponent::DeathComponent;
+    using DeathEffect::DeathEffect;
 
     void handleDeath() noexcept override {
         m_gameState.setShouldReset();
     }
 };
 
-class LootDeathComponent : public DeathComponent {
+class ScoreDeathEffect : public DeathEffect {
 public:
-    using DeathComponent::DeathComponent;
+    ScoreDeathEffect(Airplane& owner, GameState& gameState, int score) noexcept;
+
+    void handleDeath() noexcept override {
+        m_gameState.addScore(m_score);
+    }
+private:
+    int m_score;
+};
+
+class LootDeathEffect : public DeathEffect {
+public:
+    using DeathEffect::DeathEffect;
 
     void handleDeath() noexcept override;
 };

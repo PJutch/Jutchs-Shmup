@@ -22,9 +22,9 @@ using sf::Vector2f;
 #include <SFML/System.hpp>
 using sf::Time;
 
-Bullet::Bullet(Airplane* owner, bool moveRight, Vector2f position, GameState& gameState) noexcept :
+Bullet::Bullet(Airplane* owner, bool playerSide, Vector2f position, GameState& gameState) noexcept :
         Entity{gameState}, m_sprite{gameState.getBulletTexture()}, 
-        m_moveRight{moveRight}, m_alive{true}, m_owner{owner} {
+        m_playerSide{playerSide}, m_alive{true}, m_owner{owner} {
     auto size = gameState.getBulletTexture().getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
     m_sprite.setPosition(position);
@@ -34,7 +34,7 @@ Bullet::Bullet(Airplane* owner, bool moveRight, Vector2f position, GameState& ga
 void Bullet::update(Time elapsedTime) noexcept {
     if (!m_alive) return;
 
-    m_sprite.move((m_moveRight ? 1 : -1) * 750.f * elapsedTime.asSeconds(), 0);
+    m_sprite.move((m_playerSide ? 1 : -1) * 750.f * elapsedTime.asSeconds(), 0);
 }
 
 void Bullet::acceptCollide(Airplane& other) noexcept {

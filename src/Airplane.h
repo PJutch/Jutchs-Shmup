@@ -108,7 +108,6 @@ public:
 
         std::unique_ptr<Airplane> build() noexcept {
             m_build->m_moveComponent->setSpeed(m_speed);
-            m_build->m_shootComponent->setShootRight(m_build->m_playerSide);
             return std::move(m_build);
         };
     private:
@@ -153,7 +152,7 @@ public:
     }
 
     void acceptCollide(Bullet& other) noexcept override {
-        if (isDead() || shouldBeDeleted()) return;
+        if (other.isOnPlayerSide() == m_playerSide || isDead() || shouldBeDeleted()) return;
         handleDamaged();
         other.die();
     }
@@ -218,6 +217,10 @@ public:
 
     bool isDead() const noexcept {
         return m_health <= 0;
+    }
+
+    bool isOnPlayerSide() const noexcept {
+        return m_playerSide;
     }
 
     bool isPassable() const noexcept override {

@@ -24,7 +24,7 @@ class Player;
 
 class Bullet : public Entity {
 public:
-    Bullet(Airplane* owner, bool moveRight, sf::Vector2f position, GameState& gameState) noexcept;
+    Bullet(Airplane* owner, bool playerSide, sf::Vector2f position, GameState& gameState) noexcept;
     
     static sf::Vector2f getSize(GameState& gameState) noexcept {
         auto size = gameState.getBulletTexture().getSize();
@@ -58,6 +58,10 @@ public:
         return true;
     }
 
+    bool isOnPlayerSide() const noexcept {
+        return m_playerSide;
+    }
+
     void die() noexcept {
         m_alive = false;
     }
@@ -68,7 +72,7 @@ private:
 
     sf::Sprite m_sprite;
 
-    bool m_moveRight;
+    bool m_playerSide;
     bool m_alive;
     
     Airplane* m_owner;

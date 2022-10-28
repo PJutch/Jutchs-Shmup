@@ -33,10 +33,6 @@ public:
     ShootComponent(Airplane& owner, GameState& gameState) noexcept;
     virtual ~ShootComponent() = default;
 
-    void setShootRight(bool shootRight) noexcept {
-        m_shootRight = shootRight;
-    }
-
     virtual void update(sf::Time elapsedTime) noexcept {
         m_shootCooldown -= elapsedTime;
     }
@@ -49,14 +45,7 @@ public:
 
     virtual sf::FloatRect getStartShotBounds() const noexcept;
 
-    sf::Vector2f getShotSpeed() const noexcept {
-        auto speed = Bullet::getSpeed();
-        return {(m_shootRight ? 1 : -1) * speed.x, speed.y};
-    }
-
-    bool isShootingRight() const noexcept {
-        return m_shootRight;
-    }
+    sf::Vector2f getShotSpeed() const noexcept;
 protected:
     void shoot(sf::Vector2f position) noexcept;
 
@@ -64,8 +53,6 @@ protected:
 
     Airplane& m_owner;
     GameState& m_gameState;
-protected:
-    bool m_shootRight;
 };
 
 class BasicShootComponent : public ShootComponent {
@@ -95,7 +82,6 @@ public:
     void tryShoot() noexcept override;
 private:
     int m_shots;
-    bool m_right;
 };
 
 #endif

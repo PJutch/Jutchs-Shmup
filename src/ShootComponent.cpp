@@ -18,6 +18,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 using sf::Texture;
 using sf::Vector2f;
+using sf::FloatRect;
 
 #include <SFML/System.hpp>
 using sf::Time;
@@ -30,27 +31,32 @@ using std::vector;
 using std::unique_ptr;
 
 ShootComponent::ShootComponent(Airplane& owner, GameState& gameState) noexcept : 
-        m_shootCooldown{Time::Zero}, m_owner{owner}, m_gameState{gameState}, m_shootRight{false} {};
+        m_shootCooldown{Time::Zero}, m_owner{owner}, m_gameState{gameState} {};
 
 void ShootComponent::shoot(Vector2f position) noexcept {
-    m_gameState.addEntity(new Bullet{&m_owner, m_shootRight, position, m_gameState});
+    m_gameState.addEntity(new Bullet{&m_owner, m_owner.isOnPlayerSide(), position, m_gameState});
 }
 
-sf::FloatRect ShootComponent::getAffectedArea() const noexcept {
+FloatRect ShootComponent::getAffectedArea() const noexcept {
     auto position = m_owner.getPosition();
     auto size = Bullet::getSize(m_gameState);
-    if (m_shootRight) {
+    if (m_owner.isOnPlayerSide()) {
         return {position.x - size.x / 2.f, position.y - size.y / 2.f, INFINITY, size.y};
     } else {
         return {position.x + size.x / 2.f, position.y - size.y / 2.f, -INFINITY, size.y};
     }
 }   
 
-sf::FloatRect ShootComponent::getStartShotBounds() const noexcept {
+FloatRect ShootComponent::getStartShotBounds() const noexcept {
     auto position = m_owner.getPosition();
     auto size = Bullet::getSize(m_gameState);
     return {position.x - size.x / 2.f, position.y - size.y / 2.f, size.x, size.y};
 }   
+
+Vector2f ShootComponent::getShotSpeed() const noexcept {
+    auto speed = Bullet::getSpeed();
+    return {(m_owner.isOnPlayerSide() ? 1 : -1) * speed.x, speed.y};
+}
 
 void BasicShootComponent::tryShoot() noexcept {
     if (m_shootCooldown <= Time::Zero) {
@@ -79,7 +85,7 @@ sf::FloatRect TripleShootComponent::getAffectedArea() const noexcept {
     
     float areaHeight = ownerHeight + size.y;
 
-    if (m_shootRight) {
+    if (m_owner.isOnPlayerSide()) {
         return {position.x - size.x / 2.f, position.y - areaHeight / 2.f, INFINITY, areaHeight};
     } else {
         return {position.x + size.x / 2.f, position.y - areaHeight / 2.f, -INFINITY, areaHeight};

@@ -77,7 +77,7 @@ bool CanHitPlayerShootControlComponent::shouldShoot() noexcept {
     float ownerRight = ownerBounds.left + ownerBounds.width;
 
     if (playerRight < ownerBounds.left) {
-        if (m_owner.getShootComponent().isShootingRight()) 
+        if (m_owner.isOnPlayerSide()) 
             return false;
 
         for (auto& entity : m_gameState.getEntities()) {
@@ -90,7 +90,7 @@ bool CanHitPlayerShootControlComponent::shouldShoot() noexcept {
                 return false;
         }
     } else if (playerBounds.left > ownerRight) {
-        if (!m_owner.getShootComponent().isShootingRight()) 
+        if (!m_owner.isOnPlayerSide()) 
             return false;
 
         float minLeft = playerBounds.left;

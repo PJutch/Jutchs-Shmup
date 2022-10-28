@@ -55,6 +55,10 @@ public:
         return m_healthPickupTexture;
     }
 
+    const std::vector<sf::Texture>& getExplosionAnimation() const noexcept {
+        return m_explosionAnimation;
+    }
+
     template<typename Distribution>
     auto genRandom(Distribution distibution) noexcept {
         return distibution(m_randomEngine);
@@ -114,6 +118,7 @@ private:
     sf::Texture m_enemyTexture;
     std::array<sf::Texture, 10> m_digitTextures;
     sf::Texture m_healthPickupTexture;
+    std::vector<sf::Texture> m_explosionAnimation;
 
     std::mt19937_64 m_randomEngine;
 

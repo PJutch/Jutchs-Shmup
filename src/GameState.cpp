@@ -20,11 +20,14 @@ using sf::RenderTarget;
 using sf::RenderStates;
 using sf::Sprite;
 using sf::View;
+using sf::Texture;
+using sf::Image;
 
 #include <SFML/System.hpp>
 using sf::Time;
 using sf::Vector2u;
 using sf::Vector2f;
+using sf::IntRect;
 
 #include <format>
 using std::format;
@@ -72,13 +75,23 @@ GameState::GameState(Vector2f screenSize) :
 
     if (!m_healthPickupTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0024.png")) 
         throw TextureLoadError{"Can't load health pickup texture"};
+    
+    Image explosionAnimationMap;
+    if (!explosionAnimationMap.loadFromFile("resources/explosion.png")) 
+        throw TextureLoadError{"Can't load explosion animation"};
+    for (unsigned int x = 0; x < explosionAnimationMap.getSize().x; 
+            x += explosionAnimationMap.getSize().y) {
+        m_explosionAnimation.emplace_back();
+        m_explosionAnimation.back().loadFromImage(explosionAnimationMap, 
+            IntRect(x, 0, explosionAnimationMap.getSize().y, explosionAnimationMap.getSize().y));
+    }
 
     m_player = Airplane::Builder{*this}
         .position({0.f, 0.f}).maxHealth(3).deletable(false).texture(m_playerTexture)
         .shootComponent<BasicShootComponent>().playerSide(true)
         .shootControlComponent<PlayerShootControlComponent>()
         .moveComponent<PlayerMoveComponent>().speed({250.f, 250.f})
-        .addDeathEffect<LoseDeathEffect>().build().release();
+        .addDeathEffect<LoseDeathEffect>().addDeathEffect<ExplosionDeathEffect>().build().release();
     m_entities.emplace_back(m_player);
 }
 
@@ -202,7 +215,9 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
             builder.moveComponent<BasicMoveComponent>();
         }
 
-        builder.addDeathEffect<ScoreDeathEffect>(10).addDeathEffect<LootDeathEffect>();
+        builder.addDeathEffect<ScoreDeathEffect>(10)
+               .addDeathEffect<LootDeathEffect>()
+               .addDeathEffect<ExplosionDeathEffect>();
 
         addEntity(builder.build());
     }

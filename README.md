@@ -14,7 +14,8 @@ There are:
 - [SFML](https://www.sfml-dev.org)
 
 ## Credits
-- Kenney for [Pixel Shmup](https://kenney.nl/assets/pixel-shmup)
+- [Kenney](https://www.kenney.nl) for [Pixel Shmup](https://kenney.nl/assets/pixel-shmup)]
+- [Sogomn](https://opengameart.org/users/sogomn) for [explosion animation](https://opengameart.org/content/explosion-3)
 
 ## Build
 You can build this project with CMake under Windows with MSVC.

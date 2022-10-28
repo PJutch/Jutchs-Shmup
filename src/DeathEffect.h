@@ -15,6 +15,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define DEATH_EFFECT_H_
 
 #include "GameState.h"
+#include "AnimatedParticle.h"
 
 #include <SFML/System.hpp>
 
@@ -58,5 +59,13 @@ public:
 
     void handleDeath() noexcept override;
 };
+
+class ExplosionDeathEffect : public DeathEffect {
+public:
+    using DeathEffect::DeathEffect;
+
+    void handleDeath() noexcept override;
+};
+
 
 #endif

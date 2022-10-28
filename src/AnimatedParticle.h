@@ -23,7 +23,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class AnimatedParticle : public Entity {
 public:
-    AnimatedParticle(std::span<sf::Texture> animation, sf::Time delay, GameState& gameState) noexcept;
+    AnimatedParticle(sf::Vector2f position, std::span<const sf::Texture> animation, 
+                     sf::Time delay, GameState& gameState) noexcept;
 
     void update(sf::Time elapsedTime) noexcept override;
 
@@ -48,7 +49,7 @@ public:
             target.draw(m_sprite, states);
     }
 private:
-    std::span<sf::Texture> m_animation;
+    std::span<const sf::Texture> m_animation;
     sf::Time m_delay;
 
     sf::Sprite m_sprite;

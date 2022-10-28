@@ -18,15 +18,21 @@ using sf::Texture;
 
 #include <SFML/System.hpp>
 using sf::Time;
+using sf::Vector2f;
 
 #include <span>
 using std::span;
 
 using std::ssize;
 
-AnimatedParticle::AnimatedParticle(span<Texture> animation, Time delay, GameState& gameState) noexcept :
-    Entity{gameState}, m_animation{animation}, m_delay{delay}, m_sprite{animation[0]}, 
-    m_currentTexture{0}, m_untilNext{delay} {}
+AnimatedParticle::AnimatedParticle(Vector2f position, span<const Texture> animation, 
+                                   Time delay, GameState& gameState) noexcept :
+        Entity{gameState}, m_animation{animation}, m_delay{delay}, m_sprite{animation[0]}, 
+        m_currentTexture{0}, m_untilNext{delay} {
+    auto size = m_animation[0].getSize();
+    m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
+    m_sprite.setPosition(position);
+}
 
 void AnimatedParticle::update(Time elapsedTime) noexcept {
     m_untilNext -= elapsedTime;

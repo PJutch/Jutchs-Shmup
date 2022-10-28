@@ -38,7 +38,7 @@ public:
     using DeathEffect::DeathEffect;
 
     void handleDeath() noexcept override {
-        m_gameState.setShouldReset();
+        m_gameState.setShouldResetAfter(sf::seconds(1.0f));
     }
 };
 

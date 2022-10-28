@@ -55,7 +55,7 @@ GameState::GameState(Vector2f screenSize) :
         m_enemyTexture{}, m_digitTextures{}, m_healthPickupTexture{}, 
         m_randomEngine{random_device{}()}, m_entities{}, m_player{}, 
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
-        m_score{0}, m_shouldReset{false} {
+        m_score{0}, m_shouldResetAfter{Time::Zero} {
     if (!m_playerTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0000.png")) 
         throw TextureLoadError{"Can't load player texture"};
     
@@ -108,8 +108,10 @@ void GameState::update(Time elapsedTime) noexcept {
         return entity->shouldBeDeleted();
     });
 
-    if (m_shouldReset)
-        reset();
+    if (m_shouldResetAfter > Time::Zero) {
+        m_shouldResetAfter -= elapsedTime;
+        if (m_shouldResetAfter <= Time::Zero) reset();
+    }
 
     while (m_player->getPosition().x + 4 * m_gameHeight > m_spawnX) {
         Vector2u enemySize = m_enemyTexture.getSize();
@@ -123,8 +125,6 @@ void GameState::update(Time elapsedTime) noexcept {
 }
 
 void GameState::reset() noexcept {
-    m_shouldReset = false;
-
     m_player->setPosition({0.f, 0.f});
     m_player->setHealth(3);
 

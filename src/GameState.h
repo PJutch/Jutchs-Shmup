@@ -98,8 +98,8 @@ public:
 
     bool inActiveArea(float x) const noexcept;
 
-    void setShouldReset() noexcept {
-        m_shouldReset = true;
+    void setShouldResetAfter(sf::Time time) noexcept {
+        m_shouldResetAfter = time;
     }
 
     void handleEvent(sf::Event event) noexcept {
@@ -127,7 +127,7 @@ private:
 
     int m_score;
 
-    bool m_shouldReset;
+    sf::Time m_shouldResetAfter;
 
     sf::Vector2f m_screenSize;
     float m_gameHeight;

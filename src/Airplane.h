@@ -246,7 +246,7 @@ protected:
     bool m_deletable;
 private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
-        target.draw(m_sprite, states);
+        if (m_health > 0) target.draw(m_sprite, states);
     }
 };
 

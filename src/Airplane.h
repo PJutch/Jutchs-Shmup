@@ -67,8 +67,9 @@ public:
             return *this;
         }
 
-        Builder& shootRight(bool shootRight) noexcept {
-            m_shootRight = shootRight;
+        Builder& playerSide(bool playerSide) noexcept {
+            m_build->m_playerSide = playerSide;
+            m_build->m_sprite.setRotation(playerSide ? 90.f : -90.f);
             return *this;
         }
 
@@ -107,7 +108,7 @@ public:
 
         std::unique_ptr<Airplane> build() noexcept {
             m_build->m_moveComponent->setSpeed(m_speed);
-            m_build->m_shootComponent->setShootRight(m_shootRight);
+            m_build->m_shootComponent->setShootRight(m_build->m_playerSide);
             return std::move(m_build);
         };
     private:
@@ -208,8 +209,6 @@ public:
         if (m_shootControlComponent->shouldShoot()) {
             m_shootComponent->tryShoot();
         }
-
-        m_sprite.setRotation(m_moveComponent->getRotation());
     }
 
     bool shouldBeDeleted() const noexcept override {
@@ -235,6 +234,8 @@ protected:
     int m_health;
     int m_maxHealth;
     sf::Time m_damageCooldown;
+
+    bool m_playerSide;
 
     bool m_deletable;
 private:

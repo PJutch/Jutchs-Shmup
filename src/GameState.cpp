@@ -75,7 +75,7 @@ GameState::GameState(Vector2f screenSize) :
 
     m_player = Airplane::Builder{*this}
         .position({0.f, 0.f}).maxHealth(3).deletable(false).texture(m_playerTexture)
-        .shootComponent<BasicShootComponent>().shootRight(true)
+        .shootComponent<BasicShootComponent>().playerSide(true)
         .shootControlComponent<PlayerShootControlComponent>()
         .moveComponent<PlayerMoveComponent>().speed({250.f, 250.f})
         .deathComponent<PlayerDeathComponent>().build().release();
@@ -166,7 +166,7 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
     if (genRandom(canonicalDistribution) < 0.01) {
         Airplane::Builder builder{*this};
 
-        builder.position(position).maxHealth(1).deletable(true).shootRight(false);
+        builder.position(position).maxHealth(1).deletable(true).playerSide(false);
         builder.texture(m_enemyTexture);
 
         double shootSeed = genRandom(canonicalDistribution);

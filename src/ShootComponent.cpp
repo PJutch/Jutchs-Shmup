@@ -14,6 +14,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "ShootComponent.h"
 
 #include "Airplane.h"
+#include "SoundEffect.h"
 
 #include <SFML/Graphics.hpp>
 using sf::Texture;
@@ -61,6 +62,8 @@ Vector2f ShootComponent::getShotSpeed() const noexcept {
 void BasicShootComponent::tryShoot() noexcept {
     if (m_shootCooldown <= Time::Zero) {
         shoot(m_owner.getPosition());
+        m_gameState.addSound(new SoundEffect{m_gameState.getAssets()
+                                .getRandomShotSound(m_gameState.getRandomEngine())});
         m_shootCooldown = seconds(0.25f);
     }
 }
@@ -73,6 +76,9 @@ void TripleShootComponent::tryShoot() noexcept {
         shoot(position);
         shoot({position.x, position.y + height / 2});
         shoot({position.x, position.y - height / 2});
+
+        m_gameState.addSound(new SoundEffect{m_gameState.getAssets()
+                        .getRandomShotSound(m_gameState.getRandomEngine())});
 
         m_shootCooldown = seconds(0.5f);
     }
@@ -109,6 +115,9 @@ void VolleyShootComponent::tryShoot() noexcept {
 
         shoot(m_owner.getPosition());
 
+        m_gameState.addSound(new SoundEffect{m_gameState.getAssets()
+                        .getRandomShotSound(m_gameState.getRandomEngine())});
+
         m_shots += 2;
         m_shootCooldown = seconds(0.1f);
     }
@@ -118,6 +127,8 @@ void VolleyShootComponent::update(sf::Time elapsedTime) noexcept {
     ShootComponent::update(elapsedTime);
     if (m_shootCooldown <= sf::Time::Zero && m_shots > 0) {
         shoot(m_owner.getPosition());
+        m_gameState.addSound(new SoundEffect{m_gameState.getAssets()
+                                .getRandomShotSound(m_gameState.getRandomEngine())});
         m_shootCooldown = sf::seconds(-- m_shots == 0 ? 0.5f : 0.1f);
     }
 }

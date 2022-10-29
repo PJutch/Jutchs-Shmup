@@ -60,5 +60,10 @@ AssetManager::AssetManager() :
     for (int i = 0; i < ssize(m_explosionSounds); ++ i) 
         if (!m_explosionSounds[i].loadFromFile(
                 format("resources/sci-fi-sounds/Explosions/explosionCrunch_{}.ogg", i))) 
-            throw SoundLoadError{format("Can't load {} explosion sound", i)};
+            throw SoundLoadError{format("Can't load explosion sound {}", i)};
+
+    for (int i = 0; i < ssize(m_shotSounds); ++ i) 
+        if (!m_shotSounds[i].loadFromFile(
+                format("resources/sci-fi-sounds/Shots/laserSmall_{}.ogg", i))) 
+            throw SoundLoadError{format("Can't load shot sound {}", i)};
 }

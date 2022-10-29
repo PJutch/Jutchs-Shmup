@@ -60,6 +60,12 @@ public:
         return m_explosionSounds[std::uniform_int_distribution<int>(
                                     0, std::ssize(m_explosionSounds) - 1)(engine)];
     }
+
+    template <std::uniform_random_bit_generator Engine>
+    const sf::SoundBuffer& getRandomShotSound(Engine& engine) const noexcept {
+        return m_shotSounds[std::uniform_int_distribution<int>(
+                            0, std::ssize(m_shotSounds) - 1)(engine)];
+    }
 private:
     sf::Texture m_playerTexture;
     sf::Texture m_healthTexture;
@@ -70,6 +76,7 @@ private:
     std::vector<sf::Texture> m_explosionAnimation;
 
     std::array<sf::SoundBuffer, 5> m_explosionSounds;
+    std::array<sf::SoundBuffer, 5> m_shotSounds;
 };
 
 class AssetLoadError : public std::runtime_error {

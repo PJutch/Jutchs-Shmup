@@ -26,7 +26,7 @@ using std::ssize;
 
 AssetManager::AssetManager() : 
         m_playerTexture{}, m_healthTexture{}, m_bulletTexture{}, m_enemyTexture{},
-        m_digitTextures{}, m_healthPickupTexture{}, m_explosionAnimation{} {
+        m_digitTextures{}, m_healthPickupTexture{}, m_explosionAnimation{}, m_explosionSound{} {
     if (!m_playerTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0000.png")) 
         throw TextureLoadError{"Can't load player texture"};
     
@@ -56,4 +56,7 @@ AssetManager::AssetManager() :
         m_explosionAnimation.back().loadFromImage(explosionAnimationMap, 
             IntRect(x, 0, explosionAnimationMap.getSize().y, explosionAnimationMap.getSize().y));
     }
+
+    if (!m_explosionSound.loadFromFile("resources/sci-fi-sounds/Audio/explosionCrunch_000.ogg")) 
+        throw SoundLoadError{"Can't load explosion sound"};
 }

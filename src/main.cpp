@@ -27,6 +27,9 @@ using sf::IntRect;
 using sf::Vector2f;
 using sf::Vector2u;
 
+#include <SFML/Audio.hpp>
+using sf::Sound;
+
 #include <SFML/System.hpp>
 using sf::Clock;
 using sf::Time;

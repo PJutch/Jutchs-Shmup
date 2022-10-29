@@ -15,6 +15,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "HealthPickup.h"
 
+#include <SFML/Audio.hpp>
+using sf::Sound;
+
 DeathEffect::DeathEffect(Airplane& owner, GameState& gameState) noexcept : 
     m_owner{owner}, m_gameState{gameState} {}
 

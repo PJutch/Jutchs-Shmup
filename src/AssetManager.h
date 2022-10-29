@@ -16,6 +16,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
+#include <SFML/Audio.hpp>
 
 #include <vector>
 #include <array>
@@ -51,6 +52,10 @@ public:
     const std::vector<sf::Texture>& getExplosionAnimation() const noexcept {
         return m_explosionAnimation;
     }
+
+    const sf::SoundBuffer& getExplosionSound() const noexcept {
+        return m_explosionSound;
+    }
 private:
     sf::Texture m_playerTexture;
     sf::Texture m_healthTexture;
@@ -59,10 +64,20 @@ private:
     std::array<sf::Texture, 10> m_digitTextures;
     sf::Texture m_healthPickupTexture;
     std::vector<sf::Texture> m_explosionAnimation;
+
+    sf::SoundBuffer m_explosionSound;
 };
 
-class TextureLoadError : public std::runtime_error {
+class AssetLoadError : public std::runtime_error {
     using std::runtime_error::runtime_error;
+};
+
+class TextureLoadError : public AssetLoadError {
+    using AssetLoadError::AssetLoadError;
+};
+
+class SoundLoadError : public AssetLoadError {
+    using AssetLoadError::AssetLoadError;
 };
 
 #endif

@@ -17,4 +17,4 @@ If not, see <https://www.gnu.org/licenses/>. */
 using sf::Vector2f;
 
 HealthPickup::HealthPickup(Vector2f position, GameState& gameState) noexcept : 
-    Pickup{position, gameState.getHealthPickupTexture(), gameState} {}
+    Pickup{position, gameState.getAssets().getHealthPickupTexture(), gameState} {}

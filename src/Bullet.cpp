@@ -23,9 +23,9 @@ using sf::Vector2f;
 using sf::Time;
 
 Bullet::Bullet(Airplane* owner, bool playerSide, Vector2f position, GameState& gameState) noexcept :
-        Entity{gameState}, m_sprite{gameState.getBulletTexture()}, 
+        Entity{gameState}, m_sprite{gameState.getAssets().getBulletTexture()}, 
         m_playerSide{playerSide}, m_alive{true}, m_owner{owner} {
-    auto size = gameState.getBulletTexture().getSize();
+    auto size = gameState.getAssets().getBulletTexture().getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
     m_sprite.setPosition(position);
     m_sprite.setRotation(90.f);

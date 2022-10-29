@@ -27,7 +27,7 @@ public:
     Bullet(Airplane* owner, bool playerSide, sf::Vector2f position, GameState& gameState) noexcept;
     
     static sf::Vector2f getSize(GameState& gameState) noexcept {
-        auto size = gameState.getBulletTexture().getSize();
+        auto size = gameState.getAssets().getBulletTexture().getSize();
         return sf::Vector2f(size.x, size.y);
     }
 

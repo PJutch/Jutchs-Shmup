@@ -15,6 +15,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define GAME_STATE_H_
 
 #include "Entity.h"
+#include "AssetManager.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -31,32 +32,8 @@ class GameState : public sf::Drawable {
 public:
     GameState(sf::Vector2f screenSize);
 
-    const sf::Texture& getPlayerTexture() const noexcept {
-        return m_playerTexture;
-    }
-
-    const sf::Texture& getHealthTexture() const noexcept {
-        return m_healthTexture;
-    }
-
-    const sf::Texture& getBulletTexture() const noexcept {
-        return m_bulletTexture;
-    }
-
-    const sf::Texture& getEnemyTexture() const noexcept {
-        return m_enemyTexture;
-    }
-
-    const std::array<sf::Texture, 10>& getDigitTextures() const noexcept {
-        return m_digitTextures;
-    }
-
-    const sf::Texture& getHealthPickupTexture() const noexcept {
-        return m_healthPickupTexture;
-    }
-
-    const std::vector<sf::Texture>& getExplosionAnimation() const noexcept {
-        return m_explosionAnimation;
+    const AssetManager& getAssets() const noexcept {
+        return m_assetManager;
     }
 
     template<typename Distribution>
@@ -112,13 +89,7 @@ public:
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override;
 private:
-    sf::Texture m_playerTexture;
-    sf::Texture m_healthTexture;
-    sf::Texture m_bulletTexture;
-    sf::Texture m_enemyTexture;
-    std::array<sf::Texture, 10> m_digitTextures;
-    sf::Texture m_healthPickupTexture;
-    std::vector<sf::Texture> m_explosionAnimation;
+    AssetManager m_assetManager;
 
     std::mt19937_64 m_randomEngine;
 
@@ -138,10 +109,6 @@ private:
     void reset() noexcept;
 
     void trySpawnEnemy(sf::Vector2f position) noexcept;
-};
-
-class TextureLoadError : public std::runtime_error {
-    using std::runtime_error::runtime_error;
 };
 
 #endif

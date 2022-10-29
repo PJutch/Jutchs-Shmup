@@ -51,43 +51,11 @@ using std::unique_ptr;
 using std::move;
 
 GameState::GameState(Vector2f screenSize) : 
-        m_playerTexture{}, m_healthTexture{}, m_bulletTexture{}, 
-        m_enemyTexture{}, m_digitTextures{}, m_healthPickupTexture{}, 
-        m_randomEngine{random_device{}()}, m_entities{}, m_player{}, 
+        m_assetManager{}, m_randomEngine{random_device{}()}, m_entities{}, m_player{}, 
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
         m_score{0}, m_shouldResetAfter{Time::Zero} {
-    if (!m_playerTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0000.png")) 
-        throw TextureLoadError{"Can't load player texture"};
-    
-    if (!m_healthTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0026.png"))
-        throw TextureLoadError{"Can't load health texture"};
-    
-    if (!m_bulletTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0000.png"))
-        throw TextureLoadError{"Can't load bullet texture"};
-    
-    if (!m_enemyTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0001.png"))
-        throw TextureLoadError{"Can't load enemy texture"};
-    
-    for (int i = 0; i < ssize(m_digitTextures); ++ i) 
-        if (!m_digitTextures[i].loadFromFile(
-                format("resources/kenney_pixelshmup/Digits/digit_{}.png", i))) 
-            throw TextureLoadError{format("Can't load digit {} texture", i)};
-
-    if (!m_healthPickupTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0024.png")) 
-        throw TextureLoadError{"Can't load health pickup texture"};
-    
-    Image explosionAnimationMap;
-    if (!explosionAnimationMap.loadFromFile("resources/explosion.png")) 
-        throw TextureLoadError{"Can't load explosion animation"};
-    for (unsigned int x = 0; x < explosionAnimationMap.getSize().x; 
-            x += explosionAnimationMap.getSize().y) {
-        m_explosionAnimation.emplace_back();
-        m_explosionAnimation.back().loadFromImage(explosionAnimationMap, 
-            IntRect(x, 0, explosionAnimationMap.getSize().y, explosionAnimationMap.getSize().y));
-    }
-
     m_player = Airplane::Builder{*this}
-        .position({0.f, 0.f}).maxHealth(3).deletable(false).texture(m_playerTexture)
+        .position({0.f, 0.f}).maxHealth(3).deletable(false).texture(getAssets().getPlayerTexture())
         .shootComponent<BasicShootComponent>().playerSide(true)
         .shootControlComponent<PlayerShootControlComponent>()
         .moveComponent<PlayerMoveComponent>().speed({250.f, 250.f})
@@ -114,7 +82,7 @@ void GameState::update(Time elapsedTime) noexcept {
     }
 
     while (m_player->getPosition().x + 4 * m_gameHeight > m_spawnX) {
-        Vector2u enemySize = m_enemyTexture.getSize();
+        Vector2u enemySize = getAssets().getEnemyTexture().getSize();
         for (float y = (enemySize.y - m_gameHeight) / 2; 
                 y < (m_gameHeight- enemySize.y) / 2; y += enemySize.y) {
             trySpawnEnemy(Vector2f{m_spawnX, y});
@@ -151,18 +119,18 @@ void GameState::draw(RenderTarget& target, RenderStates states) const noexcept {
 
     target.setView(prevView);
 
-    Sprite healthSprite{getHealthTexture()};
+    Sprite healthSprite{getAssets().getHealthTexture()};
     healthSprite.scale(2, 2);
     for (int i = 0; i < getPlayer().getHealth(); ++ i) {
-        healthSprite.setPosition(2 * i * getHealthTexture().getSize().x, 
+        healthSprite.setPosition(2 * i * getAssets().getHealthTexture().getSize().x, 
                                  0.01 * getScreenSize().y);
         target.draw(healthSprite, states);
     }
 
     string score = to_string(m_score);
     for (int i = 0; i < ssize(score); ++ i) {
-        Sprite digitSprite{getDigitTextures()[score[i] - '0']};
-        digitSprite.setPosition(i * getDigitTextures()[0].getSize().x, 0);
+        Sprite digitSprite{getAssets().getDigitTextures()[score[i] - '0']};
+        digitSprite.setPosition(i * getAssets().getDigitTextures()[0].getSize().x, 0);
         target.draw(digitSprite, states);
     }
 }
@@ -180,7 +148,7 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
         Airplane::Builder builder{*this};
 
         builder.position(position).maxHealth(1).deletable(true).playerSide(false);
-        builder.texture(m_enemyTexture);
+        builder.texture(getAssets().getEnemyTexture());
 
         double shootSeed = genRandom(canonicalDistribution);
         if (shootSeed < 0.1) {

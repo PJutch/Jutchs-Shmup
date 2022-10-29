@@ -29,6 +29,6 @@ void LootDeathEffect::handleDeath() noexcept {
 
 void ExplosionDeathEffect::handleDeath() noexcept {
     m_gameState.addEntity(new AnimatedParticle{m_owner.getPosition(), 
-                                               m_gameState.getExplosionAnimation(), 
+                                               m_gameState.getAssets().getExplosionAnimation(), 
                                                sf::seconds(0.1f), m_gameState});
 }

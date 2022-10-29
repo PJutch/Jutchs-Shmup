@@ -16,6 +16,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Entity.h"
 #include "AssetManager.h"
+#include "SoundEffect.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -65,6 +66,11 @@ public:
         return *m_player;
     }
 
+    void addSound(SoundEffect* sound) noexcept {
+        m_sounds.emplace_back(sound);
+    }
+
+
     void addScore(int score) noexcept {
         m_score += score;
     }
@@ -103,6 +109,8 @@ private:
     sf::Vector2f m_screenSize;
     float m_gameHeight;
     float m_spawnX;
+
+    std::vector<std::unique_ptr<SoundEffect>> m_sounds;
 
     sf::View getView() const noexcept;
 

@@ -53,7 +53,7 @@ using std::move;
 GameState::GameState(Vector2f screenSize) : 
         m_assetManager{}, m_randomEngine{random_device{}()}, m_entities{}, m_player{}, 
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
-        m_score{0}, m_shouldResetAfter{Time::Zero} {
+        m_score{0}, m_shouldResetAfter{Time::Zero}, m_sounds{} {
     m_player = Airplane::Builder{*this}
         .position({0.f, 0.f}).maxHealth(3).deletable(false).texture(getAssets().getPlayerTexture())
         .shootComponent<BasicShootComponent>().playerSide(true)
@@ -75,6 +75,11 @@ void GameState::update(Time elapsedTime) noexcept {
     erase_if(m_entities, [this](const unique_ptr<Entity>& entity) -> bool {
         return entity->shouldBeDeleted();
     });
+
+    erase_if(m_sounds, [this](const unique_ptr<SoundEffect>& sound) -> bool {
+        return sound->hasStopped();
+    });
+
 
     if (m_shouldResetAfter > Time::Zero) {
         m_shouldResetAfter -= elapsedTime;

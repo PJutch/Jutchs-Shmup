@@ -14,6 +14,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "DeathEffect.h"
 
 #include "HealthPickup.h"
+#include "SoundEffect.h"
+#include "AnimatedParticle.h"
 
 #include <SFML/Audio.hpp>
 using sf::Sound;
@@ -34,4 +36,5 @@ void ExplosionDeathEffect::handleDeath() noexcept {
     m_gameState.addEntity(new AnimatedParticle{m_owner.getPosition(), 
                                                m_gameState.getAssets().getExplosionAnimation(), 
                                                sf::seconds(0.1f), m_gameState});
+    m_gameState.addSound(new SoundEffect{m_gameState.getAssets().getExplosionSound()});
 }

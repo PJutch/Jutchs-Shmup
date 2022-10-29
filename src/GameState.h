@@ -24,6 +24,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <random>
 #include <vector>
 #include <array>
+#include <concepts>
 #include <memory>
 #include <exception>
 
@@ -37,9 +38,13 @@ public:
         return m_assetManager;
     }
 
-    template<typename Distribution>
+    template<std::invocable<std::mt19937_64&> Distribution>
     auto genRandom(Distribution distibution) noexcept {
         return distibution(m_randomEngine);
+    }
+
+    std::mt19937_64& getRandomEngine() noexcept {
+        return m_randomEngine;
     }
 
     float getGameHeight() const noexcept {
@@ -69,7 +74,6 @@ public:
     void addSound(SoundEffect* sound) noexcept {
         m_sounds.emplace_back(sound);
     }
-
 
     void addScore(int score) noexcept {
         m_score += score;

@@ -18,8 +18,10 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/System.hpp>
 #include <SFML/Audio.hpp>
 
+#include <random>
 #include <vector>
 #include <array>
+#include <concepts>
 
 class AssetManager {
 public:
@@ -53,8 +55,10 @@ public:
         return m_explosionAnimation;
     }
 
-    const sf::SoundBuffer& getExplosionSound() const noexcept {
-        return m_explosionSound;
+    template <std::uniform_random_bit_generator Engine>
+    const sf::SoundBuffer& getRandomExplosionSound(Engine& engine) const noexcept {
+        return m_explosionSounds[std::uniform_int_distribution<int>(
+                                    0, std::ssize(m_explosionSounds) - 1)(engine)];
     }
 private:
     sf::Texture m_playerTexture;
@@ -65,7 +69,7 @@ private:
     sf::Texture m_healthPickupTexture;
     std::vector<sf::Texture> m_explosionAnimation;
 
-    sf::SoundBuffer m_explosionSound;
+    std::array<sf::SoundBuffer, 5> m_explosionSounds;
 };
 
 class AssetLoadError : public std::runtime_error {

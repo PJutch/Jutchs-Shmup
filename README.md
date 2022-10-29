@@ -14,8 +14,9 @@ There are:
 - [SFML](https://www.sfml-dev.org)
 
 ## Credits
-- [Kenney](https://www.kenney.nl) for [Pixel Shmup](https://kenney.nl/assets/pixel-shmup)]
-                                  and [Sci-Fi Sounds](https://kenney.nl/assets/sci-fi-sounds)
+- [Kenney](https://www.kenney.nl) for [Pixel Shmup](https://kenney.nl/assets/pixel-shmup),
+                                      [Sci-Fi Sounds](https://kenney.nl/assets/sci-fi-sounds)
+                                  and [Digital Audio](https://kenney.nl/assets/digital-audio)
 - [Sogomn](https://opengameart.org/users/sogomn) for [explosion animation](https://opengameart.org/content/explosion-3)
 
 ## Build

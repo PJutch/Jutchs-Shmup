@@ -16,6 +16,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Pickup.h"
 #include "Airplane.h"
+#include "SoundEffect.h"
 
 class HealthPickup : public Pickup {
 public:
@@ -23,6 +24,8 @@ public:
 
     void apply(Airplane& airplane) noexcept override {
         if (isAlive() && airplane.addHealth(1)) {
+            m_gameState.addSound(new SoundEffect{m_gameState.getAssets()
+                                    .getRandomPowerUpSound(m_gameState.getRandomEngine())});
             die();
         }
     };

@@ -66,4 +66,9 @@ AssetManager::AssetManager() :
         if (!m_shotSounds[i].loadFromFile(
                 format("resources/sci-fi-sounds/Shots/laserSmall_{}.ogg", i))) 
             throw SoundLoadError{format("Can't load shot sound {}", i)};
+
+    for (int i = 0; i < ssize(m_powerUpSounds); ++ i) 
+        if (!m_powerUpSounds[i].loadFromFile(
+                format("resources/kenney_digitalaudio/PowerUp/powerUp{}.ogg", i + 1))) 
+            throw SoundLoadError{format("Can't load power up sound {}", i)};
 }

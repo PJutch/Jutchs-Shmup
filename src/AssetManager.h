@@ -66,6 +66,12 @@ public:
         return m_shotSounds[std::uniform_int_distribution<int>(
                             0, std::ssize(m_shotSounds) - 1)(engine)];
     }
+
+    template <std::uniform_random_bit_generator Engine>
+    const sf::SoundBuffer& getRandomPowerUpSound(Engine& engine) const noexcept {
+        return m_powerUpSounds[std::uniform_int_distribution<int>(
+                                0, std::ssize(m_powerUpSounds) - 1)(engine)];
+    }
 private:
     sf::Texture m_playerTexture;
     sf::Texture m_healthTexture;
@@ -77,6 +83,7 @@ private:
 
     std::array<sf::SoundBuffer, 5> m_explosionSounds;
     std::array<sf::SoundBuffer, 5> m_shotSounds;
+    std::array<sf::SoundBuffer, 12> m_powerUpSounds;
 };
 
 class AssetLoadError : public std::runtime_error {

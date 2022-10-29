@@ -80,7 +80,6 @@ void GameState::update(Time elapsedTime) noexcept {
         return sound->hasStopped();
     });
 
-
     if (m_shouldResetAfter > Time::Zero) {
         m_shouldResetAfter -= elapsedTime;
         if (m_shouldResetAfter <= Time::Zero) reset();

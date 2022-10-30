@@ -154,8 +154,11 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
 
         builder.position(position).maxHealth(1).deletable(true).playerSide(false);
 
+        int score = 10;
+
         if (genRandom(canonicalDistribution) < 0.1) {
             builder.maxHealth(3).textureHeavy(true);
+            score *= 2;
         } else {
             builder.maxHealth(1).textureHeavy(false);
         }
@@ -164,9 +167,11 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
         if (shootSeed < 0.1) {
             builder.shootComponent<TripleShootComponent>()
                    .textureHasWeapon(true);
+            score *= 2;
         } else if (shootSeed < 0.2) {
             builder.shootComponent<VolleyShootComponent>()
                    .textureHasWeapon(false);
+            score *= 2;
         } else {
             builder.shootComponent<BasicShootComponent >()
                    .textureHasWeapon(false);
@@ -179,6 +184,7 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
         } else if (shootControlSeed < 0.2) {
             shootControl = builder.createShootControlComponent<NeverShootControlComponent>();
             builder.textureHasWeapon(false);
+            score /= 2;
         } else {
             shootControl = builder.createShootControlComponent<AlwaysShootControlComponent>();
         }
@@ -188,6 +194,7 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
 
         if (genRandom(canonicalDistribution) < 0.1) {
             builder.speed({500.f, 250.f}).textureFast(true);
+            score *= 2;
         } else {
             builder.speed({250.f, 250.f}).textureFast(false);
         }
@@ -201,7 +208,7 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
             builder.moveComponent<BasicMoveComponent>();
         }
 
-        builder.addDeathEffect<ScoreDeathEffect>(10)
+        builder.addDeathEffect<ScoreDeathEffect>(score)
                .addDeathEffect<LootDeathEffect>()
                .addDeathEffect<ExplosionDeathEffect>();
 

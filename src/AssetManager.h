@@ -27,20 +27,12 @@ class AssetManager {
 public:
     AssetManager();
 
-    const sf::Texture& getPlayerTexture() const noexcept {
-        return m_playerTexture;
-    }
-
     const sf::Texture& getHealthTexture() const noexcept {
         return m_healthTexture;
     }
 
     const sf::Texture& getBulletTexture() const noexcept {
         return m_bulletTexture;
-    }
-
-    const sf::Texture& getEnemyTexture() const noexcept {
-        return m_enemyTexture;
     }
 
     const std::array<sf::Texture, 10>& getDigitTextures() const noexcept {
@@ -53,6 +45,15 @@ public:
 
     const std::vector<sf::Texture>& getExplosionAnimation() const noexcept {
         return m_explosionAnimation;
+    }
+
+    const sf::Texture& getAirplaneTexture(bool playerSide, 
+                                          bool heavy, 
+                                          bool fast, 
+                                          bool hasWeapon) const noexcept;
+    
+    sf::Vector2u getAirplaneTextureSize() const noexcept {
+        return m_airplaneTextures[0][0][0][0].getSize();
     }
 
     template <std::uniform_random_bit_generator Engine>
@@ -73,13 +74,13 @@ public:
                                 0, std::ssize(m_powerUpSounds) - 1)(engine)];
     }
 private:
-    sf::Texture m_playerTexture;
     sf::Texture m_healthTexture;
     sf::Texture m_bulletTexture;
-    sf::Texture m_enemyTexture;
     std::array<sf::Texture, 10> m_digitTextures;
     sf::Texture m_healthPickupTexture;
     std::vector<sf::Texture> m_explosionAnimation;
+
+    std::array<std::array<std::array<std::array<sf::Texture, 2>, 2>, 2>, 2> m_airplaneTextures;
 
     std::array<sf::SoundBuffer, 5> m_explosionSounds;
     std::array<sf::SoundBuffer, 5> m_shotSounds;

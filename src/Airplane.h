@@ -53,15 +53,6 @@ public:
             return *this;
         }
 
-        Builder& texture(const sf::Texture& texture) noexcept {
-            m_build->m_sprite.setTexture(texture);
-
-            auto size = texture.getSize();
-            m_build->m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
-
-            return *this;
-        }
-
         Builder& speed(sf::Vector2f speed) noexcept {
             m_speed = speed;
             return *this;
@@ -69,7 +60,6 @@ public:
 
         Builder& playerSide(bool playerSide) noexcept {
             m_build->m_playerSide = playerSide;
-            m_build->m_sprite.setRotation(playerSide ? 90.f : -90.f);
             return *this;
         }
 
@@ -106,16 +96,48 @@ public:
             return *this;
         }
 
+        Builder& textureHeavy(bool heavy) noexcept {
+            m_textureHeavy = heavy;
+            return *this;
+        }
+
+        Builder& textureFast(bool fast) noexcept {
+            m_textureFast = fast;
+            return *this;
+        }
+
+        Builder& textureHasWeapon(bool hasWeapon) noexcept {
+            m_textureHasWeapon = hasWeapon;
+            return *this;
+        }
+
         std::unique_ptr<Airplane> build() noexcept {
             m_build->m_moveComponent->setSpeed(m_speed);
+            
+            setTexture(m_gameState.getAssets().getAirplaneTexture(m_build->m_playerSide, 
+                                                                  m_textureHeavy, 
+                                                                  m_textureFast, 
+                                                                  m_textureHasWeapon));
+            
             return std::move(m_build);
         };
     private:
         std::unique_ptr<Airplane> m_build;
+
         sf::Vector2f m_speed;
-        bool m_shootRight;
+
+        bool m_textureHeavy;
+        bool m_textureFast;
+        bool m_textureHasWeapon;
 
         GameState& m_gameState;
+
+        void setTexture(const sf::Texture& texture) noexcept {
+            m_build->m_sprite.setTexture(texture);
+
+            auto size = texture.getSize();
+            m_build->m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
+        }
     };
 
     Airplane(GameState& gameState) noexcept;
@@ -252,6 +274,7 @@ private:
 
 template<typename... Args>
 Airplane::Builder::Builder(GameState& gameState, Args&&... args) : 
-    m_build{new Airplane{gameState, std::forward<Args>(args)...}}, m_gameState{gameState} {}
+    m_build{new Airplane{gameState, std::forward<Args>(args)...}}, m_gameState{gameState},         
+    m_speed{0.f, 0.f}, m_textureHeavy{false}, m_textureFast{false}, m_textureHasWeapon{false} {}
 
 #endif

@@ -25,10 +25,13 @@ using std::format;
 using std::ssize;
 
 AssetManager::AssetManager() : 
-        m_playerTexture{}, m_healthTexture{}, m_bulletTexture{}, m_enemyTexture{},
-        m_digitTextures{}, m_healthPickupTexture{}, m_explosionAnimation{}, m_explosionSounds{} {
-    if (!m_playerTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0000.png")) 
-        throw TextureLoadError{"Can't load player texture"};
+        m_healthTexture      {}, 
+        m_bulletTexture      {},
+        m_digitTextures      {}, 
+        m_healthPickupTexture{}, 
+        m_explosionAnimation {}, 
+        m_airplaneTextures   {},
+        m_explosionSounds    {} {
     
     if (!m_healthTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0026.png"))
         throw TextureLoadError{"Can't load health texture"};
@@ -36,12 +39,9 @@ AssetManager::AssetManager() :
     if (!m_bulletTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0000.png"))
         throw TextureLoadError{"Can't load bullet texture"};
     
-    if (!m_enemyTexture.loadFromFile("resources/kenney_pixelshmup/Ships/ship_0001.png"))
-        throw TextureLoadError{"Can't load enemy texture"};
-    
     for (int i = 0; i < ssize(m_digitTextures); ++ i) 
         if (!m_digitTextures[i].loadFromFile(
-                format("resources/kenney_pixelshmup/Digits/digit_{}.png", i))) 
+                    format("resources/kenney_pixelshmup/Digits/digit_{}.png", i))) 
             throw TextureLoadError{format("Can't load digit {} texture", i)};
 
     if (!m_healthPickupTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0024.png")) 
@@ -57,6 +57,22 @@ AssetManager::AssetManager() :
             IntRect(x, 0, explosionAnimationMap.getSize().y, explosionAnimationMap.getSize().y));
     }
 
+    for (int playerSide = 0; playerSide < 2; ++ playerSide) 
+    for (int heavy = 0;      heavy < 2;      ++ heavy) 
+    for (int fast = 0;       fast < 2;       ++ fast) 
+    for (int weapon = 0;     weapon < 2;     ++ weapon) 
+        if (!m_airplaneTextures[playerSide][heavy][fast][weapon].loadFromFile(
+                format("resources/Airplanes/airplane_{}{}{}{}.png", 
+                    playerSide ? "player"  : "enemy", 
+                    heavy  ? "_heavy"  : "", 
+                    fast   ? "_fast"   : "", 
+                    weapon ? "_weapon" : "")))
+            throw TextureLoadError{format("Can't load {}{}{} airplane texture {} weapon", 
+                                          playerSide ? "player" : "enemy",
+                                          heavy ?      " heavy" : "",
+                                          fast  ?      " fast"  : "", 
+                                          weapon ?     "with"   : "without")};
+
     for (int i = 0; i < ssize(m_explosionSounds); ++ i) 
         if (!m_explosionSounds[i].loadFromFile(
                 format("resources/sci-fi-sounds/Explosions/explosionCrunch_{}.ogg", i))) 
@@ -71,4 +87,15 @@ AssetManager::AssetManager() :
         if (!m_powerUpSounds[i].loadFromFile(
                 format("resources/kenney_digitalaudio/PowerUp/powerUp{}.ogg", i + 1))) 
             throw SoundLoadError{format("Can't load power up sound {}", i)};
+}
+
+const sf::Texture& AssetManager::getAirplaneTexture(
+        bool playerSide, 
+        bool heavy, 
+        bool fast, 
+        bool hasWeapon) const noexcept {
+    return m_airplaneTextures[static_cast<int>(playerSide)]
+                             [static_cast<int>(heavy)]
+                             [static_cast<int>(fast)]
+                             [static_cast<int>(hasWeapon)];
 }

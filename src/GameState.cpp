@@ -55,7 +55,8 @@ GameState::GameState(Vector2f screenSize) :
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
         m_score{0}, m_shouldResetAfter{Time::Zero}, m_sounds{} {
     m_player = Airplane::Builder{*this}
-        .position({0.f, 0.f}).maxHealth(3).deletable(false).texture(getAssets().getPlayerTexture())
+        .position({0.f, 0.f}).maxHealth(3).deletable(false)
+        .textureHeavy(true).textureFast(false).textureHasWeapon(false)
         .shootComponent<BasicShootComponent>().playerSide(true)
         .shootControlComponent<PlayerShootControlComponent>()
         .moveComponent<PlayerMoveComponent>().speed({250.f, 250.f})
@@ -86,7 +87,7 @@ void GameState::update(Time elapsedTime) noexcept {
     }
 
     while (m_player->getPosition().x + 4 * m_gameHeight > m_spawnX) {
-        Vector2u enemySize = getAssets().getEnemyTexture().getSize();
+        Vector2u enemySize = getAssets().getAirplaneTextureSize();
         for (float y = (enemySize.y - m_gameHeight) / 2; 
                 y < (m_gameHeight- enemySize.y) / 2; y += enemySize.y) {
             trySpawnEnemy(Vector2f{m_spawnX, y});
@@ -152,15 +153,18 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
         Airplane::Builder builder{*this};
 
         builder.position(position).maxHealth(1).deletable(true).playerSide(false);
-        builder.texture(getAssets().getEnemyTexture());
+        builder.textureHeavy(false).textureFast(false);
 
         double shootSeed = genRandom(canonicalDistribution);
         if (shootSeed < 0.1) {
-            builder.shootComponent<TripleShootComponent>();
+            builder.shootComponent<TripleShootComponent>()
+                   .textureHasWeapon(true);
         } else if (shootSeed < 0.2) {
-            builder.shootComponent<VolleyShootComponent>();
+            builder.shootComponent<VolleyShootComponent>()
+                   .textureHasWeapon(false);
         } else {
-            builder.shootComponent<BasicShootComponent>();
+            builder.shootComponent<BasicShootComponent >()
+                   .textureHasWeapon(false);
         }
 
         double shootControlSeed = genRandom(canonicalDistribution);
@@ -169,6 +173,7 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
             shootControl = builder.createShootControlComponent<TargetPlayerShootControlComponent>();
         } else if (shootControlSeed < 0.2) {
             shootControl = builder.createShootControlComponent<NeverShootControlComponent>();
+            builder.textureHasWeapon(false);
         } else {
             shootControl = builder.createShootControlComponent<AlwaysShootControlComponent>();
         }
@@ -176,7 +181,11 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
         builder.shootControlComponent<AndShootControlComponent>(move(shootControl), 
             builder.createShootControlComponent<CanHitPlayerShootControlComponent>());
 
-        builder.speed({genRandom(canonicalDistribution) < 0.1 ? 500.f : 250.f, 250.f});
+        if (genRandom(canonicalDistribution) < 0.1) {
+            builder.speed({500.f, 250.f}).textureFast(true);
+        } else {
+            builder.speed({250.f, 250.f}).textureFast(false);
+        }
 
         double moveSeed = genRandom(canonicalDistribution);
         if (moveSeed < 0.1) {

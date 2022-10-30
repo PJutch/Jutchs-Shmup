@@ -153,7 +153,12 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
         Airplane::Builder builder{*this};
 
         builder.position(position).maxHealth(1).deletable(true).playerSide(false);
-        builder.textureHeavy(false).textureFast(false);
+
+        if (genRandom(canonicalDistribution) < 0.1) {
+            builder.maxHealth(3).textureHeavy(true);
+        } else {
+            builder.maxHealth(1).textureHeavy(false);
+        }
 
         double shootSeed = genRandom(canonicalDistribution);
         if (shootSeed < 0.1) {

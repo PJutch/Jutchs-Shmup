@@ -24,8 +24,8 @@ public:
 
     void apply(Airplane& airplane) noexcept override {
         if (isAlive() && airplane.addHealth(1)) {
-            m_gameState.addSound(new SoundEffect{m_gameState.getAssets()
-                                    .getRandomPowerUpSound(m_gameState.getRandomEngine())});
+            m_gameState.addSound(m_gameState.getAssets()
+                                    .getRandomPowerUpSound(m_gameState.getRandomEngine()));
             die();
         }
     };

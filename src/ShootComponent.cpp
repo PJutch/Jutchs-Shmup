@@ -62,8 +62,7 @@ Vector2f ShootComponent::getShotSpeed() const noexcept {
 void BasicShootComponent::tryShoot() noexcept {
     if (m_shootCooldown <= Time::Zero) {
         shoot(m_owner.getPosition());
-        m_gameState.addSound(new SoundEffect{m_gameState.getAssets()
-                                .getRandomShotSound(m_gameState.getRandomEngine())});
+        m_gameState.addSound(m_gameState.getAssets().getRandomShotSound(m_gameState.getRandomEngine()));
         m_shootCooldown = seconds(0.25f);
     }
 }
@@ -77,8 +76,7 @@ void TripleShootComponent::tryShoot() noexcept {
         shoot({position.x, position.y + height / 2});
         shoot({position.x, position.y - height / 2});
 
-        m_gameState.addSound(new SoundEffect{m_gameState.getAssets()
-                        .getRandomShotSound(m_gameState.getRandomEngine())});
+        m_gameState.addSound(m_gameState.getAssets().getRandomShotSound(m_gameState.getRandomEngine()));
 
         m_shootCooldown = seconds(0.5f);
     }

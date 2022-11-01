@@ -72,6 +72,10 @@ public:
         m_sounds.emplace_back(sound);
     }
 
+    void addSound(const sf::SoundBuffer& sound) noexcept {
+        addSound(new SoundEffect{sound});
+    }
+
     void addScore(int score) noexcept {
         m_scoreChanges.emplace_back(score, m_clock.getElapsedTime());
     }

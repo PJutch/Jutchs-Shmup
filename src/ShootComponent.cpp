@@ -35,7 +35,7 @@ ShootComponent::ShootComponent(Airplane& owner, GameState& gameState) noexcept :
         m_shootCooldown{Time::Zero}, m_owner{owner}, m_gameState{gameState} {};
 
 void ShootComponent::shoot(Vector2f position) noexcept {
-    m_gameState.addEntity(new Bullet{&m_owner, m_owner.isOnPlayerSide(), position, m_gameState});
+    m_gameState.getEntities().addEntity(new Bullet{&m_owner, m_owner.isOnPlayerSide(), position, m_gameState});
 }
 
 FloatRect ShootComponent::getAffectedArea() const noexcept {

@@ -53,7 +53,7 @@ using std::move;
 
 GameState::GameState(Vector2f screenSize) : 
         m_assetManager{}, m_tickClock{}, m_clock{}, 
-        m_randomEngine{random_device{}()}, m_entities{}, m_player{nullptr}, 
+        m_randomEngine{random_device{}()}, m_player{nullptr}, 
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
         m_score{0}, m_shouldResetAfter{Time::Zero}, m_sounds{} {
     m_player = Airplane::Builder{*this}
@@ -63,23 +63,13 @@ GameState::GameState(Vector2f screenSize) :
         .shootControlComponent<PlayerShootControlComponent>()
         .moveComponent<PlayerMoveComponent>().speed({250.f, 250.f})
         .addDeathEffect<LoseDeathEffect>().addDeathEffect<ExplosionDeathEffect>().build().release();
-    m_entities.emplace_back(m_player);
+    m_entityManager.addEntity(m_player);
 }
 
 void GameState::update() noexcept {
     Time elapsedTime = m_tickClock.restart();
 
-    for (int i = 0; i < ssize(m_entities); ++ i) 
-        m_entities[i]->update(elapsedTime);
-    
-    for (int i = 0; i < ssize(m_entities); ++ i) 
-        for (int j = i + 1; j < ssize(m_entities); ++ j) 
-            if (m_entities[i]->getGlobalBounds().intersects(m_entities[j]->getGlobalBounds())) 
-                m_entities[i]->startCollide(*m_entities[j]);
-
-    erase_if(m_entities, [this](const unique_ptr<Entity>& entity) -> bool {
-        return entity->shouldBeDeleted();
-    });
+    m_entityManager.update(elapsedTime);
 
     erase_if(m_sounds, [this](const unique_ptr<SoundEffect>& sound) -> bool {
         return sound->hasStopped();
@@ -111,9 +101,8 @@ void GameState::reset() noexcept {
     m_player->setPosition({0.f, 0.f});
     m_player->setHealth(3);
 
-    erase_if(m_entities, [this](const unique_ptr<Entity>& entity) -> bool {
-        return entity.get() != m_player;
-    });
+    m_entityManager.reset();
+
     m_spawnX = m_gameHeight * 4;
 
     m_score = 0;
@@ -142,9 +131,7 @@ void GameState::draw(RenderTarget& target, RenderStates states) const noexcept {
     auto prevView = target.getView();
     target.setView(getView());
 
-    for (const auto& entity : getEntities()) {
-        target.draw(*entity, states);
-    }
+    target.draw(m_entityManager, states);
 
     target.setView(prevView);
 
@@ -245,6 +232,6 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
                .addDeathEffect<LootDeathEffect>()
                .addDeathEffect<ExplosionDeathEffect>();
 
-        addEntity(builder.build());
+        m_entityManager.addEntity(builder.build());
     }
 }

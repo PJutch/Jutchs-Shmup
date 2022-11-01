@@ -36,8 +36,8 @@ public:
 
     virtual sf::FloatRect getGlobalBounds() const noexcept = 0;
 
-    virtual void startCollide(Entity& other) noexcept = 0;
-    
+    virtual void startCollide(Entity& other) noexcept = 0;   
+
     virtual void acceptCollide(Airplane& other) noexcept {}
     virtual void acceptCollide(Bullet& other) noexcept {}
     virtual void acceptCollide(Pickup& other) noexcept {}
@@ -46,6 +46,11 @@ public:
     virtual bool isPassable() const noexcept = 0;
 
     virtual bool shouldBeDeleted() const noexcept = 0;
+
+    // return true if should be deleted after reset
+    virtual bool reset() noexcept { 
+        return true;
+    }
 protected:
     GameState& m_gameState;
 };

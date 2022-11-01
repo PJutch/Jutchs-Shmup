@@ -28,12 +28,12 @@ ScoreDeathEffect::ScoreDeathEffect(Airplane& owner, GameState& gameState, int sc
 
 void LootDeathEffect::handleDeath() noexcept {
     if (m_gameState.genRandom(std::uniform_real_distribution{0.0, 1.0}) < 0.1) {
-        m_gameState.addEntity(new HealthPickup{m_owner.getPosition(), m_gameState});
+        m_gameState.getEntities().addEntity(new HealthPickup{m_owner.getPosition(), m_gameState});
     }
 }
 
 void ExplosionDeathEffect::handleDeath() noexcept {
-    m_gameState.addEntity(new AnimatedParticle{m_owner.getPosition(), 
+    m_gameState.getEntities().addEntity(new AnimatedParticle{m_owner.getPosition(), 
                                                m_gameState.getAssets().getExplosionAnimation(), 
                                                sf::seconds(0.1f), m_gameState});
     m_gameState.addSound(new SoundEffect{

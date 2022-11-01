@@ -17,6 +17,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Entity.h"
 #include "AssetManager.h"
 #include "SoundEffect.h"
+#include "EntityManager.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -26,7 +27,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <array>
 #include <concepts>
 #include <memory>
-#include <exception>
 #include <deque>
 
 class Airplane;
@@ -52,16 +52,12 @@ public:
         return m_gameHeight;
     }
 
-    const std::vector<std::unique_ptr<Entity>>& getEntities() const noexcept {
-        return m_entities;
+    const EntityManager& getEntities() const noexcept {
+        return m_entityManager;
     }
 
-    void addEntity(Entity* entity) noexcept {
-        m_entities.emplace_back(entity);
-    }
-
-    void addEntity(std::unique_ptr<Entity>&& entity) noexcept {
-        m_entities.push_back(std::move(entity));
+    EntityManager& getEntities() noexcept {
+        return m_entityManager;
     }
 
     const Airplane& getPlayer() const noexcept {
@@ -91,9 +87,7 @@ public:
     }
 
     void handleEvent(sf::Event event) noexcept {
-        for (const auto& entity : getEntities()) {
-            entity->handleEvent(event);
-        }
+        m_entityManager.handleEvent(event);
     }
 
     void update() noexcept;
@@ -102,12 +96,13 @@ public:
 private:
     AssetManager m_assetManager;
 
+    EntityManager m_entityManager;
+
     sf::Clock m_tickClock;
     sf::Clock m_clock;
 
     std::mt19937_64 m_randomEngine;
 
-    std::vector<std::unique_ptr<Entity>> m_entities;
     Airplane* m_player;
 
     int m_score;

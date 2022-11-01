@@ -239,6 +239,14 @@ public:
             && (m_health <= 0 || !m_gameState.inActiveArea(m_sprite.getPosition().x));
     }
 
+    bool reset() noexcept override {
+        if (m_deletable) return true;
+
+        m_health = m_maxHealth;
+        m_sprite.setPosition({0.f, 0.f});
+        return false;
+    }
+
     bool isDead() const noexcept {
         return m_health <= 0;
     }

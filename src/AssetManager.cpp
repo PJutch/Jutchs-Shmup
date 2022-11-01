@@ -24,25 +24,12 @@ using std::format;
 
 using std::ssize;
 
-AssetManager::AssetManager() : 
-        m_healthTexture      {}, 
-        m_bulletTexture      {},
-        m_digitTextures      {}, 
-        m_healthPickupTexture{}, 
-        m_explosionAnimation {}, 
-        m_airplaneTextures   {},
-        m_explosionSounds    {} {
-    
+AssetManager::AssetManager() {
     if (!m_healthTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0026.png"))
         throw TextureLoadError{"Can't load health texture"};
     
     if (!m_bulletTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0000.png"))
         throw TextureLoadError{"Can't load bullet texture"};
-    
-    for (int i = 0; i < ssize(m_digitTextures); ++ i) 
-        if (!m_digitTextures[i].loadFromFile(
-                    format("resources/kenney_pixelshmup/Digits/digit_{}.png", i))) 
-            throw TextureLoadError{format("Can't load digit {} texture", i)};
 
     if (!m_healthPickupTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0024.png")) 
         throw TextureLoadError{"Can't load health pickup texture"};
@@ -72,6 +59,17 @@ AssetManager::AssetManager() :
                                           heavy ?      " heavy" : "",
                                           fast  ?      " fast"  : "", 
                                           weapon ?     "with"   : "without")};
+    
+    if (!m_plusTexture.loadFromFile("resources/plus.png"))
+        throw TextureLoadError{"Can't load plus {} texture"};
+    
+    if (!m_minusTexture.loadFromFile("resources/minus.png"))
+        throw TextureLoadError{"Can't load minus {} texture"};
+
+    for (int i = 0; i < ssize(m_digitTextures); ++ i) 
+        if (!m_digitTextures[i].loadFromFile(
+                    format("resources/kenney_pixelshmup/Digits/digit_{}.png", i))) 
+            throw TextureLoadError{format("Can't load digit {} texture", i)};
 
     for (int i = 0; i < ssize(m_explosionSounds); ++ i) 
         if (!m_explosionSounds[i].loadFromFile(

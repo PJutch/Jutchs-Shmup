@@ -157,11 +157,19 @@ void GameState::draw(RenderTarget& target, RenderStates states) const noexcept {
     }
 
     drawNumber(m_score, Vector2f(0.f, healthSize.y), target, states);
-
     auto digitSize = getAssets().getDigitTextures()[0].getSize();
     for (int i = 0; i < ssize(m_scoreChanges); ++ i) {
+        Sprite signSprite;
+        if (m_scoreChanges[i].value >= 0) {
+            signSprite.setTexture(getAssets().getPlusTexture());
+        } else {
+            signSprite.setTexture(getAssets().getMinusTexture());
+        }
+        signSprite.setPosition(0.f, healthSize.y + digitSize.y * (i + 1));
+        target.draw(signSprite, states);
+
         drawNumber(m_scoreChanges[i].value, 
-                   Vector2f(0.f, healthSize.y + digitSize.y * (i + 1)), target, states);
+                   Vector2f(digitSize.x, healthSize.y + digitSize.y * (i + 1)), target, states);
     }
 }
 

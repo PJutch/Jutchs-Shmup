@@ -35,10 +35,6 @@ public:
         return m_bulletTexture;
     }
 
-    const std::array<sf::Texture, 10>& getDigitTextures() const noexcept {
-        return m_digitTextures;
-    }
-
     const sf::Texture& getHealthPickupTexture() const noexcept {
         return m_healthPickupTexture;
     }
@@ -54,6 +50,18 @@ public:
     
     sf::Vector2u getAirplaneTextureSize() const noexcept {
         return m_airplaneTextures[0][0][0][0].getSize();
+    }
+
+    const sf::Texture& getPlusTexture() const noexcept {
+        return m_plusTexture;
+    }
+
+    const sf::Texture& getMinusTexture() const noexcept {
+        return m_minusTexture;
+    }
+
+    const std::array<sf::Texture, 10>& getDigitTextures() const noexcept {
+        return m_digitTextures;
     }
 
     template <std::uniform_random_bit_generator Engine>
@@ -76,11 +84,14 @@ public:
 private:
     sf::Texture m_healthTexture;
     sf::Texture m_bulletTexture;
-    std::array<sf::Texture, 10> m_digitTextures;
     sf::Texture m_healthPickupTexture;
     std::vector<sf::Texture> m_explosionAnimation;
 
     std::array<std::array<std::array<std::array<sf::Texture, 2>, 2>, 2>, 2> m_airplaneTextures;
+
+    sf::Texture m_plusTexture;
+    sf::Texture m_minusTexture;
+    std::array<sf::Texture, 10> m_digitTextures;
 
     std::array<sf::SoundBuffer, 5> m_explosionSounds;
     std::array<sf::SoundBuffer, 5> m_shotSounds;

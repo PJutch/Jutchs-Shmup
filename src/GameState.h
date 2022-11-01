@@ -27,6 +27,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <concepts>
 #include <memory>
 #include <exception>
+#include <deque>
 
 class Airplane;
 
@@ -76,7 +77,7 @@ public:
     }
 
     void addScore(int score) noexcept {
-        m_score += score;
+        m_scoreChanges.emplace_back(score, m_clock.getElapsedTime());
     }
 
     sf::Vector2f getScreenSize() const noexcept {
@@ -101,6 +102,7 @@ public:
 private:
     AssetManager m_assetManager;
 
+    sf::Clock m_tickClock;
     sf::Clock m_clock;
 
     std::mt19937_64 m_randomEngine;
@@ -109,6 +111,11 @@ private:
     Airplane* m_player;
 
     int m_score;
+    struct ScoreChange {
+        int value;
+        sf::Time time;
+    };
+    std::deque<ScoreChange> m_scoreChanges;
 
     sf::Time m_shouldResetAfter;
 

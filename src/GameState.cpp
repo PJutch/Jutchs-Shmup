@@ -25,6 +25,7 @@ using sf::Image;
 
 #include <SFML/System.hpp>
 using sf::Time;
+using sf::seconds;
 using sf::Vector2u;
 using sf::Vector2f;
 using sf::IntRect;
@@ -51,7 +52,8 @@ using std::unique_ptr;
 using std::move;
 
 GameState::GameState(Vector2f screenSize) : 
-        m_assetManager{}, m_randomEngine{random_device{}()}, m_entities{}, m_player{}, 
+        m_assetManager{}, m_tickClock{}, m_clock{}, 
+        m_randomEngine{random_device{}()}, m_entities{}, m_player{nullptr}, 
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
         m_score{0}, m_shouldResetAfter{Time::Zero}, m_sounds{} {
     m_player = Airplane::Builder{*this}
@@ -65,7 +67,7 @@ GameState::GameState(Vector2f screenSize) :
 }
 
 void GameState::update() noexcept {
-    Time elapsedTime = m_clock.restart();
+    Time elapsedTime = m_tickClock.restart();
 
     for (int i = 0; i < ssize(m_entities); ++ i) 
         m_entities[i]->update(elapsedTime);
@@ -97,9 +99,15 @@ void GameState::update() noexcept {
         m_spawnX += enemySize.x;
         addScore(1);
     }
+
+    while (!m_scoreChanges.empty() 
+            && m_scoreChanges.front().time + seconds(0.5f) < m_clock.getElapsedTime()) {
+        m_score += m_scoreChanges.front().value;
+        m_scoreChanges.pop_front();
+    }
 }
 
-void GameState::reset() noexcept {
+void GameState::reset() noexcept {  
     m_player->setPosition({0.f, 0.f});
     m_player->setHealth(3);
 
@@ -109,6 +117,9 @@ void GameState::reset() noexcept {
     m_spawnX = m_gameHeight * 4;
 
     m_score = 0;
+    m_scoreChanges.clear();
+
+    m_clock.restart();
 }
 
 bool GameState::inActiveArea(float x) const noexcept {
@@ -118,7 +129,7 @@ bool GameState::inActiveArea(float x) const noexcept {
 
 void GameState::drawNumber(int n, Vector2f position, 
                            RenderTarget& target, RenderStates states) const noexcept {
-    auto score = to_string(m_score);
+    auto score = to_string(n);
     auto digitSize = getAssets().getDigitTextures()[0].getSize();
     for (int i = 0; i < ssize(score); ++ i) {
         Sprite digitSprite{getAssets().getDigitTextures()[score[i] - '0']};
@@ -137,15 +148,21 @@ void GameState::draw(RenderTarget& target, RenderStates states) const noexcept {
 
     target.setView(prevView);
 
+    auto healthSize = 2u * getAssets().getHealthTexture().getSize();
     Sprite healthSprite{getAssets().getHealthTexture()};
     healthSprite.scale(2, 2);
     for (int i = 0; i < getPlayer().getHealth(); ++ i) {
-        healthSprite.setPosition(2 * i * getAssets().getHealthTexture().getSize().x, 
-                                 0.01 * getScreenSize().y);
+        healthSprite.setPosition(i * healthSize.x, 0.f);
         target.draw(healthSprite, states);
     }
 
-    drawNumber(m_score, {0.f, 0.f}, target, states);
+    drawNumber(m_score, Vector2f(0.f, healthSize.y), target, states);
+
+    auto digitSize = getAssets().getDigitTextures()[0].getSize();
+    for (int i = 0; i < ssize(m_scoreChanges); ++ i) {
+        drawNumber(m_scoreChanges[i].value, 
+                   Vector2f(0.f, healthSize.y + digitSize.y * (i + 1)), target, states);
+    }
 }
 
 View GameState::getView() const noexcept {

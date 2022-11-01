@@ -15,8 +15,9 @@ There are:
 
 ## Credits
 - [Kenney](https://www.kenney.nl) for [Pixel Shmup](https://kenney.nl/assets/pixel-shmup),
-                                      [Sci-Fi Sounds](https://kenney.nl/assets/sci-fi-sounds)
-                                  and [Digital Audio](https://kenney.nl/assets/digital-audio)
+                                      [Sci-Fi Sounds](https://kenney.nl/assets/sci-fi-sounds),
+                                      [Digital Audio](https://kenney.nl/assets/digital-audio)
+                                  and [Ship Mixer](https://kenney.itch.io/ship-mixer)
 - [Sogomn](https://opengameart.org/users/sogomn) for [explosion animation](https://opengameart.org/content/explosion-3)
 
 ## Build

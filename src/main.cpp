@@ -75,10 +75,7 @@ int main(int argc, char** argv) {
 
     float spawnX = gameState.getGameHeight() * 4;
 
-    Clock clock;
     while (window.isOpen()) {
-        Time elapsedTime = clock.restart();
-
         Event event;
         while (window.pollEvent(event)) {
             switch (event.type) {
@@ -93,7 +90,7 @@ int main(int argc, char** argv) {
             gameState.handleEvent(event);
         }
 
-        gameState.update(elapsedTime);
+        gameState.update();
 
         window.clear(Color::Green);
         window.draw(gameState);

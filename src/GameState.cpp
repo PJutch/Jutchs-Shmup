@@ -64,7 +64,9 @@ GameState::GameState(Vector2f screenSize) :
     m_entities.emplace_back(m_player);
 }
 
-void GameState::update(Time elapsedTime) noexcept {
+void GameState::update() noexcept {
+    Time elapsedTime = m_clock.restart();
+
     for (int i = 0; i < ssize(m_entities); ++ i) 
         m_entities[i]->update(elapsedTime);
     

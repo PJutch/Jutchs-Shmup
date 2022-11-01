@@ -95,11 +95,13 @@ public:
         }
     }
 
-    void update(sf::Time elapsedTime) noexcept;
+    void update() noexcept;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override;
 private:
     AssetManager m_assetManager;
+
+    sf::Clock m_clock;
 
     std::mt19937_64 m_randomEngine;
 

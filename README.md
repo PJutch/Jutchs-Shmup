@@ -1,7 +1,7 @@
 # Jutch's Shump
  
 ## About
-This is a quite simple shoot'em up game.
+This is just a shoot'em up game.
 
 Currently work is in progress.
 

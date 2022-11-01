@@ -116,6 +116,17 @@ bool GameState::inActiveArea(float x) const noexcept {
         && x - 5 * getGameHeight() <= getPlayer().getPosition().x;
 }
 
+void GameState::drawNumber(int n, Vector2f position, 
+                           RenderTarget& target, RenderStates states) const noexcept {
+    auto score = to_string(m_score);
+    auto digitSize = getAssets().getDigitTextures()[0].getSize();
+    for (int i = 0; i < ssize(score); ++ i) {
+        Sprite digitSprite{getAssets().getDigitTextures()[score[i] - '0']};
+        digitSprite.setPosition(i * digitSize.x + position.x, position.y);
+        target.draw(digitSprite, states);
+    }
+}
+
 void GameState::draw(RenderTarget& target, RenderStates states) const noexcept {
     auto prevView = target.getView();
     target.setView(getView());
@@ -134,12 +145,7 @@ void GameState::draw(RenderTarget& target, RenderStates states) const noexcept {
         target.draw(healthSprite, states);
     }
 
-    string score = to_string(m_score);
-    for (int i = 0; i < ssize(score); ++ i) {
-        Sprite digitSprite{getAssets().getDigitTextures()[score[i] - '0']};
-        digitSprite.setPosition(i * getAssets().getDigitTextures()[0].getSize().x, 0);
-        target.draw(digitSprite, states);
-    }
+    drawNumber(m_score, {0.f, 0.f}, target, states);
 }
 
 View GameState::getView() const noexcept {

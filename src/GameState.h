@@ -123,6 +123,9 @@ private:
     void reset() noexcept;
 
     void trySpawnEnemy(sf::Vector2f position) noexcept;
+
+    void drawNumber(int n, sf::Vector2f position, 
+                    sf::RenderTarget& target, sf::RenderStates states) const noexcept;
 };
 
 #endif

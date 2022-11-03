@@ -20,9 +20,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 namespace Gui {
     class Panel : public sf::Drawable {
     public:
-        Panel(sf::FloatRect area) : m_shape{{area.width, area.height}} {
+        Panel(sf::FloatRect area, sf::Color color) : m_shape{{area.width, area.height}} {
             m_shape.setPosition(area.left, area.top);
-            m_shape.setFillColor({0, 0, 0, 128});
+            m_shape.setFillColor(color);
         }
     private:
         sf::RectangleShape m_shape;

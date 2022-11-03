@@ -57,7 +57,8 @@ GameState::GameState(Vector2f screenSize) :
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
         m_score{0}, m_shouldResetAfter{Time::Zero}, m_sounds{}, 
         m_menuOpen{false}, m_menu{{(screenSize.x - screenSize.y / 2.f) / 2.f, screenSize.y / 4.f, 
-                                    screenSize.y / 2.f, screenSize.y / 2.f}},
+                                        screenSize.y / 2.f, screenSize.y / 2.f}, 
+                                    {0, 0, 0, 128}},
         m_shouldEnd{false} {
     m_player = Airplane::Builder{*this}
         .position({0.f, 0.f}).maxHealth(3).deletable(false)

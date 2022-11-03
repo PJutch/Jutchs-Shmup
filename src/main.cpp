@@ -78,17 +78,10 @@ int main(int argc, char** argv) {
     while (window.isOpen()) {
         Event event;
         while (window.pollEvent(event)) {
-            switch (event.type) {
-                case Event::Closed: window.close(); break;
-                case Event::KeyPressed:
-                    switch (event.key.code) {
-                        case Keyboard::Escape: window.close(); break;
-                    }
-                    break;
-            }
-
             gameState.handleEvent(event);
         }
+
+        if (gameState.shouldEnd()) window.close();
 
         gameState.update();
 

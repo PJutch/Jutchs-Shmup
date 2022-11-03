@@ -18,6 +18,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "AssetManager.h"
 #include "SoundEffect.h"
 #include "EntityManager.h"
+#include "Gui/Panel.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -90,8 +91,21 @@ public:
         m_shouldResetAfter = time;
     }
 
+    bool shouldEnd() const noexcept {
+        return m_shouldEnd;
+    }
+
     void handleEvent(sf::Event event) noexcept {
         m_entityManager.handleEvent(event);
+
+        if (event.type == sf::Event::Closed) m_shouldEnd = true;
+
+        if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
+            if (m_menuOpen) {
+                m_shouldEnd = true;
+            } else {
+                m_menuOpen = true;
+            }
     }
 
     void update() noexcept;
@@ -121,6 +135,11 @@ private:
     sf::Vector2f m_screenSize;
     float m_gameHeight;
     float m_spawnX;
+
+    bool m_menuOpen;
+    Gui::Panel m_menu;
+
+    bool m_shouldEnd;
 
     std::vector<std::unique_ptr<SoundEffect>> m_sounds;
 

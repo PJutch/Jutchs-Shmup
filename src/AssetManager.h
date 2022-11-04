@@ -81,6 +81,10 @@ public:
         return m_powerUpSounds[std::uniform_int_distribution<int>(
                                 0, std::ssize(m_powerUpSounds) - 1)(engine)];
     }
+
+    const sf::Font& getFont() const noexcept {
+        return m_font;
+    }
 private:
     sf::Texture m_healthTexture;
     sf::Texture m_bulletTexture;
@@ -96,6 +100,8 @@ private:
     std::array<sf::SoundBuffer, 5> m_explosionSounds;
     std::array<sf::SoundBuffer, 5> m_shotSounds;
     std::array<sf::SoundBuffer, 12> m_powerUpSounds;
+
+    sf::Font m_font;
 };
 
 class AssetLoadError : public std::runtime_error {
@@ -107,6 +113,10 @@ class TextureLoadError : public AssetLoadError {
 };
 
 class SoundLoadError : public AssetLoadError {
+    using AssetLoadError::AssetLoadError;
+};
+
+class FontLoadError : public AssetLoadError {
     using AssetLoadError::AssetLoadError;
 };
 

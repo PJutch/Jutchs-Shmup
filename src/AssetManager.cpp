@@ -85,6 +85,9 @@ AssetManager::AssetManager() {
         if (!m_powerUpSounds[i].loadFromFile(
                 format("resources/sounds/kenney_digitalaudio/PowerUp/powerUp{}.ogg", i + 1))) 
             throw SoundLoadError{format("Can't load power up sound {}", i)};
+    
+    if (!m_font.loadFromFile("resources/fonts/Roboto/Roboto-Medium.ttf")) 
+        throw FontLoadError{format("Can't load font")};
 }
 
 const sf::Texture& AssetManager::getAirplaneTexture(

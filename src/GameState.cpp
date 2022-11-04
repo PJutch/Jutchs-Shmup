@@ -14,6 +14,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "GameState.h"
 
 #include "Airplane.h"
+#include "Gui/Text.h"
 
 #include <SFML/Graphics.hpp>
 using sf::RenderTarget;
@@ -22,6 +23,7 @@ using sf::Sprite;
 using sf::View;
 using sf::Texture;
 using sf::Image;
+using sf::Color;
 
 #include <SFML/System.hpp>
 using sf::Time;
@@ -47,6 +49,7 @@ using std::ssize;
 
 #include <memory>
 using std::unique_ptr;
+using std::make_unique;
 
 #include <utility>
 using std::move;
@@ -68,6 +71,11 @@ GameState::GameState(Vector2f screenSize) :
         .moveComponent<PlayerMoveComponent>().speed({250.f, 250.f})
         .addDeathEffect<LoseDeathEffect>().addDeathEffect<ExplosionDeathEffect>().build().release();
     m_entityManager.addEntity(m_player);
+
+    auto menuText = make_unique<Gui::Text>("Menu", m_assetManager.getFont(), 30, Color::White);
+    menuText->setOrigin({menuText->getSize().x / 2.f, 0.f});
+    menuText->setPosition({screenSize.y / 4.f, 0.f});
+    m_menu.addChild(std::move(menuText));
 }
 
 void GameState::update() noexcept {

@@ -25,13 +25,18 @@ If not, see <https://www.gnu.org/licenses/>. */
 namespace Gui {
     class Panel : public Element {
     public:
-        Panel(sf::FloatRect area, sf::Color color) : m_shape{{area.width, area.height}} {
+        Panel(sf::FloatRect area, sf::Color color) noexcept : m_shape{{area.width, area.height}} {
             m_shape.setPosition(area.left, area.top);
             m_shape.setFillColor(color);
         }
 
-        void addChild(std::unique_ptr<Element>&& element) {
+        void addChild(std::unique_ptr<Element>&& element) noexcept {
             m_children.push_back(std::move(element));
+        }
+
+        template<std::derived_from<Element> ElementT, typename... Args>
+        void emplaceChild(Args&&... args) noexcept {
+            m_children.emplace_back(new ElementT{std::forward<Args>(args)...});
         }
     private:
         sf::RectangleShape m_shape;
@@ -39,7 +44,11 @@ namespace Gui {
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
             target.draw(m_shape, states);
+
             states.transform.translate(m_shape.getPosition());
+            for (const auto& child : m_children) {
+                target.draw(*child, states);
+            }
         }
     };
 }

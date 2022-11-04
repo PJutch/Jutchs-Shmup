@@ -61,9 +61,7 @@ GameState::GameState(Vector2f screenSize) :
         m_randomEngine{random_device{}()}, m_player{nullptr}, 
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
         m_score{0}, m_shouldResetAfter{Time::Zero}, m_sounds{}, 
-        m_menuOpen{false}, m_menu{{(screenSize.x - screenSize.y / 2.f) / 2.f, screenSize.y / 4.f, 
-                                        screenSize.y / 2.f, screenSize.y / 2.f}, 
-                                    {0, 0, 0, 128}},
+        m_menuOpen{false}, m_menu{{0, 0, 0, 128}},
         m_shouldEnd{false} {
     m_player = Airplane::Builder{*this}
         .position({0.f, 0.f}).maxHealth(3).deletable(false)
@@ -73,6 +71,10 @@ GameState::GameState(Vector2f screenSize) :
         .moveComponent<PlayerMoveComponent>().speed({250.f, 250.f})
         .addDeathEffect<LoseDeathEffect>().addDeathEffect<ExplosionDeathEffect>().build().release();
     m_entityManager.addEntity(m_player);
+
+    Vector2f menuSize{screenSize.y / 2.f, screenSize.y / 2.f};
+    Vector2f menuPos = (screenSize - menuSize) / 2.f;
+    m_menu.setRect({menuPos.x, menuPos.y, menuSize.x, menuSize.y});
 
     int characterSize = 30;
     const auto& font = m_assetManager.getFont();
@@ -85,7 +87,7 @@ GameState::GameState(Vector2f screenSize) :
 
     auto menuText = make_unique<Gui::Text>("Menu", font, characterSize, Color::White);
     menuText->setOrigin({menuText->getSize().x / 2.f, 0.f});
-    menuText->setPosition({screenSize.y / 4.f, 0.f});
+    menuText->setPosition({menuSize.x / 2.f, 0.f});
     m_menu.addChild(std::move(menuText));
 
     auto resumeText = make_unique<Gui::Text>("Resume", font, buttonCharacterSize, Color::Black);
@@ -95,7 +97,7 @@ GameState::GameState(Vector2f screenSize) :
     auto resumeButton = make_unique<Gui::Button>(buttonColor, Color::Black, buttonOutline);
     resumeButton->setSize(buttonSize);
     resumeButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
-    resumeButton->setPosition({screenSize.y / 4.f, 
+    resumeButton->setPosition({menuSize.x / 2.f, 
         screenSize.y / 2.f - 2 * buttonOffset - 3 * buttonOutline - buttonSize.y});
     resumeButton->setChild(std::move(resumeText));
     m_menu.addChild(std::move(resumeButton));

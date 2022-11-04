@@ -25,10 +25,32 @@ If not, see <https://www.gnu.org/licenses/>. */
 namespace Gui {
     class Panel : public Element {
     public:
-        Panel(sf::FloatRect rect, sf::Color color) noexcept : 
-                m_shape{{rect.width, rect.height}} {
-            m_shape.setPosition(rect.left, rect.top);
+        Panel(sf::Color color) noexcept {
             m_shape.setFillColor(color);
+        }
+
+        sf::Vector2f getSize() const noexcept {
+            auto localBounds = m_shape.getLocalBounds();
+            return {localBounds.width, localBounds.height};
+        }
+
+        void setRect(sf::FloatRect rect) noexcept {
+            m_shape.setSize({rect.width, rect.height});
+
+            auto origin = m_shape.getOrigin();
+            m_shape.setPosition(rect.left + origin.x, rect.top + origin.y);
+        }
+
+        void setSize(sf::Vector2f size) noexcept {
+            m_shape.setSize(size);
+        }
+
+        void setPosition(sf::Vector2f position) noexcept {
+            m_shape.setPosition(position);
+        }
+
+        void setOrigin(sf::Vector2f origin) noexcept {
+            m_shape.setOrigin(origin);
         }
 
         void addChild(std::unique_ptr<Element>&& element) noexcept {

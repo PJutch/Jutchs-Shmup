@@ -14,21 +14,32 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef GUI_PANEL_H_
 #define GUI_PANEL_H_
 
+#include "Gui/Element.h"
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+#include <vector>
+#include <memory>
+
 namespace Gui {
-    class Panel : public sf::Drawable {
+    class Panel : public Element {
     public:
         Panel(sf::FloatRect area, sf::Color color) : m_shape{{area.width, area.height}} {
             m_shape.setPosition(area.left, area.top);
             m_shape.setFillColor(color);
         }
+
+        void addChild(std::unique_ptr<Element>&& element) {
+            m_children.push_back(std::move(element));
+        }
     private:
         sf::RectangleShape m_shape;
+        std::vector<std::unique_ptr<Element>> m_children;
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
             target.draw(m_shape, states);
+            states.transform.translate(m_shape.getPosition());
         }
     };
 }

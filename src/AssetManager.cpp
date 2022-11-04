@@ -25,17 +25,17 @@ using std::format;
 using std::ssize;
 
 AssetManager::AssetManager() {
-    if (!m_healthTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0026.png"))
+    if (!m_healthTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0026.png"))
         throw TextureLoadError{"Can't load health texture"};
     
-    if (!m_bulletTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0000.png"))
+    if (!m_bulletTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0000.png"))
         throw TextureLoadError{"Can't load bullet texture"};
 
-    if (!m_healthPickupTexture.loadFromFile("resources/kenney_pixelshmup/Tiles/tile_0024.png")) 
+    if (!m_healthPickupTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0024.png")) 
         throw TextureLoadError{"Can't load health pickup texture"};
     
     Image explosionAnimationMap;
-    if (!explosionAnimationMap.loadFromFile("resources/explosion.png")) 
+    if (!explosionAnimationMap.loadFromFile("resources/textures/explosion.png")) 
         throw TextureLoadError{"Can't load explosion animation"};
     for (unsigned int x = 0; x < explosionAnimationMap.getSize().x; 
             x += explosionAnimationMap.getSize().y) {
@@ -49,7 +49,7 @@ AssetManager::AssetManager() {
     for (int fast = 0;       fast < 2;       ++ fast) 
     for (int weapon = 0;     weapon < 2;     ++ weapon) 
         if (!m_airplaneTextures[playerSide][heavy][fast][weapon].loadFromFile(
-                format("resources/Airplanes/airplane_{}{}{}{}.png", 
+                format("resources/textures/Airplanes/airplane_{}{}{}{}.png", 
                     playerSide ? "player"  : "enemy", 
                     heavy  ? "_heavy"  : "", 
                     fast   ? "_fast"   : "", 
@@ -60,30 +60,30 @@ AssetManager::AssetManager() {
                                           fast  ?      " fast"  : "", 
                                           weapon ?     "with"   : "without")};
     
-    if (!m_plusTexture.loadFromFile("resources/plus.png"))
+    if (!m_plusTexture.loadFromFile("resources/textures/plus.png"))
         throw TextureLoadError{"Can't load plus {} texture"};
     
-    if (!m_minusTexture.loadFromFile("resources/minus.png"))
+    if (!m_minusTexture.loadFromFile("resources/textures/minus.png"))
         throw TextureLoadError{"Can't load minus {} texture"};
 
     for (int i = 0; i < ssize(m_digitTextures); ++ i) 
         if (!m_digitTextures[i].loadFromFile(
-                    format("resources/kenney_pixelshmup/Digits/digit_{}.png", i))) 
+                    format("resources/textures/kenney_pixelshmup/Digits/digit_{}.png", i))) 
             throw TextureLoadError{format("Can't load digit {} texture", i)};
 
     for (int i = 0; i < ssize(m_explosionSounds); ++ i) 
         if (!m_explosionSounds[i].loadFromFile(
-                format("resources/sci-fi-sounds/Explosions/explosionCrunch_{}.ogg", i))) 
+                format("resources/sounds/sci-fi-sounds/Explosions/explosionCrunch_{}.ogg", i))) 
             throw SoundLoadError{format("Can't load explosion sound {}", i)};
 
     for (int i = 0; i < ssize(m_shotSounds); ++ i) 
         if (!m_shotSounds[i].loadFromFile(
-                format("resources/sci-fi-sounds/Shots/laserSmall_{}.ogg", i))) 
+                format("resources/sounds/sci-fi-sounds/Shots/laserSmall_{}.ogg", i))) 
             throw SoundLoadError{format("Can't load shot sound {}", i)};
 
     for (int i = 0; i < ssize(m_powerUpSounds); ++ i) 
         if (!m_powerUpSounds[i].loadFromFile(
-                format("resources/kenney_digitalaudio/PowerUp/powerUp{}.ogg", i + 1))) 
+                format("resources/sounds/kenney_digitalaudio/PowerUp/powerUp{}.ogg", i + 1))) 
             throw SoundLoadError{format("Can't load power up sound {}", i)};
 }
 

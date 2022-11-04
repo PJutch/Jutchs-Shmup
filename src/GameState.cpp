@@ -15,6 +15,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Airplane.h"
 #include "Gui/Text.h"
+#include "Gui/Button.h"
 
 #include <SFML/Graphics.hpp>
 using sf::RenderTarget;
@@ -40,6 +41,7 @@ using std::random_device;
 
 #include <algorithm>
 using std::erase_if;
+using std::max;
 
 #include <string>
 using std::string;
@@ -72,10 +74,42 @@ GameState::GameState(Vector2f screenSize) :
         .addDeathEffect<LoseDeathEffect>().addDeathEffect<ExplosionDeathEffect>().build().release();
     m_entityManager.addEntity(m_player);
 
-    auto menuText = make_unique<Gui::Text>("Menu", m_assetManager.getFont(), 30, Color::White);
+    int characterSize = 30;
+    const auto& font = m_assetManager.getFont();
+
+    float buttonOffset = max(screenSize.y / 64.f, 1.f);
+    float buttonOutline = max(screenSize.y / 96.f, 1.f);
+    Vector2f buttonSize{screenSize.y / 4.f, screenSize.y / 12.f};
+    Color buttonColor{192, 192, 192};
+    int buttonCharacterSize = 50;
+
+    auto menuText = make_unique<Gui::Text>("Menu", font, characterSize, Color::White);
     menuText->setOrigin({menuText->getSize().x / 2.f, 0.f});
     menuText->setPosition({screenSize.y / 4.f, 0.f});
     m_menu.addChild(std::move(menuText));
+
+    auto resumeText = make_unique<Gui::Text>("Resume", font, buttonCharacterSize, Color::Black);
+    resumeText->setOrigin({resumeText->getSize().x / 2.f, resumeText->getSize().y});
+    resumeText->setPosition({0.f, - buttonSize.y / 2.f});
+
+    auto resumeButton = make_unique<Gui::Button>(buttonColor, Color::Black, buttonOutline);
+    resumeButton->setSize(buttonSize);
+    resumeButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
+    resumeButton->setPosition({screenSize.y / 4.f, 
+        screenSize.y / 2.f - 2 * buttonOffset - 3 * buttonOutline - buttonSize.y});
+    resumeButton->setChild(std::move(resumeText));
+    m_menu.addChild(std::move(resumeButton));
+
+    auto exitText = make_unique<Gui::Text>("Exit", font, buttonCharacterSize, Color::Black);
+    exitText->setOrigin({exitText->getSize().x / 2.f, exitText->getSize().y});
+    exitText->setPosition({0.f, -buttonSize.y / 2.f});
+
+    auto exitButton = make_unique<Gui::Button>(buttonColor, Color::Black, buttonOutline);
+    exitButton->setSize(buttonSize);
+    exitButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
+    exitButton->setPosition({screenSize.y / 4.f, screenSize.y / 2.f - buttonOffset - buttonOutline});
+    exitButton->setChild(std::move(exitText));
+    m_menu.addChild(std::move(exitButton));
 }
 
 void GameState::update() noexcept {

@@ -25,8 +25,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 namespace Gui {
     class Panel : public Element {
     public:
-        Panel(sf::FloatRect area, sf::Color color) noexcept : m_shape{{area.width, area.height}} {
-            m_shape.setPosition(area.left, area.top);
+        Panel(sf::FloatRect rect, sf::Color color) noexcept : 
+                m_shape{{rect.width, rect.height}} {
+            m_shape.setPosition(rect.left, rect.top);
             m_shape.setFillColor(color);
         }
 

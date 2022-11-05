@@ -72,15 +72,15 @@ GameState::GameState(Vector2f screenSize) :
         .addDeathEffect<LoseDeathEffect>().addDeathEffect<ExplosionDeathEffect>().build().release();
     m_entityManager.addEntity(m_player);
 
-    Vector2f menuSize{screenSize.y / 2.f, screenSize.y / 2.f};
+    Vector2f menuSize{screenSize.y * 0.75f, screenSize.y * 0.75f};
     Vector2f menuPos = (screenSize - menuSize) / 2.f;
     m_menu.setRect({menuPos.x, menuPos.y, menuSize.x, menuSize.y});
 
-    int characterSize = 30;
+    int characterSize = 70;
     const auto& font = m_assetManager.getFont();
 
     float buttonOffset = max(screenSize.y / 64.f, 1.f);
-    float buttonOutline = max(screenSize.y / 96.f, 1.f);
+    float buttonOutline = max(screenSize.y / 128.f, 1.f);
     Vector2f buttonSize{screenSize.y / 4.f, screenSize.y / 12.f};
     Color buttonColor{192, 192, 192};
     int buttonCharacterSize = 50;
@@ -100,7 +100,7 @@ GameState::GameState(Vector2f screenSize) :
     resumeButton->setSize(buttonSize);
     resumeButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
     resumeButton->setPosition({menuSize.x / 2.f, 
-        screenSize.y / 2.f - 2 * buttonOffset - 3 * buttonOutline - buttonSize.y});
+        menuSize.y- 2 * buttonOffset - 3 * buttonOutline - buttonSize.y});
     resumeButton->setChild(std::move(resumeText));
     m_menu.addChild(std::move(resumeButton));
 
@@ -113,7 +113,7 @@ GameState::GameState(Vector2f screenSize) :
         }, buttonColor, Color::Black, buttonOutline);
     exitButton->setSize(buttonSize);
     exitButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
-    exitButton->setPosition({screenSize.y / 4.f, screenSize.y / 2.f - buttonOffset - buttonOutline});
+    exitButton->setPosition({menuSize.x / 2.f, menuSize.y - buttonOffset - buttonOutline});
     exitButton->setChild(std::move(exitText));
     m_menu.addChild(std::move(exitButton));
 }

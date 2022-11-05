@@ -36,6 +36,11 @@ class GameState : public sf::Drawable {
 public:
     GameState(sf::Vector2f screenSize);
 
+    GameState(const GameState&) noexcept = delete;
+    GameState& operator=(const GameState&) noexcept = delete;
+    GameState(GameState&&) noexcept = delete;
+    GameState& operator=(GameState&&) noexcept = delete;
+
     const AssetManager& getAssets() const noexcept {
         return m_assetManager;
     }
@@ -96,16 +101,16 @@ public:
     }
 
     void handleEvent(sf::Event event) noexcept {
-        m_entityManager.handleEvent(event);
+        if (m_menuOpen) {
+            m_menu.handleEvent(event);
+        } else {
+            m_entityManager.handleEvent(event);
+        }        
 
         if (event.type == sf::Event::Closed) m_shouldEnd = true;
 
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-            if (m_menuOpen) {
-                m_shouldEnd = true;
-            } else {
-                m_menuOpen = true;
-            }
+            m_menuOpen = !m_menuOpen;
     }
 
     void update() noexcept;

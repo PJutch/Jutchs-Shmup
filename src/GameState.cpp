@@ -94,7 +94,9 @@ GameState::GameState(Vector2f screenSize) :
     resumeText->setOrigin({resumeText->getSize().x / 2.f, resumeText->getSize().y});
     resumeText->setPosition({0.f, - buttonSize.y / 2.f});
 
-    auto resumeButton = make_unique<Gui::Button>(buttonColor, Color::Black, buttonOutline);
+    auto resumeButton = make_unique<Gui::Button>([this]{
+            m_menuOpen = false;
+        }, buttonColor, Color::Black, buttonOutline);
     resumeButton->setSize(buttonSize);
     resumeButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
     resumeButton->setPosition({menuSize.x / 2.f, 
@@ -106,7 +108,9 @@ GameState::GameState(Vector2f screenSize) :
     exitText->setOrigin({exitText->getSize().x / 2.f, exitText->getSize().y});
     exitText->setPosition({0.f, -buttonSize.y / 2.f});
 
-    auto exitButton = make_unique<Gui::Button>(buttonColor, Color::Black, buttonOutline);
+    auto exitButton = make_unique<Gui::Button>([this]{
+            m_shouldEnd = true;
+        }, buttonColor, Color::Black, buttonOutline);
     exitButton->setSize(buttonSize);
     exitButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
     exitButton->setPosition({screenSize.y / 4.f, screenSize.y / 2.f - buttonOffset - buttonOutline});

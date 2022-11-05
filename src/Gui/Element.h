@@ -15,11 +15,14 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define GUI_ELEMENT_H_
 
 #include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 
 namespace Gui {
     class Element : public sf::Drawable {
     public:
         virtual ~Element() = default;
+
+        virtual void handleEvent(const sf::Event& event) noexcept {}
     };
 }
 

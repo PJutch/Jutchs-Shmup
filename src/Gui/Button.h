@@ -17,10 +17,14 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+#include <functional>
+
 namespace Gui {
     class Button : public Element {
     public:
-        Button(sf::Color fillColor, sf::Color outlineColor, float outlineThickness) noexcept {
+        Button(const std::function<void()>& action, 
+                sf::Color fillColor, sf::Color outlineColor, float outlineThickness) noexcept :
+                    m_action{action} {
             m_shape.setFillColor(fillColor);
             m_shape.setOutlineColor(outlineColor);
             m_shape.setOutlineThickness(outlineThickness);
@@ -58,7 +62,17 @@ namespace Gui {
         void emplaceChild(Args&&... args) noexcept {
             m_child.reset(new ElementT{std::forward<Args>(args)...});
         }
+
+        void handleEvent(const sf::Event& event) noexcept override {
+            if (event.type == sf::Event::MouseButtonPressed 
+             && event.mouseButton.button == sf::Mouse::Button::Left
+             && m_shape.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                m_action();
+            }
+        }
     private:
+        std::function<void()> m_action;
+
         sf::RectangleShape m_shape;
         std::unique_ptr<Element> m_child;
 

@@ -81,22 +81,23 @@ GameState::GameState(Vector2f screenSize) :
 
     float buttonOffset = max(screenSize.y / 64.f, 1.f);
     float buttonOutline = max(screenSize.y / 128.f, 1.f);
-    Vector2f buttonSize{screenSize.y / 4.f, screenSize.y / 12.f};
-    Color buttonColor{192, 192, 192};
-    int buttonCharacterSize = 50;
+    Vector2f buttonSize{screenSize.y / 3.f, screenSize.y / 10.f};
+    Color buttonColor = Color::Transparent;
+    Color buttonElementColor = Color::White;
+    int buttonCharacterSize = 80;
 
     auto menuText = make_unique<Gui::Text>("Menu", font, characterSize, Color::White);
     menuText->setOrigin({menuText->getSize().x / 2.f, 0.f});
     menuText->setPosition({menuSize.x / 2.f, 0.f});
     m_menu.addChild(std::move(menuText));
 
-    auto resumeText = make_unique<Gui::Text>("Resume", font, buttonCharacterSize, Color::Black);
+    auto resumeText = make_unique<Gui::Text>("Resume", font, buttonCharacterSize, buttonElementColor);
     resumeText->setOrigin({resumeText->getSize().x / 2.f, resumeText->getSize().y});
     resumeText->setPosition({0.f, - buttonSize.y / 2.f});
 
     auto resumeButton = make_unique<Gui::Button>([this]{
             m_menuOpen = false;
-        }, buttonColor, Color::Black, buttonOutline);
+        }, buttonColor, buttonElementColor, 0.f, buttonOutline);
     resumeButton->setSize(buttonSize);
     resumeButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
     resumeButton->setPosition({menuSize.x / 2.f, 
@@ -104,13 +105,13 @@ GameState::GameState(Vector2f screenSize) :
     resumeButton->setChild(std::move(resumeText));
     m_menu.addChild(std::move(resumeButton));
 
-    auto exitText = make_unique<Gui::Text>("Exit", font, buttonCharacterSize, Color::Black);
+    auto exitText = make_unique<Gui::Text>("Exit", font, buttonCharacterSize, buttonElementColor);
     exitText->setOrigin({exitText->getSize().x / 2.f, exitText->getSize().y});
     exitText->setPosition({0.f, -buttonSize.y / 2.f});
 
     auto exitButton = make_unique<Gui::Button>([this]{
             m_shouldEnd = true;
-        }, buttonColor, Color::Black, buttonOutline);
+        }, buttonColor, buttonElementColor, 0.f, buttonOutline);
     exitButton->setSize(buttonSize);
     exitButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
     exitButton->setPosition({menuSize.x / 2.f, menuSize.y - buttonOffset - buttonOutline});

@@ -11,7 +11,9 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#include "Panel.h"
+#include "Gui/Panel.h"
+
+#include "util.h"
 
 namespace Gui {
     Panel::Panel(sf::Color color) noexcept {
@@ -19,30 +21,7 @@ namespace Gui {
     }
 
     void Panel::handleEvent(const sf::Event& event) noexcept {
-        sf::Event newEvent = event;
-
-        auto position = m_shape.getPosition();
-        switch (newEvent.type) {
-        case sf::Event::MouseWheelScrolled:
-            newEvent.mouseWheelScroll.x -= position.x;
-            newEvent.mouseWheelScroll.y -= position.y;
-            break;
-        case sf::Event::MouseButtonPressed:
-        case sf::Event::MouseButtonReleased:
-            newEvent.mouseButton.x -= position.x;
-            newEvent.mouseButton.y -= position.y;
-            break;
-        case sf::Event::MouseMoved:
-            newEvent.mouseMove.x -= position.x;
-            newEvent.mouseMove.y -= position.y;
-            break;
-        case sf::Event::TouchBegan:
-        case sf::Event::TouchMoved:
-        case sf::Event::TouchEnded:
-            newEvent.touch.x -= position.x;
-            newEvent.touch.y -= position.y;
-            break;
-        }
+        sf::Event newEvent = moveEvent(event, -m_shape.getPosition());
 
         for (auto& child : m_children) {
             child->handleEvent(newEvent);

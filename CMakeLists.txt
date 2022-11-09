@@ -12,7 +12,8 @@ add_executable(Jutchs_Shmup src/main.cpp src/Bullet.cpp src/Airplane.cpp
                             src/Pickup.cpp src/ShootComponent.cpp src/Entity.cpp src/GameState.cpp 
                             src/HealthPickup.cpp src/MoveComponent.cpp src/DeathEffect.cpp
                             src/ShootControlComponent.cpp src/AnimatedParticle.cpp 
-                            src/AssetManager.cpp src/EntityManager.cpp src/Gui/Panel.cpp)
+                            src/AssetManager.cpp src/EntityManager.cpp src/Gui/Panel.cpp src/util.cpp
+                            src/Gui/Button.cpp)
 set_property(TARGET Jutchs_Shmup PROPERTY MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
 
 add_library(OpenGL STATIC IMPORTED)

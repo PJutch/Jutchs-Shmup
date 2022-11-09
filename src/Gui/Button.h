@@ -14,7 +14,11 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef GUI_BUTTON_H_
 #define GUI_BUTTON_H_
 
+#include "Element.h"
+#include "util.h"
+
 #include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
 #include <SFML/System.hpp>
 
 #include <functional>
@@ -22,13 +26,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 namespace Gui {
     class Button : public Element {
     public:
-        Button(const std::function<void()>& action, 
-                sf::Color fillColor, sf::Color outlineColor, float outlineThickness) noexcept :
-                    m_action{action} {
-            m_shape.setFillColor(fillColor);
-            m_shape.setOutlineColor(outlineColor);
-            m_shape.setOutlineThickness(outlineThickness);
-        }
+        Button(const std::function<void ()>& action, 
+                sf::Color fillColor, sf::Color outlineColor, 
+                float outlineThickness, float activeOutlineThickness) noexcept;
 
         sf::Vector2f getSize() const noexcept {
             auto localBounds = m_shape.getLocalBounds();
@@ -63,18 +63,15 @@ namespace Gui {
             m_child.reset(new ElementT{std::forward<Args>(args)...});
         }
 
-        void handleEvent(const sf::Event& event) noexcept override {
-            if (event.type == sf::Event::MouseButtonPressed 
-             && event.mouseButton.button == sf::Mouse::Button::Left
-             && m_shape.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
-                m_action();
-            }
-        }
+        void handleEvent(const sf::Event& event) noexcept override;
     private:
-        std::function<void()> m_action;
+        std::function<void ()> m_action;
 
         sf::RectangleShape m_shape;
         std::unique_ptr<Element> m_child;
+
+        float m_outlineThickness;
+        float m_activeOutlineThickness;
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
             target.draw(m_shape, states);

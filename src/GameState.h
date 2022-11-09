@@ -75,6 +75,7 @@ public:
     }
 
     void addSound(SoundEffect* sound) noexcept {
+        sound->setVolume(m_volume * sound->getVolume());
         m_sounds.emplace_back(sound);
     }
 

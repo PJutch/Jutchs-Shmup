@@ -61,7 +61,7 @@ GameState::GameState(Vector2f screenSize) :
         m_assetManager{}, m_tickClock{}, m_clock{}, 
         m_randomEngine{random_device{}()}, m_player{nullptr}, 
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
-        m_score{0}, m_shouldResetAfter{Time::Zero}, m_sounds{}, m_volume{1.f},
+        m_score{0}, m_shouldResetAfter{Time::Zero}, m_sounds{}, m_volume{100.f},
         m_menuOpen{false}, m_menu{{0, 0, 0, 128}},
         m_shouldEnd{false} {
     m_player = Airplane::Builder{*this}
@@ -102,9 +102,9 @@ GameState::GameState(Vector2f screenSize) :
     volumeText->setPosition({menuSize.x / 2.f, menuText->getSize().y + sliderOffset});
 
     auto volumeSlider = make_unique<Gui::HorizontalSlider>([this]() -> float {
-            return m_volume;
+            return m_volume / 100.f;
         }, [this](float volume){
-            m_volume = volume;
+            m_volume = volume * 100.f;
         }, Color::White, Color::Black);
     volumeSlider->setSize({2.f / 3.f * menuSize.x, sliderHeight});
     volumeSlider->setOrigin({volumeSlider->getSize().x / 2, 0.f});

@@ -25,6 +25,14 @@ public:
     bool hasStopped() const noexcept {
         return m_sound.getStatus() == sf::Sound::Stopped;
     }
+
+    float getVolume() const noexcept {
+        return m_sound.getVolume();
+    }
+
+    void setVolume(float volume) noexcept {
+        m_sound.setVolume(volume);
+    }
 private:
     sf::Sound m_sound;
 };

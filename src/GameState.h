@@ -147,6 +147,7 @@ private:
     bool m_shouldEnd;
 
     std::vector<std::unique_ptr<SoundEffect>> m_sounds;
+    float m_volume;
 
     sf::View getView() const noexcept;
 

@@ -14,26 +14,30 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Gui/HorizontalSlider.h"
 
 namespace Gui {
-    HorizontalSlider::HorizontalSlider(sf::Color runnerColor, sf::Color lineColor) noexcept :
-            m_active{false} {
+    HorizontalSlider::HorizontalSlider(std::function<float ()> getValue, std::function<void (float)> setValue,
+                                       sf::Color runnerColor, sf::Color lineColor) noexcept :
+            m_active{false}, m_getValue{getValue}, m_setValue{setValue} {
         m_runner.setFillColor(runnerColor);
         m_line.setFillColor(lineColor);
     }
 
-    void HorizontalSlider::handleEvent(const sf::Event& event) noexcept {
+    void HorizontalSlider::handleEvent(const sf::Event& event) 
+            noexcept(noexcept(m_setValue(std::declval<float>()))) {
         switch (event.type) {
         case sf::Event::MouseButtonPressed:
-            if (event.mouseButton.button == sf::Mouse::Button::Left)
+            if (event.mouseButton.button == sf::Mouse::Button::Left) {
+                sf::Vector2f mousePos(event.mouseButton.x, event.mouseButton.y);
                 if (m_runner.getGlobalBounds().contains(
-                        event.mouseButton.x, event.mouseButton.y)) {
+                        mousePos - m_line.getPosition() + m_line.getOrigin()
+                        - sf::Vector2f{m_getValue() * m_line.getSize().x, 0.f})) {
                     m_active = true;
-                } else if (m_line.getGlobalBounds().contains(
-                        event.mouseButton.x, event.mouseButton.y)) {
+                } else if (m_line.getGlobalBounds().contains(mousePos)) {
                     m_active = true;
 
                     float left = m_line.getGlobalBounds().left;
-                    m_runner.setPosition(event.mouseButton.x - left, 0.f);
+                    m_setValue((event.mouseButton.x - left) / m_line.getSize().x);
                 }
+            }
             break;
         case sf::Event::MouseButtonReleased:
             if (event.mouseButton.button == sf::Mouse::Button::Left)
@@ -44,10 +48,10 @@ namespace Gui {
                 x -= m_line.getGlobalBounds().left;
                 if (x < 0.f) 
                     x = 0.f;
-                if (x > m_line.getGlobalBounds().width) 
-                    x = m_line.getGlobalBounds().width;
+                if (x > m_line.getSize().x) 
+                    x = m_line.getSize().x;
 
-                m_runner.setPosition(x, 0.f);
+                m_setValue(x / m_line.getSize().x);
             }
             break;
         }

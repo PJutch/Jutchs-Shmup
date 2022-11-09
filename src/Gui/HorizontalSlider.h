@@ -19,10 +19,13 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 
+#include <functional>
+
 namespace Gui {
     class HorizontalSlider : public Element {
     public:
-        HorizontalSlider(sf::Color runnerColor, sf::Color lineColor) noexcept;
+        HorizontalSlider(std::function<float ()> getValue, std::function<void (float)> setValue, 
+                         sf::Color runnerColor, sf::Color lineColor) noexcept;
 
         sf::Vector2f getSize() const noexcept {
             return m_line.getSize();
@@ -59,17 +62,23 @@ namespace Gui {
             m_runner.setOrigin(origin);
         }
 
-        void handleEvent(const sf::Event& event) noexcept override;
+        void handleEvent(const sf::Event& event) 
+            noexcept(noexcept(m_setValue(std::declval<float>()))) override;
     private:
         sf::RectangleShape m_runner;
         sf::RectangleShape m_line;
 
         bool m_active;
 
-        void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
+        std::function<float ()> m_getValue;
+        std::function<void (float)> m_setValue;
+
+        void draw(sf::RenderTarget& target, sf::RenderStates states) 
+                const noexcept(noexcept(m_getValue())) override {
             target.draw(m_line, states);
 
             states.transform.translate(m_line.getPosition() - m_line.getOrigin());
+            states.transform.translate(m_getValue() * m_line.getSize().x, 0.f);
             target.draw(m_runner, states);
         }
     };

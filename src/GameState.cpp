@@ -16,6 +16,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Airplane.h"
 #include "Gui/Text.h"
 #include "Gui/Button.h"
+#include "Gui/HorizontalSlider.h"
 
 #include <SFML/Graphics.hpp>
 using sf::RenderTarget;
@@ -76,20 +77,38 @@ GameState::GameState(Vector2f screenSize) :
     Vector2f menuPos = (screenSize - menuSize) / 2.f;
     m_menu.setRect({menuPos.x, menuPos.y, menuSize.x, menuSize.y});
 
-    int characterSize = 70;
+    int characterSize = 100;
     const auto& font = m_assetManager.getFont();
 
-    float buttonOffset = max(screenSize.y / 64.f, 1.f);
     float buttonOutline = max(screenSize.y / 128.f, 1.f);
     Vector2f buttonSize{screenSize.y / 3.f, screenSize.y / 10.f};
     Color buttonColor = Color::Transparent;
     Color buttonElementColor = Color::White;
     int buttonCharacterSize = 80;
+    float buttonOffset = max(screenSize.y / 64.f, 1.f);
+
+    float sliderHeight = max(screenSize.y / 64.f, 1.f);
+    Vector2f sliderRunnerSize{max(screenSize.y / 64.f, 1.f), max(screenSize.y / 24.f, 1.f)};
+    float sliderOffset = max(screenSize.y / 16.f, 1.f);
+    float sliderLabelOffset = max(screenSize.y / 32.f, 1.f);
+    int sliderCharacterSize = 50;
 
     auto menuText = make_unique<Gui::Text>("Menu", font, characterSize, Color::White);
     menuText->setOrigin({menuText->getSize().x / 2.f, 0.f});
     menuText->setPosition({menuSize.x / 2.f, 0.f});
-    m_menu.addChild(std::move(menuText));
+    
+    auto volumeText = make_unique<Gui::Text>("Volume", font, sliderCharacterSize, Color::White);
+    volumeText->setOrigin({volumeText->getSize().x / 2.f, 0.f});
+    volumeText->setPosition({menuSize.x / 2.f, menuText->getSize().y + sliderOffset});
+
+    auto volumeSlider = make_unique<Gui::HorizontalSlider>(Color::White, Color::Black);
+    volumeSlider->setSize({2.f / 3.f * menuSize.x, sliderHeight});
+    volumeSlider->setOrigin({volumeSlider->getSize().x / 2, 0.f});
+    volumeSlider->setPosition({menuSize.x / 2.f, 
+        menuText->getSize().y + volumeText->getSize().y + sliderOffset + sliderLabelOffset});
+    volumeSlider->setRunnerSize(sliderRunnerSize);
+    volumeSlider->setRunnerOrigin({sliderRunnerSize.x / 2.f,
+                                   sliderRunnerSize.y / 2.f - sliderHeight / 2.f});
 
     auto resumeText = make_unique<Gui::Text>("Resume", font, buttonCharacterSize, buttonElementColor);
     resumeText->setOrigin({resumeText->getSize().x / 2.f, resumeText->getSize().y});
@@ -103,7 +122,6 @@ GameState::GameState(Vector2f screenSize) :
     resumeButton->setPosition({menuSize.x / 2.f, 
         menuSize.y- 2 * buttonOffset - 3 * buttonOutline - buttonSize.y});
     resumeButton->setChild(std::move(resumeText));
-    m_menu.addChild(std::move(resumeButton));
 
     auto exitText = make_unique<Gui::Text>("Exit", font, buttonCharacterSize, buttonElementColor);
     exitText->setOrigin({exitText->getSize().x / 2.f, exitText->getSize().y});
@@ -116,6 +134,11 @@ GameState::GameState(Vector2f screenSize) :
     exitButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
     exitButton->setPosition({menuSize.x / 2.f, menuSize.y - buttonOffset - buttonOutline});
     exitButton->setChild(std::move(exitText));
+
+    m_menu.addChild(std::move(menuText));
+    m_menu.addChild(std::move(volumeText));
+    m_menu.addChild(std::move(volumeSlider));
+    m_menu.addChild(std::move(resumeButton));
     m_menu.addChild(std::move(exitButton));
 }
 

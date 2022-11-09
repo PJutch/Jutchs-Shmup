@@ -41,8 +41,7 @@ namespace Gui {
         }
 
         if (m_child) {
-            sf::Event newEvent = moveEvent(event, -m_shape.getPosition());
-            m_child->handleEvent(newEvent);
+            m_child->handleEvent(moveEvent(event, -m_shape.getPosition()));
         }
     }
 }

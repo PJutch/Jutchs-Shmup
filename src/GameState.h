@@ -19,6 +19,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "SoundEffect.h"
 #include "EntityManager.h"
 #include "Gui/Panel.h"
+#include "LanguageManager.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -87,6 +88,10 @@ public:
         m_scoreChanges.emplace_back(score, m_clock.getElapsedTime());
     }
 
+    const LanguageManager& getLanguageManager() const noexcept {
+        return m_languageManager;
+    }
+
     sf::Vector2f getScreenSize() const noexcept {
         return m_screenSize;
     }
@@ -149,6 +154,8 @@ private:
 
     std::vector<std::unique_ptr<SoundEffect>> m_sounds;
     float m_volume;
+
+    LanguageManager m_languageManager;
 
     sf::View getView() const noexcept;
 

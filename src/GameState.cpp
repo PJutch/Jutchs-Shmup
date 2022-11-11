@@ -73,7 +73,7 @@ GameState::GameState(Vector2f screenSize) :
         .addDeathEffect<LoseDeathEffect>().addDeathEffect<ExplosionDeathEffect>().build().release();
     m_entityManager.addEntity(m_player);
 
-    m_languageManager.loadLanguage("resources/lang/en.lang");
+    m_languageManager.loadLanguage("resources/lang/ru.lang");
 
     Vector2f menuSize{screenSize.y * 0.75f, screenSize.y * 0.75f};
     Vector2f menuPos = (screenSize - menuSize) / 2.f;
@@ -83,7 +83,8 @@ GameState::GameState(Vector2f screenSize) :
     const auto& font = m_assetManager.getFont();
 
     float buttonOutline = max(screenSize.y / 128.f, 1.f);
-    Vector2f buttonSize{screenSize.y / 3.f, screenSize.y / 10.f};
+    float buttonTextPadding = screenSize.y / 10.f;
+    Vector2f buttonSize{screenSize.y / 3.f, buttonTextPadding}; // .x will be updated
     Color buttonColor = Color::Transparent;
     Color buttonElementColor = Color::White;
     int buttonCharacterSize = 80;
@@ -98,10 +99,12 @@ GameState::GameState(Vector2f screenSize) :
     auto menuText = make_unique<Gui::Text>(getLanguageManager().getMenuText(), 
                                             font, characterSize, Color::White);
     menuText->setOrigin({menuText->getSize().x / 2.f, 0.f});
-    menuText->setPosition({menuSize.x / 2.f, 0.f});
+    menuText->setPosition({menuSize.x / 2.f, 0.f}); // .x at center, .y at top
     
     auto volumeText = make_unique<Gui::Text>(getLanguageManager().getVolumeText(), 
                                                 font, sliderCharacterSize, Color::White);
+
+    // .x at center, .y under menuText
     volumeText->setOrigin({volumeText->getSize().x / 2.f, 0.f});
     volumeText->setPosition({menuSize.x / 2.f, menuText->getSize().y + sliderOffset});
 
@@ -111,36 +114,47 @@ GameState::GameState(Vector2f screenSize) :
         m_volume = volume * 100.f;
     }, Color::White, Color::Black);
     volumeSlider->setSize({2.f / 3.f * menuSize.x, sliderHeight});
+
+    // .x at center, .y under volumeText
     volumeSlider->setOrigin({volumeSlider->getSize().x / 2, 0.f});
     volumeSlider->setPosition({menuSize.x / 2.f, 
         menuText->getSize().y + volumeText->getSize().y + sliderOffset + sliderLabelOffset});
+    
     volumeSlider->setRunnerSize(sliderRunnerSize);
+
+    // move center to center of the line
     volumeSlider->setRunnerOrigin({sliderRunnerSize.x / 2.f,
                                    sliderRunnerSize.y / 2.f - sliderHeight / 2.f});
 
     auto resumeText = make_unique<Gui::Text>(getLanguageManager().getResumeText(), 
                                                 font, buttonCharacterSize, buttonElementColor);
     resumeText->setOrigin({resumeText->getSize().x / 2.f, resumeText->getSize().y});
-    resumeText->setPosition({0.f, - buttonSize.y / 2.f});
+    resumeText->setPosition({0.f, - buttonSize.y / 2.f}); // place in the center of the button
+    buttonSize.x = max(resumeText->getSize().x + buttonTextPadding, buttonSize.x);
+
+    auto exitText = make_unique<Gui::Text>(getLanguageManager().getExitText(), 
+                                            font, buttonCharacterSize, buttonElementColor);
+    exitText->setOrigin({exitText->getSize().x / 2.f, exitText->getSize().y});
+    exitText->setPosition({0.f, -buttonSize.y / 2.f}); // place in the center of the button
+    buttonSize.x = max(exitText->getSize().x + buttonTextPadding, buttonSize.x);
 
     auto resumeButton = make_unique<Gui::Button>([this]{
         m_menuOpen = false;
     }, buttonColor, buttonElementColor, 0.f, buttonOutline);
     resumeButton->setSize(buttonSize);
+
+    // .x at center, .y above exitButton
     resumeButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
     resumeButton->setPosition({menuSize.x / 2.f, 
-        menuSize.y- 2 * buttonOffset - 3 * buttonOutline - buttonSize.y});
+        menuSize.y- 2 * buttonOffset - 3 * buttonOutline - buttonSize.y}); 
     resumeButton->setChild(std::move(resumeText));
-
-    auto exitText = make_unique<Gui::Text>(getLanguageManager().getExitText(), 
-                                            font, buttonCharacterSize, buttonElementColor);
-    exitText->setOrigin({exitText->getSize().x / 2.f, exitText->getSize().y});
-    exitText->setPosition({0.f, -buttonSize.y / 2.f});
 
     auto exitButton = make_unique<Gui::Button>([this]{
         m_shouldEnd = true;
     }, buttonColor, buttonElementColor, 0.f, buttonOutline);
     exitButton->setSize(buttonSize);
+
+    // .x at center, .y at bottom
     exitButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
     exitButton->setPosition({menuSize.x / 2.f, menuSize.y - buttonOffset - buttonOutline});
     exitButton->setChild(std::move(exitText));

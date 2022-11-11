@@ -17,11 +17,14 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+#include <string>
+
 namespace Gui {
     class Text : public Element {
     public:
-        Text(const sf::String& string, const sf::Font& font, int characterSize, sf::Color color) noexcept : 
-                m_text{string, font, characterSize} {
+        Text(const std::string& string, const sf::Font& font, 
+                    int characterSize, sf::Color color) noexcept : 
+                m_text{sf::String::fromUtf8(string.begin(), string.end()), font, characterSize} {
             m_text.setFillColor(color);
         }
 

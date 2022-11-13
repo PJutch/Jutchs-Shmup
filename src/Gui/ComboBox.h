@@ -11,24 +11,23 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef GUI_BUTTON_H_
-#define GUI_BUTTON_H_
+#ifndef GUI_COMBO_BOX_H_
+#define GUI_COMBO_BOX_H_
 
 #include "Gui/Element.h"
-#include "util.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
 
+#include <vector>
+#include <memory>
 #include <functional>
 
 namespace Gui {
-    class Button : public Element {
+    class ComboBox : public Element {
     public:
-        Button(const std::function<void ()>& action, 
-                sf::Color fillColor, sf::Color outlineColor, 
-                float outlineThickness, float activeOutlineThickness) noexcept;
+        ComboBox(sf::Color fillColor, sf::Color outlineColor, float outlineThickness) noexcept;
 
         sf::Vector2f getSize() const noexcept {
             auto localBounds = m_shape.getLocalBounds();
@@ -36,14 +35,15 @@ namespace Gui {
         }
 
         void setRect(sf::FloatRect rect) noexcept {
-            m_shape.setSize({rect.width, rect.height});
+            setSize({rect.width, rect.height});
 
             auto origin = m_shape.getOrigin();
-            m_shape.setPosition(rect.left + origin.x, rect.top + origin.y);
+            setPosition({rect.left + origin.x, rect.top + origin.y});
         }
 
         void setSize(sf::Vector2f size) noexcept {
             m_shape.setSize(size);
+            updateSize();
         }
 
         void setPosition(sf::Vector2f position) noexcept {
@@ -52,34 +52,38 @@ namespace Gui {
 
         void setOrigin(sf::Vector2f origin) noexcept {
             m_shape.setOrigin(origin);
+            m_listShape.setOrigin(origin);
         }
 
-        void setChild(std::unique_ptr<Element>&& element) noexcept {
-            m_child = std::move(element);
+        void addChild(std::unique_ptr<Element>&& element) noexcept {
+            m_children.push_back(std::move(element));
+            updateSize();
         }
 
         template<std::derived_from<Element> ElementT, typename... Args>
         void emplaceChild(Args&&... args) noexcept {
-            m_child.reset(new ElementT{std::forward<Args>(args)...});
+            m_children.emplace_back(new ElementT{std::forward<Args>(args)...});
+            updateSize();
         }
 
         void handleEvent(const sf::Event& event) noexcept override;
     private:
-        std::function<void ()> m_action;
-
         sf::RectangleShape m_shape;
-        std::unique_ptr<Element> m_child;
+        sf::RectangleShape m_listShape;
 
-        float m_outlineThickness;
-        float m_activeOutlineThickness;
+        std::vector<std::unique_ptr<Element>> m_children;
 
-        void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
-            target.draw(m_shape, states);
+        int m_current;
+        bool m_active;
 
-            if (m_child) {
-                states.transform.translate(m_shape.getPosition());
-                target.draw(*m_child, states);
-            }
+        // unsafe! children must be not empty
+        void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override;
+
+        void drawList(sf::RenderTarget& target, sf::RenderStates states) const noexcept;
+
+        void updateSize() noexcept {
+            auto size = m_shape.getSize();
+            m_listShape.setSize({size.x, std::ssize(m_children) * size.y});
         }
     };
 }

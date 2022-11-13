@@ -2,3 +2,6 @@ gui.menu.menu Menu
 gui.menu.volume Volume
 gui.menu.resume Resume
 gui.menu.exit Exit
+
+gui.menu.english English
+gui.menu.russian Russian

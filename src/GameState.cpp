@@ -17,6 +17,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Gui/Text.h"
 #include "Gui/Button.h"
 #include "Gui/HorizontalSlider.h"
+#include "Gui/ComboBox.h"
 
 #include <SFML/Graphics.hpp>
 using sf::RenderTarget;
@@ -84,7 +85,7 @@ GameState::GameState(Vector2f screenSize) :
 
     float buttonOutline = max(screenSize.y / 128.f, 1.f);
     float buttonTextPadding = screenSize.y / 10.f;
-    Vector2f buttonSize{screenSize.y / 3.f, buttonTextPadding}; // .x will be updated
+    Vector2f buttonSize{buttonTextPadding, screenSize.y / 10.f}; // .x will be updated
     Color buttonColor = Color::Transparent;
     Color buttonElementColor = Color::White;
     int buttonCharacterSize = 80;
@@ -95,6 +96,15 @@ GameState::GameState(Vector2f screenSize) :
     float sliderOffset = max(screenSize.y / 16.f, 1.f);
     float sliderLabelOffset = max(screenSize.y / 32.f, 1.f);
     int sliderCharacterSize = 50;
+
+    Color comboColor{0, 0, 0, 128};
+    Color comboElementColor = Color::White;
+    float comboOutline = -max(screenSize.y / 256.f, 0.5f);
+    float comboTextPadding = screenSize.y / 10.f;
+    Vector2f comboSize{comboTextPadding, screenSize.y / 10.f}; // .x will be updated
+    float comboOffset = max(screenSize.y / 16.f, 1.f);
+    float comboLabelOffset = max(screenSize.y / 32.f, 1.f);
+    int comboCharacterSize = 50;
 
     auto menuText = make_unique<Gui::Text>(getLanguageManager().getMenuText(), 
                                             font, characterSize, Color::White);
@@ -118,13 +128,36 @@ GameState::GameState(Vector2f screenSize) :
     // .x at center, .y under volumeText
     volumeSlider->setOrigin({volumeSlider->getSize().x / 2, 0.f});
     volumeSlider->setPosition({menuSize.x / 2.f, 
-        menuText->getSize().y + volumeText->getSize().y + sliderOffset + sliderLabelOffset});
+        menuText->getSize().y + sliderOffset + volumeText->getSize().y + sliderLabelOffset});
     
     volumeSlider->setRunnerSize(sliderRunnerSize);
 
     // move center to center of the line
     volumeSlider->setRunnerOrigin({sliderRunnerSize.x / 2.f,
                                    sliderRunnerSize.y / 2.f - sliderHeight / 2.f});
+
+    auto englishText = make_unique<Gui::Text>(getLanguageManager().getEnglishText(), 
+                                                font, comboCharacterSize, comboElementColor);
+    englishText->setOrigin(englishText->getSize() / 2.f);
+    englishText->setPosition({0.f, comboSize.y / 2.f}); // place in the center of the button
+    comboSize.x = max(englishText->getSize().x + comboTextPadding, comboSize.x);
+
+    auto russianText = make_unique<Gui::Text>(getLanguageManager().getRussianText(), 
+                                                font, comboCharacterSize, comboElementColor);
+    russianText->setOrigin(russianText->getSize() / 2.f);
+    russianText->setPosition({0.f, comboSize.y / 2.f}); // place in the center of the button
+    comboSize.x = max(russianText->getSize().x + comboTextPadding, comboSize.x);
+
+    auto languageCombo = make_unique<Gui::ComboBox>(comboColor, comboElementColor, comboOutline);
+    languageCombo->setSize(comboSize);
+    languageCombo->addChild(std::move(englishText));
+    languageCombo->addChild(std::move(russianText));
+
+    // .x at center, .y under volumeSlider
+    languageCombo->setOrigin({languageCombo->getSize().x / 2, 0.f});
+    languageCombo->setPosition({menuSize.x / 2.f, 
+        menuText->getSize().y + sliderOffset + volumeText->getSize().y 
+        + sliderLabelOffset + sliderHeight + comboOffset});
 
     auto resumeText = make_unique<Gui::Text>(getLanguageManager().getResumeText(), 
                                                 font, buttonCharacterSize, buttonElementColor);
@@ -162,6 +195,7 @@ GameState::GameState(Vector2f screenSize) :
     m_menu.addChild(std::move(menuText));
     m_menu.addChild(std::move(volumeText));
     m_menu.addChild(std::move(volumeSlider));
+    m_menu.addChild(std::move(languageCombo));
     m_menu.addChild(std::move(resumeButton));
     m_menu.addChild(std::move(exitButton));
 }

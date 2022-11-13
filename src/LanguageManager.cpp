@@ -52,6 +52,10 @@ void LanguageManager::loadLanguage(const std::filesystem::path& path) {
             m_resumeText = value;
         } else if (key == "gui.menu.exit") {
             m_exitText   = value;
+        } else if (key == "gui.menu.english") {
+            m_englishText = value;
+        } else if (key == "gui.menu.russian") {
+            m_russianText   = value;
         } else {
             throw LanguageLoadError{std::format("Unknown key \"{}\" with value \"{}\"", key, value)};
         }

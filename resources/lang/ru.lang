@@ -1,4 +1,7 @@
 gui.menu.menu Меню
 gui.menu.volume Громкость
 gui.menu.resume Продолжить
-gui.menu.exit Выйти
+gui.menu.exit   Выйти
+
+gui.menu.english Английский
+gui.menu.russian Русский

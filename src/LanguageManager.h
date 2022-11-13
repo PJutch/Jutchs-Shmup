@@ -50,11 +50,21 @@ public:
     const std::string& getExitText() const noexcept {
         return m_exitText;
     }
+
+    const std::string& getEnglishText() const noexcept {
+        return m_englishText;
+    }
+
+    const std::string& getRussianText() const noexcept {
+        return m_russianText;
+    }
 private:
-    std::string m_menuText;   // gui.menu.menu
-    std::string m_volumeText; // gui.menu.volume
-    std::string m_resumeText; // gui.menu.resume
-    std::string m_exitText;   // gui.menu.exit
+    std::string m_menuText;    // gui.menu.menu
+    std::string m_volumeText;  // gui.menu.volume
+    std::string m_resumeText;  // gui.menu.resume
+    std::string m_exitText;    // gui.menu.exit
+    std::string m_englishText; // gui.menu.english
+    std::string m_russianText; // gui.menu.russian
 };
 
 class LanguageLoadError : std::runtime_error {

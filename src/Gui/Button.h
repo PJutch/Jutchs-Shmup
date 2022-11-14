@@ -63,11 +63,7 @@ namespace Gui {
             m_child.reset(new ElementT{std::forward<Args>(args)...});
         }
 
-        void handleEvent(const sf::Event& event) noexcept override;
-
-        void updateText() noexcept override {
-            if (m_child) m_child->updateText();
-        }
+        void handleEvent(const sf::Event& event) noexcept(noexcept(m_action())) override;
     private:
         std::function<void ()> m_action;
 

@@ -66,10 +66,4 @@ namespace Gui {
             states.transform.translate(0.f, m_shape.getSize().y);
         }
     }
-
-    void ComboBox::updateText() noexcept {
-        for (const auto& child : m_children) {
-            child->updateText();
-        }
-    }
 }

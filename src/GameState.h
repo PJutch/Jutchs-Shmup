@@ -106,18 +106,7 @@ public:
         return m_shouldEnd;
     }
 
-    void handleEvent(sf::Event event) noexcept {
-        if (m_menuOpen) {
-            m_menu.handleEvent(event);
-        } else {
-            m_entityManager.handleEvent(event);
-        }        
-
-        if (event.type == sf::Event::Closed) m_shouldEnd = true;
-
-        if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-            m_menuOpen = !m_menuOpen;
-    }
+    void handleEvent(sf::Event event) noexcept;
 
     void update() noexcept;
 
@@ -156,6 +145,8 @@ private:
     float m_volume;
 
     LanguageManager m_languageManager;
+
+    void initGui() noexcept;
 
     sf::View getView() const noexcept;
 

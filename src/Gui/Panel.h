@@ -26,7 +26,11 @@ If not, see <https://www.gnu.org/licenses/>. */
 namespace Gui {
     class Panel : public Element {
     public:
-        Panel(sf::Color color) noexcept;
+        Panel() noexcept = default;
+
+        void setColor(sf::Color color) noexcept {
+            m_shape.setFillColor(color);
+        }
 
         sf::Vector2f getSize() const noexcept {
             auto localBounds = m_shape.getLocalBounds();
@@ -61,9 +65,11 @@ namespace Gui {
             m_children.emplace_back(new ElementT{std::forward<Args>(args)...});
         }
 
-        void handleEvent(const sf::Event& event) noexcept override;
+        void clearChildren() noexcept {
+            m_children.clear();
+        }
 
-        void updateText() noexcept override;
+        void handleEvent(const sf::Event& event) override;
     private:
         sf::RectangleShape m_shape;
         std::vector<std::unique_ptr<Element>> m_children;

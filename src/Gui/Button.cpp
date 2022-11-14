@@ -24,7 +24,7 @@ namespace Gui {
         m_shape.setOutlineThickness(m_outlineThickness);
     }
 
-    void Button::handleEvent(const sf::Event& event) noexcept {
+    void Button::handleEvent(const sf::Event& event) noexcept(noexcept(m_action())) {
         switch (event.type) {
         case sf::Event::MouseButtonPressed:
             if (event.mouseButton.button == sf::Mouse::Button::Left

@@ -51,6 +51,8 @@ using std::to_string;
 
 using std::ssize;
 
+#include <exception>
+
 #include <memory>
 using std::unique_ptr;
 using std::make_unique;
@@ -58,12 +60,16 @@ using std::make_unique;
 #include <utility>
 using std::move;
 
+class GuiInvalidated : public std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
+
 GameState::GameState(Vector2f screenSize) : 
         m_assetManager{}, m_tickClock{}, m_clock{}, 
         m_randomEngine{random_device{}()}, m_player{nullptr}, 
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
         m_score{0}, m_shouldResetAfter{Time::Zero}, m_sounds{}, m_volume{100.f},
-        m_menuOpen{false}, m_menu{{0, 0, 0, 128}},
+        m_menuOpen{false},
         m_shouldEnd{false} {
     m_player = Airplane::Builder{*this}
         .position({0.f, 0.f}).maxHealth(3).deletable(false)
@@ -75,35 +81,40 @@ GameState::GameState(Vector2f screenSize) :
     m_entityManager.addEntity(m_player);
 
     m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);
+    initGui();
+}
 
-    Vector2f menuSize{screenSize.y * 0.75f, screenSize.y * 0.75f};
-    Vector2f menuPos = (screenSize - menuSize) / 2.f;
+void GameState::initGui() noexcept {
+    Vector2f menuSize{m_screenSize.y * 0.75f, m_screenSize.y * 0.75f};
+    Vector2f menuPos = (m_screenSize - menuSize) / 2.f;
     m_menu.setRect({menuPos.x, menuPos.y, menuSize.x, menuSize.y});
+    m_menu.setColor(Color{0, 0, 0, 128});
+    m_menu.clearChildren();
 
     int characterSize = 100;
     const auto& font = m_assetManager.getFont();
 
-    float buttonOutline = max(screenSize.y / 128.f, 1.f);
-    float buttonTextPadding = screenSize.y / 10.f;
-    Vector2f buttonSize{buttonTextPadding, screenSize.y / 10.f}; // .x will be updated
+    float buttonOutline = max(m_screenSize.y / 128.f, 1.f);
+    float buttonTextPadding = m_screenSize.y / 10.f;
+    Vector2f buttonSize{buttonTextPadding, m_screenSize.y / 10.f}; // .x will be updated
     Color buttonColor = Color::Transparent;
     Color buttonElementColor = Color::White;
     int buttonCharacterSize = 80;
-    float buttonOffset = max(screenSize.y / 64.f, 1.f);
+    float buttonOffset = max(m_screenSize.y / 64.f, 1.f);
 
-    float sliderHeight = max(screenSize.y / 64.f, 1.f);
-    Vector2f sliderRunnerSize{max(screenSize.y / 64.f, 1.f), max(screenSize.y / 24.f, 1.f)};
-    float sliderOffset = max(screenSize.y / 16.f, 1.f);
-    float sliderLabelOffset = max(screenSize.y / 32.f, 1.f);
+    float sliderHeight = max(m_screenSize.y / 64.f, 1.f);
+    Vector2f sliderRunnerSize{max(m_screenSize.y / 64.f, 1.f), max(m_screenSize.y / 24.f, 1.f)};
+    float sliderOffset = max(m_screenSize.y / 16.f, 1.f);
+    float sliderLabelOffset = max(m_screenSize.y / 32.f, 1.f);
     int sliderCharacterSize = 50;
 
     Color comboColor{0, 0, 0, 128};
     Color comboElementColor = Color::White;
-    float comboOutline = -max(screenSize.y / 256.f, 0.5f);
-    float comboTextPadding = screenSize.y / 10.f;
-    Vector2f comboSize{comboTextPadding, screenSize.y / 10.f}; // .x will be updated
-    float comboOffset = max(screenSize.y / 16.f, 1.f);
-    float comboLabelOffset = max(screenSize.y / 32.f, 1.f);
+    float comboOutline = -max(m_screenSize.y / 256.f, 0.5f);
+    float comboTextPadding = m_screenSize.y / 10.f;
+    Vector2f comboSize{comboTextPadding, m_screenSize.y / 10.f}; // .x will be updated
+    float comboOffset = max(m_screenSize.y / 16.f, 1.f);
+    float comboLabelOffset = max(m_screenSize.y / 32.f, 1.f);
     int comboCharacterSize = 50;
 
     auto menuText = make_unique<Gui::Text>(getLanguageManager().getMenuText(), 
@@ -152,7 +163,8 @@ GameState::GameState(Vector2f screenSize) :
         return static_cast<int>(m_languageManager.getLanguage());
     }, [this](int current){
         m_languageManager.setLanguage(static_cast<LanguageManager::Language>(current));
-        m_menu.updateText();
+        initGui();
+        throw GuiInvalidated{"Gui reloaded"};
     }, comboColor, comboElementColor, comboOutline);
     languageCombo->setSize(comboSize);
     languageCombo->addChild(std::move(englishText));
@@ -203,6 +215,21 @@ GameState::GameState(Vector2f screenSize) :
     m_menu.addChild(std::move(languageCombo));
     m_menu.addChild(std::move(resumeButton));
     m_menu.addChild(std::move(exitButton));
+}
+
+void GameState::handleEvent(sf::Event event) noexcept {
+    if (m_menuOpen) {
+        try {
+            m_menu.handleEvent(event);
+        } catch (const GuiInvalidated& e) {}
+    } else {
+        m_entityManager.handleEvent(event);
+    }        
+
+    if (event.type == sf::Event::Closed) m_shouldEnd = true;
+
+    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
+        m_menuOpen = !m_menuOpen;
 }
 
 void GameState::update() noexcept {

@@ -28,13 +28,9 @@ namespace Gui {
             m_text.setFillColor(color);
             m_text.setFont(font);
             m_text.setCharacterSize(characterSize);
-            updateText();
-        }
-        
-        void updateText() noexcept override {
             m_text.setString(sf::String::fromUtf8(m_string.begin(), m_string.end()));
         }
-
+        
         sf::Vector2f getSize() const noexcept {
             auto localBounds = m_text.getLocalBounds();
             return {localBounds.width, localBounds.height};

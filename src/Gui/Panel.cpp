@@ -16,11 +16,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "util.h"
 
 namespace Gui {
-    Panel::Panel(sf::Color color) noexcept {
-        m_shape.setFillColor(color);
-    }
-
-    void Panel::handleEvent(const sf::Event& event) noexcept {
+    void Panel::handleEvent(const sf::Event& event) {
         sf::Event newEvent = moveEvent(event, -m_shape.getPosition());
 
         for (auto& child : m_children) {
@@ -34,12 +30,6 @@ namespace Gui {
         states.transform.translate(m_shape.getPosition());
         for (const auto& child : m_children) {
             target.draw(*child, states);
-        }
-    }
-
-    void Panel::updateText() noexcept {
-        for (const auto& child : m_children) {
-            child->updateText();
         }
     }
 }

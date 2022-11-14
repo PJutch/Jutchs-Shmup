@@ -64,6 +64,10 @@ namespace Gui {
         }
 
         void handleEvent(const sf::Event& event) noexcept override;
+
+        void updateText() noexcept override {
+            if (m_child) m_child->updateText();
+        }
     private:
         std::function<void ()> m_action;
 

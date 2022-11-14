@@ -62,6 +62,8 @@ namespace Gui {
         }
 
         void handleEvent(const sf::Event& event) noexcept override;
+
+        void updateText() noexcept override;
     private:
         sf::RectangleShape m_shape;
         std::vector<std::unique_ptr<Element>> m_children;

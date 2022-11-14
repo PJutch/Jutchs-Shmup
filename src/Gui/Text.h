@@ -24,8 +24,15 @@ namespace Gui {
     public:
         Text(const std::string& string, const sf::Font& font, 
                     int characterSize, sf::Color color) noexcept : 
-                m_text{sf::String::fromUtf8(string.begin(), string.end()), font, characterSize} {
+                m_string{string} {
             m_text.setFillColor(color);
+            m_text.setFont(font);
+            m_text.setCharacterSize(characterSize);
+            updateText();
+        }
+        
+        void updateText() noexcept override {
+            m_text.setString(sf::String::fromUtf8(m_string.begin(), m_string.end()));
         }
 
         sf::Vector2f getSize() const noexcept {
@@ -42,6 +49,7 @@ namespace Gui {
         }
     private:
         sf::Text m_text;
+        const std::string& m_string;
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
             target.draw(m_text, states);

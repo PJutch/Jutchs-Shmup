@@ -152,6 +152,7 @@ GameState::GameState(Vector2f screenSize) :
         return static_cast<int>(m_languageManager.getLanguage());
     }, [this](int current){
         m_languageManager.setLanguage(static_cast<LanguageManager::Language>(current));
+        m_menu.updateText();
     }, comboColor, comboElementColor, comboOutline);
     languageCombo->setSize(comboSize);
     languageCombo->addChild(std::move(englishText));

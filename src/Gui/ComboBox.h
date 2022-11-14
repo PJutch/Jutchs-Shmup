@@ -86,6 +86,8 @@ namespace Gui {
 
         void drawList(sf::RenderTarget& target, sf::RenderStates states) const noexcept;
 
+        void updateText() noexcept override;
+
         void updateSize() noexcept {
             auto size = m_shape.getSize();
             m_listShape.setSize({size.x, std::ssize(m_children) * size.y});

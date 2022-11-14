@@ -36,4 +36,10 @@ namespace Gui {
             target.draw(*child, states);
         }
     }
+
+    void Panel::updateText() noexcept {
+        for (const auto& child : m_children) {
+            child->updateText();
+        }
+    }
 }

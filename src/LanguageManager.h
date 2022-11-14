@@ -20,20 +20,13 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class LanguageManager {
 public:
-    LanguageManager() noexcept = default;
+    enum class Language {
+        NONE = -1, // don't set
+        ENGLISH = 0,
+        RUSSIAN,
+    };
 
-    // file format:
-    // key1 value1, other parts of the value1
-    // key2 value2
-    //
-    // key3 value3
-    // (each key-value pair is on new line,
-    //  empty lines are ignored
-    //  key is separated from value with space,
-    //  key can't contain spaces, 
-    //  value can contain spaces but can't contain '\n',
-    //  leading end ending spaces are stripped in both)
-    void loadLanguage(const std::filesystem::path& path);
+    LanguageManager() noexcept;
 
     const std::string& getMenuText() const noexcept {
         return m_menuText;
@@ -58,6 +51,17 @@ public:
     const std::string& getRussianText() const noexcept {
         return m_russianText;
     }
+
+    void setLanguage(Language language) noexcept {
+        if (m_language != language) {
+            m_language = language;
+            loadLanguage(s_languagePaths[static_cast<int>(language)]);
+        }
+    }
+
+    Language getLanguage() const noexcept {
+        return m_language;
+    }
 private:
     std::string m_menuText;    // gui.menu.menu
     std::string m_volumeText;  // gui.menu.volume
@@ -65,6 +69,22 @@ private:
     std::string m_exitText;    // gui.menu.exit
     std::string m_englishText; // gui.menu.english
     std::string m_russianText; // gui.menu.russian
+
+    Language m_language;
+    static const std::array<std::filesystem::path, 2> s_languagePaths;
+
+    // file format:
+    // key1 value1, other parts of the value1
+    // key2 value2
+    //
+    // key3 value3
+    // (each key-value pair is on new line,
+    //  empty lines are ignored
+    //  key is separated from value with space,
+    //  key can't contain spaces, 
+    //  value can contain spaces but can't contain '\n',
+    //  leading end ending spaces are stripped in both)
+    void loadLanguage(const std::filesystem::path& path);
 };
 
 class LanguageLoadError : std::runtime_error {

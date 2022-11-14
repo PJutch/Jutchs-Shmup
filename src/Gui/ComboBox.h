@@ -27,7 +27,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 namespace Gui {
     class ComboBox : public Element {
     public:
-        ComboBox(sf::Color fillColor, sf::Color outlineColor, float outlineThickness) noexcept;
+        ComboBox(std::function<int ()> getCurrent, std::function<void (int)> setCurrent, 
+                 sf::Color fillColor, sf::Color outlineColor, float outlineThickness) noexcept;
 
         sf::Vector2f getSize() const noexcept {
             auto localBounds = m_shape.getLocalBounds();
@@ -66,18 +67,22 @@ namespace Gui {
             updateSize();
         }
 
-        void handleEvent(const sf::Event& event) noexcept override;
+        void handleEvent(const sf::Event& event) 
+            noexcept(noexcept(m_setCurrent(std::declval<int>()))) override;
     private:
         sf::RectangleShape m_shape;
         sf::RectangleShape m_listShape;
 
         std::vector<std::unique_ptr<Element>> m_children;
 
-        int m_current;
+        std::function<int ()> m_getCurrent;
+        std::function<void (int)> m_setCurrent;
+
         bool m_active;
 
-        // unsafe! children must be not empty
-        void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override;
+        // unsafe! requires std::ssize(children) > m_getCurrent()
+        void draw(sf::RenderTarget& target, sf::RenderStates states) 
+            const noexcept(noexcept(m_getCurrent)) override;
 
         void drawList(sf::RenderTarget& target, sf::RenderStates states) const noexcept;
 

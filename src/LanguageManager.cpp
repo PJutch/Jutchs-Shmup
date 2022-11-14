@@ -18,6 +18,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <locale>
 #include <string_view>
 
+LanguageManager::LanguageManager() noexcept : m_language{LanguageManager::Language::NONE} {}
+
 void LanguageManager::loadLanguage(const std::filesystem::path& path) {
     std::ifstream file{path};
     std::string line;
@@ -61,3 +63,6 @@ void LanguageManager::loadLanguage(const std::filesystem::path& path) {
         }
     }
 }
+
+const std::array<std::filesystem::path, 2> LanguageManager::s_languagePaths{
+    "resources/lang/en.lang", "resources/lang/ru.lang"};

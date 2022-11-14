@@ -16,8 +16,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "util.h"
 
 namespace Gui {
-    ComboBox::ComboBox(sf::Color fillColor, sf::Color outlineColor, float outlineThickness) noexcept :
-            m_current{0}, m_active{false} {
+    ComboBox::ComboBox(std::function<int ()> getCurrent, std::function<void (int)> setCurrent, 
+                       sf::Color fillColor, sf::Color outlineColor, float outlineThickness) noexcept :
+            m_getCurrent{getCurrent}, m_setCurrent{setCurrent}, m_active{false} {
         m_shape.setFillColor(fillColor);
         m_shape.setOutlineColor(outlineColor);
         m_shape.setOutlineThickness(outlineThickness);
@@ -27,7 +28,8 @@ namespace Gui {
         m_listShape.setOutlineThickness(outlineThickness);
     }
 
-    void ComboBox::handleEvent(const sf::Event& event) noexcept {
+    void ComboBox::handleEvent(const sf::Event& event) 
+            noexcept(noexcept(m_setCurrent(std::declval<int>()))) {
         switch (event.type) {
         case sf::Event::MouseButtonPressed: {
             sf::Vector2f mousePos(event.mouseButton.x, event.mouseButton.y);
@@ -35,7 +37,7 @@ namespace Gui {
                 mousePos -= m_shape.getPosition();
                 mousePos.y -= m_shape.getSize().y;
                 if (m_listShape.getGlobalBounds().contains(mousePos)) {
-                    m_current = (mousePos.y + m_listShape.getOrigin().y) / m_shape.getSize().y;
+                    m_setCurrent((mousePos.y + m_listShape.getOrigin().y) / m_shape.getSize().y);
                 }
                 m_active = false;
             } else {
@@ -46,12 +48,13 @@ namespace Gui {
         }
     }
 
-    void ComboBox::draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept {
+    void ComboBox::draw(sf::RenderTarget& target, sf::RenderStates states) 
+            const noexcept(noexcept(m_getCurrent)) {
         target.draw(m_shape, states);
 
         states.transform.translate(m_shape.getPosition());
         if (m_active) drawList(target, states);
-        target.draw(*(m_children[m_current]), states);
+        target.draw(*(m_children[m_getCurrent()]), states);
     }
 
     void ComboBox::drawList(sf::RenderTarget& target, sf::RenderStates states) const noexcept {

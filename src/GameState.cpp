@@ -74,7 +74,7 @@ GameState::GameState(Vector2f screenSize) :
         .addDeathEffect<LoseDeathEffect>().addDeathEffect<ExplosionDeathEffect>().build().release();
     m_entityManager.addEntity(m_player);
 
-    m_languageManager.loadLanguage("resources/lang/ru.lang");
+    m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);
 
     Vector2f menuSize{screenSize.y * 0.75f, screenSize.y * 0.75f};
     Vector2f menuPos = (screenSize - menuSize) / 2.f;
@@ -138,17 +138,21 @@ GameState::GameState(Vector2f screenSize) :
 
     auto englishText = make_unique<Gui::Text>(getLanguageManager().getEnglishText(), 
                                                 font, comboCharacterSize, comboElementColor);
-    englishText->setOrigin(englishText->getSize() / 2.f);
+    englishText->setOrigin({englishText->getSize().x / 2.f, englishText->getSize().y * (2.f / 3.f)});
     englishText->setPosition({0.f, comboSize.y / 2.f}); // place in the center of the button
     comboSize.x = max(englishText->getSize().x + comboTextPadding, comboSize.x);
 
     auto russianText = make_unique<Gui::Text>(getLanguageManager().getRussianText(), 
                                                 font, comboCharacterSize, comboElementColor);
-    russianText->setOrigin(russianText->getSize() / 2.f);
+    russianText->setOrigin({russianText->getSize().x / 2.f, russianText->getSize().y * (2.f / 3.f)});
     russianText->setPosition({0.f, comboSize.y / 2.f}); // place in the center of the button
     comboSize.x = max(russianText->getSize().x + comboTextPadding, comboSize.x);
 
-    auto languageCombo = make_unique<Gui::ComboBox>(comboColor, comboElementColor, comboOutline);
+    auto languageCombo = make_unique<Gui::ComboBox>([this]() -> int {
+        return static_cast<int>(m_languageManager.getLanguage());
+    }, [this](int current){
+        m_languageManager.setLanguage(static_cast<LanguageManager::Language>(current));
+    }, comboColor, comboElementColor, comboOutline);
     languageCombo->setSize(comboSize);
     languageCombo->addChild(std::move(englishText));
     languageCombo->addChild(std::move(russianText));

@@ -16,12 +16,13 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "util.h"
 
 namespace Gui {
-    void Panel::handleEvent(const sf::Event& event) {
+    bool Panel::handleEvent(const sf::Event& event) {
         sf::Event newEvent = moveEvent(event, -m_shape.getPosition());
-
-        for (auto& child : m_children) {
-            child->handleEvent(newEvent);
+        for (auto current = m_children.rbegin(); current != m_children.rend(); ++ current) {
+            if ((*current)->handleEvent(newEvent)) return true;
         }
+
+        return false;
     }
 
     void Panel::draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept {

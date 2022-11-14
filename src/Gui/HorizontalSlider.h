@@ -62,7 +62,7 @@ namespace Gui {
             m_runner.setOrigin(origin);
         }
 
-        void handleEvent(const sf::Event& event) 
+        bool handleEvent(const sf::Event& event) 
             noexcept(noexcept(m_setValue(std::declval<float>()))) override;
     private:
         sf::RectangleShape m_runner;

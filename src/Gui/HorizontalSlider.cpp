@@ -21,7 +21,7 @@ namespace Gui {
         m_line.setFillColor(lineColor);
     }
 
-    void HorizontalSlider::handleEvent(const sf::Event& event) 
+    bool HorizontalSlider::handleEvent(const sf::Event& event) 
             noexcept(noexcept(m_setValue(std::declval<float>()))) {
         switch (event.type) {
         case sf::Event::MouseButtonPressed:
@@ -31,11 +31,13 @@ namespace Gui {
                         mousePos - m_line.getPosition() + m_line.getOrigin()
                         - sf::Vector2f{m_getValue() * m_line.getSize().x, 0.f})) {
                     m_active = true;
+                    return true;
                 } else if (m_line.getGlobalBounds().contains(mousePos)) {
                     m_active = true;
 
                     float left = m_line.getGlobalBounds().left;
                     m_setValue((event.mouseButton.x - left) / m_line.getSize().x);
+                    return true;
                 }
             }
             break;

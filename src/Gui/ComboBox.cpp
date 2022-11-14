@@ -28,8 +28,18 @@ namespace Gui {
         m_listShape.setOutlineThickness(outlineThickness);
     }
 
-    void ComboBox::handleEvent(const sf::Event& event) 
+    bool ComboBox::handleEvent(const sf::Event& event) 
             noexcept(noexcept(m_setCurrent(std::declval<int>()))) {
+        sf::Event newEvent = moveEvent(event, -m_shape.getPosition());
+        if ((m_children[m_getCurrent()])->handleEvent(newEvent)) return true;
+        if (m_active) {
+            newEvent = moveEvent(event, {0.f, m_shape.getSize().y});
+            for (auto& child : m_children) {
+                newEvent = moveEvent(event, {0.f, m_shape.getSize().y});
+                if (child->handleEvent(newEvent)) return true;
+            }
+        }
+
         switch (event.type) {
         case sf::Event::MouseButtonPressed: {
             sf::Vector2f mousePos(event.mouseButton.x, event.mouseButton.y);
@@ -38,6 +48,7 @@ namespace Gui {
                 mousePos.y -= m_shape.getSize().y;
                 if (m_listShape.getGlobalBounds().contains(mousePos)) {
                     m_setCurrent((mousePos.y + m_listShape.getOrigin().y) / m_shape.getSize().y);
+                    return true;
                 }
                 m_active = false;
             } else {
@@ -46,6 +57,8 @@ namespace Gui {
             break;
         }
         }
+
+        return false;
     }
 
     void ComboBox::draw(sf::RenderTarget& target, sf::RenderStates states) 

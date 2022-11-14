@@ -69,7 +69,7 @@ namespace Gui {
             m_children.clear();
         }
 
-        void handleEvent(const sf::Event& event) override;
+        bool handleEvent(const sf::Event& event) override;
     private:
         sf::RectangleShape m_shape;
         std::vector<std::unique_ptr<Element>> m_children;

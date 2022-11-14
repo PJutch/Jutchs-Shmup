@@ -67,7 +67,7 @@ namespace Gui {
             updateSize();
         }
 
-        void handleEvent(const sf::Event& event) 
+        bool handleEvent(const sf::Event& event) 
             noexcept(noexcept(m_setCurrent(std::declval<int>()))) override;
     private:
         sf::RectangleShape m_shape;

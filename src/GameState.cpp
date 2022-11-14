@@ -212,9 +212,10 @@ void GameState::initGui() noexcept {
     m_menu.addChild(std::move(menuText));
     m_menu.addChild(std::move(volumeText));
     m_menu.addChild(std::move(volumeSlider));
-    m_menu.addChild(std::move(languageCombo));
     m_menu.addChild(std::move(resumeButton));
     m_menu.addChild(std::move(exitButton));
+
+    m_menu.addChild(std::move(languageCombo)); // over buttons
 }
 
 void GameState::handleEvent(sf::Event event) noexcept {

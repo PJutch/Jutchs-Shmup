@@ -24,13 +24,16 @@ namespace Gui {
         m_shape.setOutlineThickness(m_outlineThickness);
     }
 
-    void Button::handleEvent(const sf::Event& event) noexcept(noexcept(m_action())) {
+    bool Button::handleEvent(const sf::Event& event) noexcept(noexcept(m_action())) {
+        if (m_child && m_child->handleEvent(moveEvent(event, -m_shape.getPosition())))
+            return true;
+
         switch (event.type) {
         case sf::Event::MouseButtonPressed:
             if (event.mouseButton.button == sf::Mouse::Button::Left
-                && m_shape.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+             && m_shape.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
                 m_action();
-            break;
+                return true;
         case sf::Event::MouseMoved:
             if (m_shape.getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)) {
                 m_shape.setOutlineThickness(m_activeOutlineThickness);
@@ -40,8 +43,6 @@ namespace Gui {
             break;
         }
 
-        if (m_child) {
-            m_child->handleEvent(moveEvent(event, -m_shape.getPosition()));
-        }
+        return false;
     }
 }

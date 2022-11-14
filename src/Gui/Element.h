@@ -22,7 +22,9 @@ namespace Gui {
     public:
         virtual ~Element() = default;
 
-        virtual void handleEvent(const sf::Event& event) {}
+        virtual bool handleEvent(const sf::Event& event) {
+            return false;
+        }
     };
 }
 

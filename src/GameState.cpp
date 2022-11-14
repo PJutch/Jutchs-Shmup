@@ -94,10 +94,10 @@ void GameState::initGui() noexcept {
     int characterSize = 100;
     const auto& font = m_assetManager.getFont();
 
-    float buttonOutline = max(m_screenSize.y / 128.f, 1.f);
+    float buttonOutline = max(m_screenSize.y / 256.f, 0.5f);
     float buttonTextPadding = m_screenSize.y / 10.f;
     Vector2f buttonSize{buttonTextPadding, m_screenSize.y / 10.f}; // .x will be updated
-    Color buttonColor = Color::Transparent;
+    Color buttonColor{0, 0, 0, 128};
     Color buttonElementColor = Color::White;
     int buttonCharacterSize = 80;
     float buttonOffset = max(m_screenSize.y / 64.f, 1.f);
@@ -179,7 +179,7 @@ void GameState::initGui() noexcept {
     auto resumeText = make_unique<Gui::Text>(getLanguageManager().getResumeText(), 
                                                 font, buttonCharacterSize, buttonElementColor);
     resumeText->setOrigin({resumeText->getSize().x / 2.f, resumeText->getSize().y});
-    resumeText->setPosition({0.f, - buttonSize.y / 2.f}); // place in the center of the button
+    resumeText->setPosition({0.f, -buttonSize.y / 2.f}); // place in the center of the button
     buttonSize.x = max(resumeText->getSize().x + buttonTextPadding, buttonSize.x);
 
     auto exitText = make_unique<Gui::Text>(getLanguageManager().getExitText(), 
@@ -190,7 +190,7 @@ void GameState::initGui() noexcept {
 
     auto resumeButton = make_unique<Gui::Button>([this]{
         m_menuOpen = false;
-    }, buttonColor, buttonElementColor, 0.f, buttonOutline);
+    }, buttonColor, buttonElementColor, buttonOutline, buttonOutline);
     resumeButton->setSize(buttonSize);
 
     // .x at center, .y above exitButton
@@ -201,7 +201,7 @@ void GameState::initGui() noexcept {
 
     auto exitButton = make_unique<Gui::Button>([this]{
         m_shouldEnd = true;
-    }, buttonColor, buttonElementColor, 0.f, buttonOutline);
+    }, buttonColor, buttonElementColor, buttonOutline, buttonOutline);
     exitButton->setSize(buttonSize);
 
     // .x at center, .y at bottom

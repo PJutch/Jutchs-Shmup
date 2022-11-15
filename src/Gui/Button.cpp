@@ -31,9 +31,10 @@ namespace Gui {
         switch (event.type) {
         case sf::Event::MouseButtonPressed:
             if (event.mouseButton.button == sf::Mouse::Button::Left
-             && m_shape.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+             && m_shape.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
                 m_action();
                 return true;
+            }
         case sf::Event::MouseMoved:
             if (m_shape.getGlobalBounds().contains(event.mouseMove.x, event.mouseMove.y)) {
                 m_shape.setOutlineThickness(m_activeOutlineThickness);

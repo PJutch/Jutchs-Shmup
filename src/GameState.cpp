@@ -148,14 +148,16 @@ void GameState::initGui() noexcept {
     volumeSlider->setRunnerOrigin({sliderRunnerSize.x / 2.f,
                                    sliderRunnerSize.y / 2.f - sliderHeight / 2.f});
 
-    auto englishText = make_unique<Gui::Text>(getLanguageManager().getEnglishText(), 
-                                                font, comboCharacterSize, comboElementColor);
+    auto englishText = make_unique<Gui::Text>(
+        getLanguageManager().getLanguageName(LanguageManager::Language::ENGLISH), 
+        font, comboCharacterSize, comboElementColor);
     englishText->setOrigin({englishText->getSize().x / 2.f, englishText->getSize().y * (2.f / 3.f)});
     englishText->setPosition({0.f, comboSize.y / 2.f}); // place in the center of the button
     comboSize.x = max(englishText->getSize().x + comboTextPadding, comboSize.x);
 
-    auto russianText = make_unique<Gui::Text>(getLanguageManager().getRussianText(), 
-                                                font, comboCharacterSize, comboElementColor);
+    auto russianText = make_unique<Gui::Text>(
+        getLanguageManager().getLanguageName(LanguageManager::Language::RUSSIAN), 
+        font, comboCharacterSize, comboElementColor);
     russianText->setOrigin({russianText->getSize().x / 2.f, russianText->getSize().y * (2.f / 3.f)});
     russianText->setPosition({0.f, comboSize.y / 2.f}); // place in the center of the button
     comboSize.x = max(russianText->getSize().x + comboTextPadding, comboSize.x);

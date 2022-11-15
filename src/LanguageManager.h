@@ -21,9 +21,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 class LanguageManager {
 public:
     enum class Language {
-        NONE = -1, // don't set
         ENGLISH = 0,
         RUSSIAN,
+        TOTAL // don't set
     };
 
     LanguageManager() noexcept;
@@ -44,12 +44,8 @@ public:
         return m_exitText;
     }
 
-    const std::string& getEnglishText() const noexcept {
-        return m_englishText;
-    }
-
-    const std::string& getRussianText() const noexcept {
-        return m_russianText;
+    const std::string& getLanguageName(Language language) const noexcept {
+        return m_languageNames[static_cast<int>(language)];
     }
 
     void setLanguage(Language language) noexcept {
@@ -63,15 +59,18 @@ public:
         return m_language;
     }
 private:
-    std::string m_menuText;    // gui.menu.menu
-    std::string m_volumeText;  // gui.menu.volume
-    std::string m_resumeText;  // gui.menu.resume
-    std::string m_exitText;    // gui.menu.exit
-    std::string m_englishText; // gui.menu.english
-    std::string m_russianText; // gui.menu.russian
+    std::string m_menuText;      // gui.menu.menu
+    std::string m_volumeText;    // gui.menu.volume
+    std::string m_resumeText;    // gui.menu.resume
+    std::string m_exitText;      // gui.menu.exit
+    std::array<std::string, 
+        static_cast<int>(Language::TOTAL)> m_languageNames; // see s_languageKeys
 
     Language m_language;
-    static const std::array<std::filesystem::path, 2> s_languagePaths;
+    static const std::array<std::filesystem::path, 
+        static_cast<int>(Language::TOTAL)> s_languagePaths;
+    static const std::array<std::string, 
+        static_cast<int>(Language::TOTAL)> s_languageKeys;
 
     // file format:
     // key1 value1, other parts of the value1

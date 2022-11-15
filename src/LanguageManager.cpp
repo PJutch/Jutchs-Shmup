@@ -18,7 +18,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <locale>
 #include <string_view>
 
-LanguageManager::LanguageManager() noexcept : m_language{LanguageManager::Language::NONE} {}
+LanguageManager::LanguageManager() noexcept : m_language{LanguageManager::Language::TOTAL} {}
 
 void LanguageManager::loadLanguage(const std::filesystem::path& path) {
     std::ifstream file{path};
@@ -54,15 +54,22 @@ void LanguageManager::loadLanguage(const std::filesystem::path& path) {
             m_resumeText = value;
         } else if (key == "gui.menu.exit") {
             m_exitText   = value;
-        } else if (key == "gui.menu.english") {
-            m_englishText = value;
-        } else if (key == "gui.menu.russian") {
-            m_russianText   = value;
         } else {
-            throw LanguageLoadError{std::format("Unknown key \"{}\" with value \"{}\"", key, value)};
+            bool found = true;
+            for (int i = 0; i < static_cast<int>(Language::TOTAL); ++ i) {
+                if (key == s_languageKeys[i]) {
+                    m_languageNames[i] = value;
+                }
+            }
+            if (!found) 
+                throw LanguageLoadError
+                    {std::format("Unknown key \"{}\" with value \"{}\"", key, value)};
         }
     }
 }
 
-const std::array<std::filesystem::path, 2> LanguageManager::s_languagePaths{
-    "resources/lang/en.lang", "resources/lang/ru.lang"};
+const std::array<std::filesystem::path, static_cast<int>(LanguageManager::Language::TOTAL)> 
+    LanguageManager::s_languagePaths{"resources/lang/en.lang", "resources/lang/ru.lang"};
+
+const std::array<std::string, static_cast<int>(LanguageManager::Language::TOTAL)> 
+    LanguageManager::s_languageKeys{"gui.menu.language.english", "gui.menu.language.russian"};

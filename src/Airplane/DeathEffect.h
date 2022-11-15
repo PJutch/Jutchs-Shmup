@@ -11,8 +11,8 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef DEATH_EFFECT_H_
-#define DEATH_EFFECT_H_
+#ifndef AIRPLANE_DEATH_EFFECT_H_
+#define AIRPLANE_DEATH_EFFECT_H_
 
 #include "GameState.h"
 #include "AnimatedParticle.h"

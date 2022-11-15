@@ -11,8 +11,8 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef AIRPLANE_H_
-#define AIRPLANE_H_
+#ifndef AIRPLANE_AIRPLANE_H_
+#define AIRPLANE_AIRPLANE_H_
 
 #include "GameState.h"
 #include "Entity.h"

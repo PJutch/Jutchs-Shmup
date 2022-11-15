@@ -11,8 +11,8 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef SHOOT_CONTROL_COMPONENT_H_
-#define SHOOT_CONTROL_COMPONENT_H_
+#ifndef AIRPLANE_SHOOT_CONTROL_COMPONENT_H_
+#define AIRPLANE_SHOOT_CONTROL_COMPONENT_H_
 
 #include "ShootComponent.h"
 #include "GameState.h"

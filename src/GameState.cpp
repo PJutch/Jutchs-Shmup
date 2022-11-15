@@ -110,6 +110,7 @@ void GameState::initGui() noexcept {
 
     Color comboColor{0, 0, 0, 128};
     Color comboElementColor = Color::White;
+    Color comboSelectionColor{64, 96, 255};
     float comboOutline = -max(m_screenSize.y / 256.f, 0.5f);
     float comboTextPadding = m_screenSize.y / 10.f;
     Vector2f comboSize{comboTextPadding, m_screenSize.y / 10.f}; // .x will be updated
@@ -165,7 +166,7 @@ void GameState::initGui() noexcept {
         m_languageManager.setLanguage(static_cast<LanguageManager::Language>(current));
         initGui();
         throw GuiInvalidated{"Gui reloaded"};
-    }, comboColor, comboElementColor, comboOutline);
+    }, comboColor, comboElementColor, comboOutline, comboSelectionColor);
     languageCombo->setSize(comboSize);
     languageCombo->addChild(std::move(englishText));
     languageCombo->addChild(std::move(russianText));

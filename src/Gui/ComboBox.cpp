@@ -16,9 +16,11 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "util.h"
 
 namespace Gui {
-    ComboBox::ComboBox(std::function<int ()> getCurrent, std::function<void (int)> setCurrent, 
-                       sf::Color fillColor, sf::Color outlineColor, float outlineThickness) noexcept :
-            m_getCurrent{getCurrent}, m_setCurrent{setCurrent}, m_active{false} {
+    ComboBox::ComboBox(const std::function<int ()>& getCurrent, 
+                       const std::function<void (int)>& setCurrent, 
+                       sf::Color fillColor, sf::Color outlineColor, float outlineThickness, 
+                       sf::Color hoveredColor) noexcept :
+            m_getCurrent{getCurrent}, m_setCurrent{setCurrent}, m_active{false}, m_hovered{-1} {
         m_shape.setFillColor(fillColor);
         m_shape.setOutlineColor(outlineColor);
         m_shape.setOutlineThickness(outlineThickness);
@@ -26,6 +28,8 @@ namespace Gui {
         m_listShape.setFillColor(fillColor);
         m_listShape.setOutlineColor(outlineColor);
         m_listShape.setOutlineThickness(outlineThickness);
+
+        m_hoveredShape.setFillColor(hoveredColor);
     }
 
     bool ComboBox::handleEvent(const sf::Event& event) 
@@ -52,7 +56,23 @@ namespace Gui {
                 }
                 m_active = false;
             } else {
-                if (m_shape.getGlobalBounds().contains(mousePos)) m_active = true;
+                if (m_shape.getGlobalBounds().contains(mousePos)) {
+                    m_active = true;
+                    m_hovered = -1;
+                }
+            }
+            break;
+        }
+        case sf::Event::MouseMoved: {
+            if (m_active) {
+                sf::Vector2f mousePos(event.mouseMove.x, event.mouseMove.y);
+                mousePos -= m_shape.getPosition();
+                mousePos.y -= m_shape.getSize().y;
+                if (m_listShape.getGlobalBounds().contains(mousePos)) {
+                    m_hovered = (mousePos.y + m_listShape.getOrigin().y) / m_shape.getSize().y;
+                } else {
+                    m_hovered = -1;
+                }
             }
             break;
         }
@@ -73,6 +93,12 @@ namespace Gui {
     void ComboBox::drawList(sf::RenderTarget& target, sf::RenderStates states) const noexcept {
         states.transform.translate(0.f, m_shape.getSize().y);
         target.draw(m_listShape, states);
+
+        if (m_hovered != -1) {
+            sf::RenderStates hoveredStates = states;
+            hoveredStates.transform.translate(0.f, m_shape.getSize().y * m_hovered);
+            target.draw(m_hoveredShape, hoveredStates);
+        }
 
         for (const auto& child : m_children) {
             target.draw(*child, states);

@@ -27,8 +27,11 @@ If not, see <https://www.gnu.org/licenses/>. */
 namespace Gui {
     class ComboBox : public Element {
     public:
-        ComboBox(std::function<int ()> getCurrent, std::function<void (int)> setCurrent, 
-                 sf::Color fillColor, sf::Color outlineColor, float outlineThickness) noexcept;
+        // use transparent hoveredColor for better outlook
+        ComboBox(const std::function<int ()>& getCurrent, 
+                 const std::function<void (int)>& setCurrent, 
+                 sf::Color fillColor, sf::Color outlineColor, float outlineThickness, 
+                 sf::Color hoveredColor) noexcept;
 
         sf::Vector2f getSize() const noexcept {
             auto localBounds = m_shape.getLocalBounds();
@@ -44,6 +47,7 @@ namespace Gui {
 
         void setSize(sf::Vector2f size) noexcept {
             m_shape.setSize(size);
+            m_hoveredShape.setSize(size);
             updateSize();
         }
 
@@ -54,6 +58,7 @@ namespace Gui {
         void setOrigin(sf::Vector2f origin) noexcept {
             m_shape.setOrigin(origin);
             m_listShape.setOrigin(origin);
+            m_hoveredShape.setOrigin(origin);
         }
 
         void addChild(std::unique_ptr<Element>&& element) noexcept {
@@ -72,6 +77,7 @@ namespace Gui {
     private:
         sf::RectangleShape m_shape;
         sf::RectangleShape m_listShape;
+        sf::RectangleShape m_hoveredShape;
 
         std::vector<std::unique_ptr<Element>> m_children;
 
@@ -79,6 +85,7 @@ namespace Gui {
         std::function<void (int)> m_setCurrent;
 
         bool m_active;
+        int m_hovered;
 
         // unsafe! requires std::ssize(children) > m_getCurrent()
         void draw(sf::RenderTarget& target, sf::RenderStates states) 

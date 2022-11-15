@@ -13,7 +13,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "GameState.h"
 
-#include "Airplane.h"
+#include "Airplane/Airplane.h"
+#include "Airplane/Builder.h"
 #include "Gui/Text.h"
 #include "Gui/Button.h"
 #include "Gui/HorizontalSlider.h"
@@ -74,10 +75,12 @@ GameState::GameState(Vector2f screenSize) :
     m_player = Airplane::Builder{*this}
         .position({0.f, 0.f}).maxHealth(3).deletable(false)
         .textureHeavy(true).textureFast(false).textureHasWeapon(false)
-        .shootComponent<BasicShootComponent>().playerSide(true)
-        .shootControlComponent<PlayerShootControlComponent>()
-        .moveComponent<PlayerMoveComponent>().speed({250.f, 250.f})
-        .addDeathEffect<LoseDeathEffect>().addDeathEffect<ExplosionDeathEffect>().build().release();
+        .shootComponent<Airplane::BasicShootComponent>().playerSide(true)
+        .shootControlComponent<Airplane::PlayerShootControlComponent>()
+        .moveComponent<Airplane::PlayerMoveComponent>().speed({250.f, 250.f})
+        .addDeathEffect<Airplane::LoseDeathEffect>()
+        .addDeathEffect<Airplane::ExplosionDeathEffect>()
+        .build().release();
     m_entityManager.addEntity(m_player);
 
     m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);
@@ -225,7 +228,7 @@ void GameState::handleEvent(sf::Event event) noexcept {
     if (m_menuOpen) {
         try {
             m_menu.handleEvent(event);
-        } catch (const GuiInvalidated& e) {}
+        } catch (const GuiInvalidated&) {}
     } else {
         m_entityManager.handleEvent(event);
     }        
@@ -357,32 +360,35 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
 
         double shootSeed = genRandom(canonicalDistribution);
         if (shootSeed < 0.1) {
-            builder.shootComponent<TripleShootComponent>()
+            builder.shootComponent<Airplane::TripleShootComponent>()
                    .textureHasWeapon(true);
             score *= 2;
         } else if (shootSeed < 0.2) {
-            builder.shootComponent<VolleyShootComponent>()
+            builder.shootComponent<Airplane::VolleyShootComponent>()
                    .textureHasWeapon(false);
             score *= 2;
         } else {
-            builder.shootComponent<BasicShootComponent >()
+            builder.shootComponent<Airplane::BasicShootComponent >()
                    .textureHasWeapon(false);
         }
 
         double shootControlSeed = genRandom(canonicalDistribution);
-        unique_ptr<ShootControlComponent> shootControl{nullptr};
+        unique_ptr<Airplane::ShootControlComponent> shootControl{nullptr};
         if (shootControlSeed < 0.1) {
-            shootControl = builder.createShootControlComponent<TargetPlayerShootControlComponent>();
+            shootControl = builder.createShootControlComponent
+                <Airplane::TargetPlayerShootControlComponent>();
         } else if (shootControlSeed < 0.2) {
-            shootControl = builder.createShootControlComponent<NeverShootControlComponent>();
+            shootControl = builder.createShootControlComponent
+                <Airplane::NeverShootControlComponent>();
             builder.textureHasWeapon(false);
             score /= 2;
         } else {
-            shootControl = builder.createShootControlComponent<AlwaysShootControlComponent>();
+            shootControl = builder.createShootControlComponent
+                <Airplane::AlwaysShootControlComponent>();
         }
 
-        builder.shootControlComponent<AndShootControlComponent>(move(shootControl), 
-            builder.createShootControlComponent<CanHitPlayerShootControlComponent>());
+        builder.shootControlComponent<Airplane::AndShootControlComponent>(move(shootControl), 
+            builder.createShootControlComponent<Airplane::CanHitPlayerShootControlComponent>());
 
         if (genRandom(canonicalDistribution) < 0.1) {
             builder.speed({500.f, 250.f}).textureFast(true);
@@ -393,16 +399,16 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
 
         double moveSeed = genRandom(canonicalDistribution);
         if (moveSeed < 0.1) {
-            builder.moveComponent<PeriodicalMoveComponent>();
+            builder.moveComponent<Airplane::PeriodicalMoveComponent>();
         } else if (moveSeed < 0.2) {
-            builder.moveComponent<FollowPlayerMoveComponent>();
+            builder.moveComponent<Airplane::FollowPlayerMoveComponent>();
         } else {
-            builder.moveComponent<BasicMoveComponent>();
+            builder.moveComponent<Airplane::BasicMoveComponent>();
         }
 
-        builder.addDeathEffect<ScoreDeathEffect>(score)
-               .addDeathEffect<LootDeathEffect>()
-               .addDeathEffect<ExplosionDeathEffect>();
+        builder.addDeathEffect<Airplane::ScoreDeathEffect>(score)
+               .addDeathEffect<Airplane::LootDeathEffect>()
+               .addDeathEffect<Airplane::ExplosionDeathEffect>();
 
         m_entityManager.addEntity(builder.build());
     }

@@ -13,7 +13,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Bullet.h"  
 
-#include "Airplane.h"
+#include "Airplane/Airplane.h"
 
 #include <SFML/Graphics.hpp>
 using sf::Texture;
@@ -22,7 +22,7 @@ using sf::Vector2f;
 #include <SFML/System.hpp>
 using sf::Time;
 
-Bullet::Bullet(Airplane* owner, bool playerSide, Vector2f position, GameState& gameState) noexcept :
+Bullet::Bullet(Airplane::Airplane* owner, bool playerSide, Vector2f position, GameState& gameState) noexcept :
         Entity{gameState}, m_sprite{gameState.getAssets().getBulletTexture()}, 
         m_playerSide{playerSide}, m_alive{true}, m_owner{owner} {
     auto size = gameState.getAssets().getBulletTexture().getSize();
@@ -37,7 +37,7 @@ void Bullet::update(Time elapsedTime) noexcept {
     m_sprite.move((m_playerSide ? 1 : -1) * 750.f * elapsedTime.asSeconds(), 0);
 }
 
-void Bullet::acceptCollide(Airplane& other) noexcept {
+void Bullet::acceptCollide(Airplane::Airplane& other) noexcept {
     if (!m_alive) return;
 
     if (&other != m_owner) {

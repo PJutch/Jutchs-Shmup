@@ -8,12 +8,24 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 include_directories(src)
 include_directories(extlibs/SFML/include)
 
-add_executable(Jutchs_Shmup src/main.cpp src/Bullet.cpp src/Airplane.cpp 
-                            src/Pickup.cpp src/ShootComponent.cpp src/Entity.cpp src/GameState.cpp 
-                            src/HealthPickup.cpp src/MoveComponent.cpp src/DeathEffect.cpp
-                            src/ShootControlComponent.cpp src/AnimatedParticle.cpp 
-                            src/AssetManager.cpp src/EntityManager.cpp src/Gui/Panel.cpp src/util.cpp
-                            src/Gui/Button.cpp src/Gui/HorizontalSlider.cpp src/LanguageManager.cpp
+add_executable(Jutchs_Shmup src/main.cpp 
+                            src/Bullet.cpp
+                            src/Pickup.cpp 
+                            src/Airplane/ShootComponent.cpp 
+                            src/Entity.cpp 
+                            src/GameState.cpp 
+                            src/HealthPickup.cpp 
+                            src/Airplane/MoveComponent.cpp 
+                            src/Airplane/DeathEffect.cpp
+                            src/Airplane/ShootControlComponent.cpp 
+                            src/AnimatedParticle.cpp 
+                            src/AssetManager.cpp 
+                            src/EntityManager.cpp 
+                            src/Gui/Panel.cpp 
+                            src/util.cpp
+                            src/Gui/Button.cpp 
+                            src/Gui/HorizontalSlider.cpp 
+                            src/LanguageManager.cpp
                             src/Gui/ComboBox.cpp)
 set_property(TARGET Jutchs_Shmup PROPERTY MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
 

@@ -31,7 +31,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <memory>
 #include <deque>
 
-class Airplane;
+namespace Airplane {
+    class Airplane;
+}
 
 class GameState : public sf::Drawable {
 public:
@@ -67,11 +69,11 @@ public:
         return m_entityManager;
     }
 
-    const Airplane& getPlayer() const noexcept {
+    const Airplane::Airplane& getPlayer() const noexcept {
         return *m_player;
     }
 
-    Airplane& getPlayer() noexcept {
+    Airplane::Airplane& getPlayer() noexcept {
         return *m_player;
     }
 
@@ -121,7 +123,7 @@ private:
 
     std::mt19937_64 m_randomEngine;
 
-    Airplane* m_player;
+    Airplane::Airplane* m_player;
 
     int m_score;
     struct ScoreChange {

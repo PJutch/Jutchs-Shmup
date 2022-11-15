@@ -21,8 +21,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-class Airplane;
-class Player;
+namespace Airplane {
+    class Airplane;
+}
 
 class Pickup : public Entity {
 public:
@@ -44,12 +45,12 @@ public:
         other.acceptCollide(*this);
     }
 
-    void acceptCollide(Airplane& other) noexcept override {
+    void acceptCollide(Airplane::Airplane& other) noexcept override {
         if (!m_alive) return;
         apply(other);
     }
 
-    virtual void apply(Airplane& airplane) noexcept = 0;
+    virtual void apply(Airplane::Airplane& airplane) noexcept = 0;
 
     bool shouldBeDeleted() const noexcept override {
         return !(m_alive && m_gameState.inActiveArea(m_sprite.getPosition().x));

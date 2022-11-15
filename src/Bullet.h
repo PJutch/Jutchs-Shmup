@@ -20,11 +20,14 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-class Player;
+namespace Airplane {
+    class Airplane;
+}
 
 class Bullet : public Entity {
 public:
-    Bullet(Airplane* owner, bool playerSide, sf::Vector2f position, GameState& gameState) noexcept;
+    Bullet(Airplane::Airplane* owner, bool playerSide, sf::Vector2f position, 
+            GameState& gameState) noexcept;
     
     static sf::Vector2f getSize(GameState& gameState) noexcept {
         auto size = gameState.getAssets().getBulletTexture().getSize();
@@ -45,7 +48,7 @@ public:
         other.acceptCollide(*this);
     }
 
-    void acceptCollide(Airplane& other) noexcept override;
+    void acceptCollide(Airplane::Airplane& other) noexcept override;
 
     bool shouldBeDeleted() const noexcept override {
         return !(m_alive && m_gameState.inActiveArea(m_sprite.getPosition().x));
@@ -72,7 +75,7 @@ private:
     bool m_playerSide;
     bool m_alive;
     
-    Airplane* m_owner;
+    Airplane::Airplane* m_owner;
 };
 
 #endif

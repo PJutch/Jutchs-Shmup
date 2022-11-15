@@ -15,14 +15,14 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define HEALTH_PICKUP_
 
 #include "Pickup.h"
-#include "Airplane.h"
+#include "Airplane/Airplane.h"
 #include "SoundEffect.h"
 
 class HealthPickup : public Pickup {
 public:
     HealthPickup(sf::Vector2f position, GameState& gameState) noexcept;
 
-    void apply(Airplane& airplane) noexcept override {
+    void apply(Airplane::Airplane& airplane) noexcept override {
         if (isAlive() && airplane.addHealth(1)) {
             m_gameState.addSound(m_gameState.getAssets()
                                     .getRandomPowerUpSound(m_gameState.getRandomEngine()));

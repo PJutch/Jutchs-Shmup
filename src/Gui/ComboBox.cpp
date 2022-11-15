@@ -30,6 +30,8 @@ namespace Gui {
         m_listShape.setOutlineThickness(outlineThickness);
 
         m_hoveredShape.setFillColor(hoveredColor);
+
+        setOrigin({0.f, 0.f});
     }
 
     bool ComboBox::handleEvent(const sf::Event& event) 

@@ -27,7 +27,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 namespace Gui {
     class ComboBox : public Element {
     public:
-        // use transparent hoveredColor for better outlook
+        // use transparent hoveredColor for better look
         ComboBox(const std::function<int ()>& getCurrent, 
                  const std::function<void (int)>& setCurrent, 
                  sf::Color fillColor, sf::Color outlineColor, float outlineThickness, 
@@ -47,7 +47,14 @@ namespace Gui {
 
         void setSize(sf::Vector2f size) noexcept {
             m_shape.setSize(size);
-            m_hoveredShape.setSize(size);
+
+            float outline = m_listShape.getOutlineThickness();
+            if (outline > 0) {
+                m_hoveredShape.setSize(size);
+            } else {
+                m_hoveredShape.setSize({size.x + 2 * outline, size.y + 2 * outline});
+            }
+
             updateSize();
         }
 
@@ -58,7 +65,13 @@ namespace Gui {
         void setOrigin(sf::Vector2f origin) noexcept {
             m_shape.setOrigin(origin);
             m_listShape.setOrigin(origin);
-            m_hoveredShape.setOrigin(origin);
+
+            float outline = m_listShape.getOutlineThickness();
+            if (outline > 0) {
+                m_hoveredShape.setOrigin(origin);
+            } else {
+                m_hoveredShape.setOrigin(origin.x + outline, origin.y + outline);
+            }
         }
 
         void addChild(std::unique_ptr<Element>&& element) noexcept {

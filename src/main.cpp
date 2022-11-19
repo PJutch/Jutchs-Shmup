@@ -29,8 +29,6 @@ int main(int argc, char** argv) {
 
     GameState gameState{screenSize};
 
-    float spawnX = gameState.getGameHeight() * 4;
-
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {

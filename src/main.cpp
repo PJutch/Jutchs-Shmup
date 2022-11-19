@@ -14,58 +14,17 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "GameState.h"
 
 #include <SFML/Graphics.hpp>
-using sf::Color;
-using sf::RenderWindow;
-using sf::Texture;
-using sf::View;
-using sf::FloatRect;
-using sf::Sprite;
-using sf::IntRect;
-using sf::Vector2f;
-using sf::Vector2u;
-
-#include <SFML/Audio.hpp>
-using sf::Sound;
-
 #include <SFML/System.hpp>
-using sf::Clock;
-using sf::Time;
-using sf::seconds;
-
 #include <SFML/Window.hpp>
-using sf::Event;
-using sf::Keyboard;
-using sf::VideoMode;
-using sf::Clipboard;
-namespace Style = sf::Style;
-
-#include <format>
-using std::format;
-
-#include <vector>
-using std::vector;
-
-#include <array>
-using std::array;
-
-using std::ssize;
-
-#include <random>
-using std::random_device;
-using std::mt19937_64;
-using std::uniform_real_distribution;
-
-#include <memory>
-using std::unique_ptr;
 
 #include <utility>
 using std::swap;
 
 int main(int argc, char** argv) {
-    auto videoMode = VideoMode::getDesktopMode();
-    Vector2f screenSize(videoMode.width, videoMode.height);
+    auto videoMode = sf::VideoMode::getDesktopMode();
+    sf::Vector2f screenSize(videoMode.width, videoMode.height);
 
-    RenderWindow window{videoMode, "Jutchs Shmup", Style::Fullscreen};
+    sf::RenderWindow window{videoMode, "Jutchs Shmup", sf::Style::Fullscreen};
     window.setVerticalSyncEnabled(true);
 
     GameState gameState{screenSize};
@@ -73,7 +32,7 @@ int main(int argc, char** argv) {
     float spawnX = gameState.getGameHeight() * 4;
 
     while (window.isOpen()) {
-        Event event;
+        sf::Event event;
         while (window.pollEvent(event)) {
             gameState.handleEvent(event);
         }
@@ -82,7 +41,7 @@ int main(int argc, char** argv) {
 
         gameState.update();
 
-        window.clear(Color::Green);
+        window.clear(sf::Color::Green);
         window.draw(gameState);
         window.display();
     }

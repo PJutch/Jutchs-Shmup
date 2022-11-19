@@ -17,6 +17,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <filesystem>
 #include <string>
 #include <exception>
+#include <array>
 
 class LanguageManager {
 public:

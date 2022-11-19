@@ -17,6 +17,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <algorithm>
 #include <locale>
 #include <string_view>
+#include <array>
 
 LanguageManager::LanguageManager() noexcept : m_language{LanguageManager::Language::TOTAL} {}
 

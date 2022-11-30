@@ -67,11 +67,16 @@ class GuiInvalidated : public std::runtime_error {
 
 GameState::GameState(Vector2f screenSize) : 
         m_assetManager{}, m_tickClock{}, m_clock{}, 
-        m_randomEngine{random_device{}()}, m_player{nullptr}, 
+        m_randomEngine{random_device{}()},
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
         m_score{0}, m_shouldResetAfter{Time::Zero}, m_sounds{}, m_volume{100.f},
         m_menuOpen{false},
         m_shouldEnd{false} {
+    m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);
+    initGui();
+}
+
+void GameState::initPlayer() {
     m_player = Airplane::Builder{*this}
         .position({0.f, 0.f}).maxHealth(3).deletable(false)
         .textureHeavy(true).textureFast(false).textureHasWeapon(false)
@@ -82,12 +87,9 @@ GameState::GameState(Vector2f screenSize) :
         .addDeathEffect<Airplane::ExplosionDeathEffect>()
         .build().release();
     m_entityManager.addEntity(m_player);
-
-    m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);
-    initGui();
 }
 
-void GameState::initGui() noexcept {
+void GameState::initGui() {
     Vector2f menuSize{m_screenSize.y * 0.75f, m_screenSize.y * 0.75f};
     Vector2f menuPos = (m_screenSize - menuSize) / 2.f;
     m_menu.setRect({menuPos.x, menuPos.y, menuSize.x, menuSize.y});

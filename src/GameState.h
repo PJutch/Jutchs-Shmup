@@ -148,7 +148,9 @@ private:
 
     LanguageManager m_languageManager;
 
-    void initGui() noexcept;
+    void initPlayer();
+
+    void initGui();
 
     sf::View getView() const noexcept;
 

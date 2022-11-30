@@ -58,14 +58,13 @@ namespace Airplane {
 
         template<std::derived_from<ShootComponent> Component, typename... Args>
         Builder& shootComponent(Args&&... args) noexcept {
-            m_build->m_shootComponent.reset(
-                new Component{*m_build, m_gameState, std::forward<Args>(args)...});
+            m_build->m_shootComponent = std::make_unique<Component>
+                (*m_build, m_gameState, std::forward<Args>(args)...);
             return *this;
         }
 
         template<std::derived_from<ShootControlComponent> Component, typename... Args>
-        std::unique_ptr<ShootControlComponent> 
-                createShootControlComponent(Args&&... args) noexcept {
+        std::unique_ptr<ShootControlComponent> createShootControlComponent(Args&&... args) noexcept {
             return std::make_unique<Component>(*m_build, m_gameState, std::forward<Args>(args)...);
         }
 
@@ -78,15 +77,15 @@ namespace Airplane {
 
         template<std::derived_from<MoveComponent> Component, typename... Args>
         Builder& moveComponent(Args&&... args) noexcept {
-            m_build->m_moveComponent.reset(
-                new Component{*m_build, m_gameState, std::forward<Args>(args)...});
+            m_build->m_moveComponent = std::make_unique<Component>
+                (*m_build, m_gameState, std::forward<Args>(args)...);
             return *this;
         }
 
         template<std::derived_from<DeathEffect> Component, typename... Args>
         Builder& addDeathEffect(Args&&... args) noexcept {
             m_build->m_deathEffects.emplace_back(
-                new Component{*m_build, m_gameState, std::forward<Args>(args)...});
+                std::make_unique<Component>(*m_build, m_gameState, std::forward<Args>(args)...));
             return *this;
         }
 

@@ -168,9 +168,20 @@ private:
 
     sf::View getView() const noexcept;
 
-    void reset() noexcept;
+    void reset();
 
-    void trySpawnEnemy(sf::Vector2f position) noexcept;
+    void checkReset(sf::Time elapsedTime) {
+        if (m_shouldResetAfter > sf::Time::Zero) {
+            m_shouldResetAfter -= elapsedTime;
+            if (m_shouldResetAfter <= sf::Time::Zero) reset();
+        }
+    }
+
+    void checkEnemySpawn();
+
+    void updateScore();
+
+    void trySpawnEnemy(sf::Vector2f position);
 
     void drawNumber(int n, sf::Vector2f position, 
                     sf::RenderTarget& target, sf::RenderStates states) const noexcept;

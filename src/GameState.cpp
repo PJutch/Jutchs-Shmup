@@ -21,50 +21,16 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Gui/ComboBox.h"
 
 #include <SFML/Graphics.hpp>
-using sf::RenderTarget;
-using sf::RenderStates;
-using sf::Sprite;
-using sf::View;
-using sf::Texture;
-using sf::Image;
-using sf::Color;
-
 #include <SFML/System.hpp>
-using sf::Time;
-using sf::seconds;
-using sf::Vector2u;
-using sf::Vector2f;
-using sf::IntRect;
-
-#include <format>
-using std::format;
-
-#include <random>
-using std::random_device;
 
 #include <algorithm>
-using std::erase_if;
-using std::max;
-
-#include <string>
-using std::string;
-using std::to_string;
-
-using std::ssize;
-
-#include <exception>
-
 #include <memory>
-using std::unique_ptr;
-using std::make_unique;
-
 #include <utility>
-using std::move;
 
-GameState::GameState(Vector2f screenSize) : 
-        m_randomEngine{random_device{}()},
+GameState::GameState(sf::Vector2f screenSize) : 
+        m_randomEngine{std::random_device{}()},
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
-        m_score{0}, m_shouldResetAfter{Time::Zero},
+        m_score{0}, m_shouldResetAfter{sf::Time::Zero},
         m_shouldEnd{false}, m_guiManager{*this} {
     initPlayer();
     m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);
@@ -95,35 +61,24 @@ void GameState::handleEvent(const sf::Event& event) {
 }
 
 void GameState::update() {
-    Time elapsedTime = m_tickClock.restart();
+    sf::Time elapsedTime = m_tickClock.restart();
 
     if (!m_guiManager.isMenuOpen()) m_entityManager.update(elapsedTime);
-
     m_soundManager.update();
+    checkReset(elapsedTime);
+    checkEnemySpawn();
+    updateScore();
+}
 
-    if (m_shouldResetAfter > Time::Zero) {
-        m_shouldResetAfter -= elapsedTime;
-        if (m_shouldResetAfter <= Time::Zero) reset();
-    }
-
-    while (m_player->getPosition().x + 4 * m_gameHeight > m_spawnX) {
-        Vector2u enemySize = getAssets().getAirplaneTextureSize();
-        for (float y = (enemySize.y - m_gameHeight) / 2; 
-                y < (m_gameHeight- enemySize.y) / 2; y += enemySize.y) {
-            trySpawnEnemy(Vector2f{m_spawnX, y});
-        }
-        m_spawnX += enemySize.x;
-        addScore(1);
-    }
-
+void GameState::updateScore() {
     while (!m_scoreChanges.empty() 
-            && m_scoreChanges.front().time + seconds(0.5f) < m_clock.getElapsedTime()) {
+            && m_scoreChanges.front().time + sf::seconds(0.5f) < m_clock.getElapsedTime()) {
         m_score += m_scoreChanges.front().value;
         m_scoreChanges.pop_front();
     }
 }
 
-void GameState::reset() noexcept {  
+void GameState::reset() {  
     m_player->setPosition({0.f, 0.f});
     m_player->setHealth(3);
 
@@ -142,7 +97,7 @@ bool GameState::inActiveArea(float x) const noexcept {
         && x - 5 * getGameHeight() <= getPlayer().getPosition().x;
 }
 
-void GameState::draw(RenderTarget& target, RenderStates states) const {
+void GameState::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     auto prevView = target.getView();
     target.setView(getView());
 
@@ -152,14 +107,26 @@ void GameState::draw(RenderTarget& target, RenderStates states) const {
     target.draw(m_guiManager, states);
 }
 
-View GameState::getView() const noexcept {
-    return View{{getPlayer().getPosition().x - getGameHeight() / 2.f, 
-                 -getGameHeight() / 2.f, 
-                 getGameHeight() * getScreenSize().x / getScreenSize().y, 
-                 getGameHeight()}};
+sf::View GameState::getView() const noexcept {
+    return sf::View{{getPlayer().getPosition().x - getGameHeight() / 2.f, 
+                     -getGameHeight() / 2.f, 
+                     getGameHeight() * getScreenSize().x / getScreenSize().y, 
+                     getGameHeight()}};
 }
 
-void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
+void GameState::checkEnemySpawn() {
+    while (m_player->getPosition().x + 4 * m_gameHeight > m_spawnX) {
+        sf::Vector2u enemySize = getAssets().getAirplaneTextureSize();
+        for (float y = (enemySize.y - m_gameHeight) / 2; 
+                y < (m_gameHeight- enemySize.y) / 2; y += enemySize.y) {
+            trySpawnEnemy(sf::Vector2f{m_spawnX, y});
+        }
+        m_spawnX += enemySize.x;
+        addScore(1);
+    }
+}
+
+void GameState::trySpawnEnemy(sf::Vector2f position) {
     std::uniform_real_distribution canonicalDistribution{0.0, 1.0};
     if (genRandom(canonicalDistribution) < 0.01) {
         Airplane::Builder builder{*this};
@@ -190,7 +157,7 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
         }
 
         double shootControlSeed = genRandom(canonicalDistribution);
-        unique_ptr<Airplane::ShootControlComponent> shootControl{nullptr};
+        std::unique_ptr<Airplane::ShootControlComponent> shootControl{nullptr};
         if (shootControlSeed < 0.1) {
             shootControl = builder.createShootControlComponent
                 <Airplane::TargetPlayerShootControlComponent>();
@@ -204,7 +171,7 @@ void GameState::trySpawnEnemy(sf::Vector2f position) noexcept {
                 <Airplane::AlwaysShootControlComponent>();
         }
 
-        builder.shootControlComponent<Airplane::AndShootControlComponent>(move(shootControl), 
+        builder.shootControlComponent<Airplane::AndShootControlComponent>(std::move(shootControl), 
             builder.createShootControlComponent<Airplane::CanHitPlayerShootControlComponent>());
 
         if (genRandom(canonicalDistribution) < 0.1) {

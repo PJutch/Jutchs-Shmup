@@ -20,6 +20,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "EntityManager.h"
 #include "Gui/Panel.h"
 #include "LanguageManager.h"
+#include "Gui/Manager.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -94,6 +95,10 @@ public:
         return m_languageManager;
     }
 
+    LanguageManager& getLanguageManager() noexcept {
+        return m_languageManager;
+    }
+
     sf::Vector2f getScreenSize() const noexcept {
         return m_screenSize;
     }
@@ -108,11 +113,36 @@ public:
         return m_shouldEnd;
     }
 
-    void handleEvent(sf::Event event) noexcept;
+    void setShouldEnd(bool shouldEnd) noexcept {
+        m_shouldEnd = shouldEnd;
+    }
 
-    void update() noexcept;
+    float getVolume() const noexcept {
+        return m_volume;
+    }
 
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override;
+    void setVolume(float volume) noexcept {
+        m_volume = volume;
+    }
+
+    int getScore() const noexcept {
+        return m_score;
+    }
+
+    struct ScoreChange {
+        int value;
+        sf::Time time;
+    };
+
+    const std::deque<ScoreChange>& getScoreChanges() const noexcept {
+        return m_scoreChanges;
+    }
+
+    void handleEvent(sf::Event event);
+
+    void update();
+
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 private:
     AssetManager m_assetManager;
 
@@ -126,10 +156,6 @@ private:
     Airplane::Airplane* m_player;
 
     int m_score;
-    struct ScoreChange {
-        int value;
-        sf::Time time;
-    };
     std::deque<ScoreChange> m_scoreChanges;
 
     sf::Time m_shouldResetAfter;
@@ -138,9 +164,6 @@ private:
     float m_gameHeight;
     float m_spawnX;
 
-    bool m_menuOpen;
-    Gui::Panel m_menu;
-
     bool m_shouldEnd;
 
     std::vector<std::unique_ptr<SoundEffect>> m_sounds;
@@ -148,9 +171,9 @@ private:
 
     LanguageManager m_languageManager;
 
-    void initPlayer();
+    Gui::Manager m_guiManager;
 
-    void initGui();
+    void initPlayer();
 
     sf::View getView() const noexcept;
 

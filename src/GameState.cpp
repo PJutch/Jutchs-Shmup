@@ -61,19 +61,16 @@ using std::make_unique;
 #include <utility>
 using std::move;
 
-class GuiInvalidated : public std::runtime_error {
-    using std::runtime_error::runtime_error;
-};
-
 GameState::GameState(Vector2f screenSize) : 
         m_assetManager{}, m_tickClock{}, m_clock{}, 
         m_randomEngine{random_device{}()},
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
         m_score{0}, m_shouldResetAfter{Time::Zero}, m_sounds{}, m_volume{100.f},
-        m_menuOpen{false},
-        m_shouldEnd{false} {
+        m_shouldEnd{false}, m_guiManager{*this} {
+    initPlayer();
     m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);
-    initGui();
+    
+    m_guiManager.initGui();
 }
 
 void GameState::initPlayer() {
@@ -89,162 +86,19 @@ void GameState::initPlayer() {
     m_entityManager.addEntity(m_player);
 }
 
-void GameState::initGui() {
-    Vector2f menuSize{m_screenSize.y * 0.75f, m_screenSize.y * 0.75f};
-    Vector2f menuPos = (m_screenSize - menuSize) / 2.f;
-    m_menu.setRect({menuPos.x, menuPos.y, menuSize.x, menuSize.y});
-    m_menu.setColor(Color{0, 0, 0, 128});
-    m_menu.clearChildren();
+void GameState::handleEvent(sf::Event event) {
+    m_guiManager.handleEvent(event);
 
-    int characterSize = 100;
-    const auto& font = m_assetManager.getFont();
-
-    float buttonOutline = max(m_screenSize.y / 256.f, 0.5f);
-    float buttonTextPadding = m_screenSize.y / 10.f;
-    Vector2f buttonSize{buttonTextPadding, m_screenSize.y / 10.f}; // .x will be updated
-    Color buttonColor{0, 0, 0, 128};
-    Color buttonElementColor = Color::White;
-    int buttonCharacterSize = 80;
-    float buttonOffset = max(m_screenSize.y / 64.f, 1.f);
-
-    float sliderHeight = max(m_screenSize.y / 64.f, 1.f);
-    Vector2f sliderRunnerSize{max(m_screenSize.y / 64.f, 1.f), max(m_screenSize.y / 24.f, 1.f)};
-    float sliderOffset = max(m_screenSize.y / 16.f, 1.f);
-    float sliderLabelOffset = max(m_screenSize.y / 32.f, 1.f);
-    int sliderCharacterSize = 50;
-
-    Color comboColor{0, 0, 0, 128};
-    Color comboElementColor = Color::White;
-    Color comboSelectionColor{64, 96, 255};
-    float comboOutline = -max(m_screenSize.y / 256.f, 0.5f);
-    float comboTextPadding = m_screenSize.y / 10.f;
-    Vector2f comboSize{comboTextPadding, m_screenSize.y / 10.f}; // .x will be updated
-    float comboOffset = max(m_screenSize.y / 16.f, 1.f);
-    float comboLabelOffset = max(m_screenSize.y / 32.f, 1.f);
-    int comboCharacterSize = 50;
-
-    auto menuText = make_unique<Gui::Text>(getLanguageManager().getMenuText(), 
-                                            font, characterSize, Color::White);
-    menuText->setOrigin({menuText->getSize().x / 2.f, 0.f});
-    menuText->setPosition({menuSize.x / 2.f, 0.f}); // .x at center, .y at top
-    
-    auto volumeText = make_unique<Gui::Text>(getLanguageManager().getVolumeText(), 
-                                                font, sliderCharacterSize, Color::White);
-
-    // .x at center, .y under menuText
-    volumeText->setOrigin({volumeText->getSize().x / 2.f, 0.f});
-    volumeText->setPosition({menuSize.x / 2.f, menuText->getSize().y + sliderOffset});
-
-    auto volumeSlider = make_unique<Gui::HorizontalSlider>([this]() -> float {
-        return m_volume / 100.f;
-    }, [this](float volume){
-        m_volume = volume * 100.f;
-    }, Color::White, Color::Black);
-    volumeSlider->setSize({2.f / 3.f * menuSize.x, sliderHeight});
-
-    // .x at center, .y under volumeText
-    volumeSlider->setOrigin({volumeSlider->getSize().x / 2, 0.f});
-    volumeSlider->setPosition({menuSize.x / 2.f, 
-        menuText->getSize().y + sliderOffset + volumeText->getSize().y + sliderLabelOffset});
-    
-    volumeSlider->setRunnerSize(sliderRunnerSize);
-
-    // move center to center of the line
-    volumeSlider->setRunnerOrigin({sliderRunnerSize.x / 2.f,
-                                   sliderRunnerSize.y / 2.f - sliderHeight / 2.f});
-
-    auto englishText = make_unique<Gui::Text>(
-        getLanguageManager().getLanguageName(LanguageManager::Language::ENGLISH), 
-        font, comboCharacterSize, comboElementColor);
-    englishText->setOrigin({englishText->getSize().x / 2.f, englishText->getSize().y * (2.f / 3.f)});
-    englishText->setPosition({0.f, comboSize.y / 2.f}); // place in the center of the button
-    comboSize.x = max(englishText->getSize().x + comboTextPadding, comboSize.x);
-
-    auto russianText = make_unique<Gui::Text>(
-        getLanguageManager().getLanguageName(LanguageManager::Language::RUSSIAN), 
-        font, comboCharacterSize, comboElementColor);
-    russianText->setOrigin({russianText->getSize().x / 2.f, russianText->getSize().y * (2.f / 3.f)});
-    russianText->setPosition({0.f, comboSize.y / 2.f}); // place in the center of the button
-    comboSize.x = max(russianText->getSize().x + comboTextPadding, comboSize.x);
-
-    auto languageCombo = make_unique<Gui::ComboBox>([this]() -> int {
-        return static_cast<int>(m_languageManager.getLanguage());
-    }, [this](int current){
-        m_languageManager.setLanguage(static_cast<LanguageManager::Language>(current));
-        initGui();
-        throw GuiInvalidated{"Gui reloaded"};
-    }, comboColor, comboElementColor, comboOutline, comboSelectionColor);
-    languageCombo->setSize(comboSize);
-    languageCombo->addChild(std::move(englishText));
-    languageCombo->addChild(std::move(russianText));
-
-    // .x at center, .y under volumeSlider
-    languageCombo->setOrigin({languageCombo->getSize().x / 2, 0.f});
-    languageCombo->setPosition({menuSize.x / 2.f, 
-        menuText->getSize().y + sliderOffset + volumeText->getSize().y 
-        + sliderLabelOffset + sliderHeight + comboOffset});
-
-    auto resumeText = make_unique<Gui::Text>(getLanguageManager().getResumeText(), 
-                                                font, buttonCharacterSize, buttonElementColor);
-    resumeText->setOrigin({resumeText->getSize().x / 2.f, resumeText->getSize().y});
-    resumeText->setPosition({0.f, -buttonSize.y / 2.f}); // place in the center of the button
-    buttonSize.x = max(resumeText->getSize().x + buttonTextPadding, buttonSize.x);
-
-    auto exitText = make_unique<Gui::Text>(getLanguageManager().getExitText(), 
-                                            font, buttonCharacterSize, buttonElementColor);
-    exitText->setOrigin({exitText->getSize().x / 2.f, exitText->getSize().y});
-    exitText->setPosition({0.f, -buttonSize.y / 2.f}); // place in the center of the button
-    buttonSize.x = max(exitText->getSize().x + buttonTextPadding, buttonSize.x);
-
-    auto resumeButton = make_unique<Gui::Button>([this]{
-        m_menuOpen = false;
-    }, buttonColor, buttonElementColor, buttonOutline, buttonOutline);
-    resumeButton->setSize(buttonSize);
-
-    // .x at center, .y above exitButton
-    resumeButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
-    resumeButton->setPosition({menuSize.x / 2.f, 
-        menuSize.y- 2 * buttonOffset - 3 * buttonOutline - buttonSize.y}); 
-    resumeButton->setChild(std::move(resumeText));
-
-    auto exitButton = make_unique<Gui::Button>([this]{
-        m_shouldEnd = true;
-    }, buttonColor, buttonElementColor, buttonOutline, buttonOutline);
-    exitButton->setSize(buttonSize);
-
-    // .x at center, .y at bottom
-    exitButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
-    exitButton->setPosition({menuSize.x / 2.f, menuSize.y - buttonOffset - buttonOutline});
-    exitButton->setChild(std::move(exitText));
-
-    m_menu.addChild(std::move(menuText));
-    m_menu.addChild(std::move(volumeText));
-    m_menu.addChild(std::move(volumeSlider));
-    m_menu.addChild(std::move(resumeButton));
-    m_menu.addChild(std::move(exitButton));
-
-    m_menu.addChild(std::move(languageCombo)); // over buttons
-}
-
-void GameState::handleEvent(sf::Event event) noexcept {
-    if (m_menuOpen) {
-        try {
-            m_menu.handleEvent(event);
-        } catch (const GuiInvalidated&) {}
-    } else {
-        m_entityManager.handleEvent(event);
-    }        
+    if (!m_guiManager.isMenuOpen())
+        m_entityManager.handleEvent(event);   
 
     if (event.type == sf::Event::Closed) m_shouldEnd = true;
-
-    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
-        m_menuOpen = !m_menuOpen;
 }
 
-void GameState::update() noexcept {
+void GameState::update() {
     Time elapsedTime = m_tickClock.restart();
 
-    if (!m_menuOpen) m_entityManager.update(elapsedTime);
+    if (!m_guiManager.isMenuOpen()) m_entityManager.update(elapsedTime);
 
     erase_if(m_sounds, [this](const unique_ptr<SoundEffect>& sound) -> bool {
         return sound->hasStopped();
@@ -291,50 +145,14 @@ bool GameState::inActiveArea(float x) const noexcept {
         && x - 5 * getGameHeight() <= getPlayer().getPosition().x;
 }
 
-void GameState::drawNumber(int n, Vector2f position, 
-                           RenderTarget& target, RenderStates states) const noexcept {
-    auto score = to_string(n);
-    auto digitSize = getAssets().getDigitTextures()[0].getSize();
-    for (int i = 0; i < ssize(score); ++ i) {
-        Sprite digitSprite{getAssets().getDigitTextures()[score[i] - '0']};
-        digitSprite.setPosition(i * digitSize.x + position.x, position.y);
-        target.draw(digitSprite, states);
-    }
-}
-
-void GameState::draw(RenderTarget& target, RenderStates states) const noexcept {
+void GameState::draw(RenderTarget& target, RenderStates states) const {
     auto prevView = target.getView();
     target.setView(getView());
 
     target.draw(m_entityManager, states);
 
     target.setView(prevView);
-
-    auto healthSize = 2u * getAssets().getHealthTexture().getSize();
-    Sprite healthSprite{getAssets().getHealthTexture()};
-    healthSprite.scale(2, 2);
-    for (int i = 0; i < getPlayer().getHealth(); ++ i) {
-        healthSprite.setPosition(i * healthSize.x, 0.f);
-        target.draw(healthSprite, states);
-    }
-
-    drawNumber(m_score, Vector2f(0.f, healthSize.y), target, states);
-    auto digitSize = getAssets().getDigitTextures()[0].getSize();
-    for (int i = 0; i < ssize(m_scoreChanges); ++ i) {
-        Sprite signSprite;
-        if (m_scoreChanges[i].value >= 0) {
-            signSprite.setTexture(getAssets().getPlusTexture());
-        } else {
-            signSprite.setTexture(getAssets().getMinusTexture());
-        }
-        signSprite.setPosition(0.f, healthSize.y + digitSize.y * (i + 1));
-        target.draw(signSprite, states);
-
-        drawNumber(m_scoreChanges[i].value, 
-                   Vector2f(digitSize.x, healthSize.y + digitSize.y * (i + 1)), target, states);
-    }
-
-    if (m_menuOpen) target.draw(m_menu, states);;
+    target.draw(m_guiManager, states);
 }
 
 View GameState::getView() const noexcept {

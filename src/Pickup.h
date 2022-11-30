@@ -77,4 +77,11 @@ private:
     }
 };
 
+class HealthPickup : public Pickup {
+public:
+    HealthPickup(sf::Vector2f position, GameState& gameState) noexcept;
+
+    void apply(Airplane::Airplane& airplane) noexcept override;
+};
+
 #endif

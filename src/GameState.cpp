@@ -86,7 +86,7 @@ void GameState::initPlayer() {
     m_entityManager.addEntity(m_player);
 }
 
-void GameState::handleEvent(sf::Event event) {
+void GameState::handleEvent(const sf::Event& event) {
     m_guiManager.handleEvent(event);
 
     if (!m_guiManager.isMenuOpen())

@@ -12,9 +12,7 @@ add_executable(Jutchs_Shmup src/main.cpp
                             src/Bullet.cpp
                             src/Pickup.cpp 
                             src/Airplane/ShootComponent.cpp 
-                            src/Entity.cpp 
                             src/GameState.cpp 
-                            src/HealthPickup.cpp 
                             src/Airplane/MoveComponent.cpp 
                             src/Airplane/DeathEffect.cpp
                             src/Airplane/ShootControlComponent.cpp 

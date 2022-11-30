@@ -30,7 +30,7 @@ class GameState;
 
 class Entity : public sf::Drawable {
 public:
-    Entity(GameState& gameState) noexcept;
+    Entity(GameState& gameState) noexcept : m_gameState{gameState} {}
     virtual ~Entity() = default;
 
     void handleEvent(sf::Event event) noexcept {}

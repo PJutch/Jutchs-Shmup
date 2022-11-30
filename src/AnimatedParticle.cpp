@@ -14,19 +14,15 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "AnimatedParticle.h"
 
 #include <SFML/Graphics.hpp>
-using sf::Texture;
-
 #include <SFML/System.hpp>
-using sf::Time;
-using sf::Vector2f;
 
 #include <span>
 using std::span;
 
 using std::ssize;
 
-AnimatedParticle::AnimatedParticle(Vector2f position, span<const Texture> animation, 
-                                   Time delay, GameState& gameState) noexcept :
+AnimatedParticle::AnimatedParticle(sf::Vector2f position, span<const sf::Texture> animation, 
+                                   sf::Time delay, GameState& gameState) noexcept :
         Entity{gameState}, m_animation{animation}, m_delay{delay}, m_sprite{animation[0]}, 
         m_currentTexture{0}, m_untilNext{delay} {
     auto size = m_animation[0].getSize();
@@ -34,14 +30,14 @@ AnimatedParticle::AnimatedParticle(Vector2f position, span<const Texture> animat
     m_sprite.setPosition(position);
 }
 
-void AnimatedParticle::update(Time elapsedTime) noexcept {
+void AnimatedParticle::update(sf::Time elapsedTime) noexcept {
     m_untilNext -= elapsedTime;
-    while (m_untilNext <= Time::Zero) {
+    while (m_untilNext <= sf::Time::Zero) {
         ++ m_currentTexture;
         m_untilNext += m_delay;
     }
 
-    if (m_currentTexture < ssize(m_animation)) {
+    if (m_currentTexture < std::ssize(m_animation)) {
         m_sprite.setTexture(m_animation[m_currentTexture]);
     }
 }

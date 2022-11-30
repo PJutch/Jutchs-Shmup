@@ -13,15 +13,24 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Pickup.h"
 
+#include "Airplane/Airplane.h"
+
 #include <SFML/Graphics.hpp>
-using sf::Texture;
-
 #include <SFML/System.hpp>
-using sf::Vector2f;
 
-Pickup::Pickup(Vector2f position, const Texture& texture, GameState& gameState) noexcept : 
+Pickup::Pickup(sf::Vector2f position, const sf::Texture& texture, GameState& gameState) noexcept : 
         Entity{gameState}, m_sprite{texture}, m_alive{true} {
     auto size = texture.getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
     m_sprite.setPosition(position);
 }
+
+HealthPickup::HealthPickup(sf::Vector2f position, GameState& gameState) noexcept : 
+    Pickup{position, gameState.getAssets().getHealthPickupTexture(), gameState} {}
+
+void HealthPickup::apply(Airplane::Airplane& airplane) noexcept {
+    if (isAlive() && airplane.addHealth(1)) {
+        m_gameState.addSound(m_gameState.getAssets().getRandomPowerUpSound(m_gameState.getRandomEngine()));
+        die();
+    }
+};

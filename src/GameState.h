@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Gui/Panel.h"
 #include "LanguageManager.h"
 #include "Gui/Manager.h"
+#include "SoundManager.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -78,15 +79,6 @@ public:
         return *m_player;
     }
 
-    void addSound(SoundEffect* sound) noexcept {
-        sound->setVolume(m_volume * sound->getVolume());
-        m_sounds.emplace_back(sound);
-    }
-
-    void addSound(const sf::SoundBuffer& sound) noexcept {
-        addSound(new SoundEffect{sound});
-    }
-
     void addScore(int score) noexcept {
         m_scoreChanges.emplace_back(score, m_clock.getElapsedTime());
     }
@@ -97,6 +89,14 @@ public:
 
     LanguageManager& getLanguageManager() noexcept {
         return m_languageManager;
+    }
+
+    const SoundManager& getSounds() const noexcept {
+        return m_soundManager;
+    }
+
+    SoundManager& getSounds() noexcept {
+        return m_soundManager;
     }
 
     sf::Vector2f getScreenSize() const noexcept {
@@ -115,14 +115,6 @@ public:
 
     void setShouldEnd(bool shouldEnd) noexcept {
         m_shouldEnd = shouldEnd;
-    }
-
-    float getVolume() const noexcept {
-        return m_volume;
-    }
-
-    void setVolume(float volume) noexcept {
-        m_volume = volume;
     }
 
     int getScore() const noexcept {
@@ -148,6 +140,12 @@ private:
 
     EntityManager m_entityManager;
 
+    SoundManager m_soundManager;
+
+    LanguageManager m_languageManager;
+
+    Gui::Manager m_guiManager;
+
     sf::Clock m_tickClock;
     sf::Clock m_clock;
 
@@ -165,13 +163,6 @@ private:
     float m_spawnX;
 
     bool m_shouldEnd;
-
-    std::vector<std::unique_ptr<SoundEffect>> m_sounds;
-    float m_volume;
-
-    LanguageManager m_languageManager;
-
-    Gui::Manager m_guiManager;
 
     void initPlayer();
 

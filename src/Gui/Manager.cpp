@@ -83,9 +83,9 @@ namespace Gui {
         volumeText->setPosition({menuSize.x / 2.f, menuText->getSize().y + sliderOffset});
 
         auto volumeSlider = std::make_unique<HorizontalSlider>([&gameState = m_gameState]() -> float {
-            return gameState.getVolume() / 100.f;
+            return gameState.getSounds().getVolume() / 100.f;
         }, [&gameState = m_gameState](float volume){
-            gameState.setVolume(volume * 100.f);
+            gameState.getSounds().setVolume(volume * 100.f);
         }, sf::Color::White, sf::Color::Black);
         volumeSlider->setSize({2.f / 3.f * menuSize.x, sliderHeight});
 

@@ -62,10 +62,9 @@ using std::make_unique;
 using std::move;
 
 GameState::GameState(Vector2f screenSize) : 
-        m_assetManager{}, m_tickClock{}, m_clock{}, 
         m_randomEngine{random_device{}()},
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
-        m_score{0}, m_shouldResetAfter{Time::Zero}, m_sounds{}, m_volume{100.f},
+        m_score{0}, m_shouldResetAfter{Time::Zero},
         m_shouldEnd{false}, m_guiManager{*this} {
     initPlayer();
     m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);
@@ -100,9 +99,7 @@ void GameState::update() {
 
     if (!m_guiManager.isMenuOpen()) m_entityManager.update(elapsedTime);
 
-    erase_if(m_sounds, [this](const unique_ptr<SoundEffect>& sound) -> bool {
-        return sound->hasStopped();
-    });
+    m_soundManager.update();
 
     if (m_shouldResetAfter > Time::Zero) {
         m_shouldResetAfter -= elapsedTime;

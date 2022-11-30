@@ -36,7 +36,8 @@ namespace Airplane {
             m_shootCooldown{Time::Zero}, m_owner{owner}, m_gameState{gameState} {};
 
     void ShootComponent::shoot(Vector2f position) noexcept {
-        m_gameState.getEntities().addEntity(new Bullet{&m_owner, m_owner.isOnPlayerSide(), position, m_gameState});
+        m_gameState.getEntities().addEntity(
+            std::make_unique<Bullet>(&m_owner, m_owner.isOnPlayerSide(), position, m_gameState));
     }
 
     FloatRect ShootComponent::getAffectedArea() const noexcept {
@@ -63,7 +64,8 @@ namespace Airplane {
     void BasicShootComponent::tryShoot() noexcept {
         if (m_shootCooldown <= Time::Zero) {
             shoot(m_owner.getPosition());
-            m_gameState.addSound(m_gameState.getAssets().getRandomShotSound(m_gameState.getRandomEngine()));
+            m_gameState.getSounds().addSound(m_gameState.getAssets()
+                .getRandomShotSound(m_gameState.getRandomEngine()));
             m_shootCooldown = seconds(0.25f);
         }
     }
@@ -77,7 +79,8 @@ namespace Airplane {
             shoot({position.x, position.y + height / 2});
             shoot({position.x, position.y - height / 2});
 
-            m_gameState.addSound(m_gameState.getAssets().getRandomShotSound(m_gameState.getRandomEngine()));
+            m_gameState.getSounds().addSound(
+                m_gameState.getAssets().getRandomShotSound(m_gameState.getRandomEngine()));
 
             m_shootCooldown = seconds(0.5f);
         }
@@ -114,8 +117,8 @@ namespace Airplane {
 
             shoot(m_owner.getPosition());
 
-            m_gameState.addSound(new SoundEffect{m_gameState.getAssets()
-                            .getRandomShotSound(m_gameState.getRandomEngine())});
+            m_gameState.getSounds().addSound(m_gameState.getAssets()
+                            .getRandomShotSound(m_gameState.getRandomEngine()));
 
             m_shots += 2;
             m_shootCooldown = seconds(0.1f);
@@ -126,8 +129,8 @@ namespace Airplane {
         ShootComponent::update(elapsedTime);
         if (m_shootCooldown <= sf::Time::Zero && m_shots > 0) {
             shoot(m_owner.getPosition());
-            m_gameState.addSound(new SoundEffect{m_gameState.getAssets()
-                                    .getRandomShotSound(m_gameState.getRandomEngine())});
+            m_gameState.getSounds().addSound(m_gameState.getAssets()
+                                    .getRandomShotSound(m_gameState.getRandomEngine()));
             m_shootCooldown = sf::seconds(-- m_shots == 0 ? 0.5f : 0.1f);
         }
     }

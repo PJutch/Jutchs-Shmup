@@ -30,7 +30,8 @@ HealthPickup::HealthPickup(sf::Vector2f position, GameState& gameState) noexcept
 
 void HealthPickup::apply(Airplane::Airplane& airplane) noexcept {
     if (isAlive() && airplane.addHealth(1)) {
-        m_gameState.addSound(m_gameState.getAssets().getRandomPowerUpSound(m_gameState.getRandomEngine()));
+        m_gameState.getSounds().addSound(m_gameState.getAssets()
+            .getRandomPowerUpSound(m_gameState.getRandomEngine()));
         die();
     }
 };

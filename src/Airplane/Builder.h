@@ -46,6 +46,11 @@ namespace Airplane {
             return *this;
         }
 
+        Builder& canUsePickups(bool canUsePickups) noexcept {
+            m_build->m_canUsePickups = canUsePickups;
+            return *this;
+        }
+
         Builder& speed(sf::Vector2f speed) noexcept {
             m_speed = speed;
             return *this;
@@ -57,33 +62,33 @@ namespace Airplane {
         }
 
         template<std::derived_from<ShootComponent> Component, typename... Args>
-        Builder& shootComponent(Args&&... args) noexcept {
+        Builder& shootComponent(Args&&... args) {
             m_build->m_shootComponent = std::make_unique<Component>
                 (*m_build, m_gameState, std::forward<Args>(args)...);
             return *this;
         }
 
         template<std::derived_from<ShootControlComponent> Component, typename... Args>
-        std::unique_ptr<ShootControlComponent> createShootControlComponent(Args&&... args) noexcept {
+        std::unique_ptr<ShootControlComponent> createShootControlComponent(Args&&... args) {
             return std::make_unique<Component>(*m_build, m_gameState, std::forward<Args>(args)...);
         }
 
         template<std::derived_from<ShootControlComponent> Component, typename... Args>
-        Builder& shootControlComponent(Args&&... args) noexcept {
+        Builder& shootControlComponent(Args&&... args) {
             m_build->m_shootControlComponent
                 = createShootControlComponent<Component>(std::forward<Args>(args)...);
             return *this;
         }
 
         template<std::derived_from<MoveComponent> Component, typename... Args>
-        Builder& moveComponent(Args&&... args) noexcept {
+        Builder& moveComponent(Args&&... args) {
             m_build->m_moveComponent = std::make_unique<Component>
                 (*m_build, m_gameState, std::forward<Args>(args)...);
             return *this;
         }
 
         template<std::derived_from<DeathEffect> Component, typename... Args>
-        Builder& addDeathEffect(Args&&... args) noexcept {
+        Builder& addDeathEffect(Args&&... args) {
             m_build->m_deathEffects.emplace_back(
                 std::make_unique<Component>(*m_build, m_gameState, std::forward<Args>(args)...));
             return *this;

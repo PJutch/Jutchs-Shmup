@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 Bullet::Bullet(Airplane::Airplane* owner, bool playerSide, sf::Vector2f position, 
                GameState& gameState) noexcept :
-        Entity{gameState}, m_sprite{gameState.getAssets().getBulletTexture()}, 
+        EntityBase{gameState}, m_sprite{gameState.getAssets().getBulletTexture()}, 
         m_playerSide{playerSide}, m_alive{true}, m_owner{owner} {
     auto size = gameState.getAssets().getBulletTexture().getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
@@ -35,10 +35,6 @@ void Bullet::update(sf::Time elapsedTime) noexcept {
 }
 
 void Bullet::acceptCollide(Airplane::Airplane& other) noexcept {
-    if (!m_alive) return;
-
-    if (&other != m_owner) {
-        die();
-        other.handleDamaged();
-    }
+    if (other.isOnPlayerSide() != m_playerSide) 
+        m_alive = false;
 }

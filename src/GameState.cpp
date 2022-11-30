@@ -40,9 +40,9 @@ GameState::GameState(sf::Vector2f screenSize) :
 
 void GameState::initPlayer() {
     m_player = Airplane::Builder{*this}
-        .position({0.f, 0.f}).maxHealth(3).deletable(false)
+        .position({0.f, 0.f}).maxHealth(3).deletable(false).playerSide(true).canUsePickups(true)
         .textureHeavy(true).textureFast(false).textureHasWeapon(false)
-        .shootComponent<Airplane::BasicShootComponent>().playerSide(true)
+        .shootComponent<Airplane::BasicShootComponent>()
         .shootControlComponent<Airplane::PlayerShootControlComponent>()
         .moveComponent<Airplane::PlayerMoveComponent>().speed({250.f, 250.f})
         .addDeathEffect<Airplane::LoseDeathEffect>()
@@ -131,7 +131,7 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
     if (genRandom(canonicalDistribution) < 0.01) {
         Airplane::Builder builder{*this};
 
-        builder.position(position).maxHealth(1).deletable(true).playerSide(false);
+        builder.position(position).maxHealth(1).deletable(true).playerSide(false).canUsePickups(false);
 
         int score = 10;
 

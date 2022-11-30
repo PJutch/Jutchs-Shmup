@@ -15,19 +15,20 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define PICKUP_H_
 
 #include "Entity.h"
-#include "Bullet.h"
+#include "Airplane/Airplane.h"
 #include "GameState.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-namespace Airplane {
-    class Airplane;
-}
-
-class Pickup : public Entity {
+class Pickup : public EntityBase<Pickup> {
 public:
-    Pickup(sf::Vector2f position, const sf::Texture& texture, GameState& gameState) noexcept;
+    Pickup(sf::Vector2f position, const sf::Texture& texture, GameState& gameState) noexcept: 
+            EntityBase{gameState}, m_sprite{texture}, m_alive{true} {
+        auto size = texture.getSize();
+        m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
+        m_sprite.setPosition(position);
+    }
 
     virtual ~Pickup() = default;
 
@@ -41,13 +42,8 @@ public:
         return m_sprite.getGlobalBounds();
     }
 
-    void startCollide(Entity& other) noexcept override {
-        other.acceptCollide(*this);
-    }
-
     void acceptCollide(Airplane::Airplane& other) noexcept override {
-        if (!m_alive) return;
-        apply(other);
+        if (other.canUsePickups()) apply(other);
     }
 
     virtual void apply(Airplane::Airplane& airplane) noexcept = 0;
@@ -79,9 +75,16 @@ private:
 
 class HealthPickup : public Pickup {
 public:
-    HealthPickup(sf::Vector2f position, GameState& gameState) noexcept;
+    HealthPickup(sf::Vector2f position, GameState& gameState) noexcept: 
+        Pickup{position, gameState.getAssets().getHealthPickupTexture(), gameState} {}
 
-    void apply(Airplane::Airplane& airplane) noexcept override;
+    void apply(Airplane::Airplane& airplane) noexcept override {
+        if (isAlive() && airplane.addHealth(1)) {
+            m_gameState.getSounds().addSound(m_gameState.getAssets()
+                .getRandomPowerUpSound(m_gameState.getRandomEngine()));
+            die();
+        }
+    };
 };
 
 #endif

@@ -227,4 +227,3 @@ namespace Gui {
         if (m_menuOpen) target.draw(m_menu, states);
     }
 }
-

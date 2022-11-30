@@ -17,7 +17,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "GameState.h"
 #include "Entity.h"
 #include "Bullet.h"
-#include "Pickup.h"
 #include "Airplane/ShootComponent.h"
 #include "Airplane/ShootControlComponent.h"
 #include "Airplane/MoveComponent.h"
@@ -31,7 +30,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <algorithm>
 
 namespace Airplane {
-    class Airplane : public Entity {
+    class Airplane : public EntityBase<Airplane> {
     public:
         friend class Builder;
 
@@ -55,26 +54,13 @@ namespace Airplane {
             m_sprite.move(offset);
         }
 
-        void startCollide(Entity& other) noexcept override {
-            if (isDead() || shouldBeDeleted()) return;
-            other.acceptCollide(*this);
-        }
-
         void acceptCollide(Airplane& other) noexcept override {
-            if (isDead() || shouldBeDeleted()) return;
             handleDamaged();
-            other.handleDamaged();
         }
 
         void acceptCollide(Bullet& other) noexcept override {
-            if (other.isOnPlayerSide() == m_playerSide || isDead() || shouldBeDeleted()) return;
+            if (other.isOnPlayerSide() == m_playerSide) return;
             handleDamaged();
-            other.die();
-        }
-
-        void acceptCollide(Pickup& other) noexcept override {
-            if (isDead() || shouldBeDeleted()) return;
-            other.apply(*this);
         }
 
         void handleDamaged() noexcept {
@@ -127,6 +113,10 @@ namespace Airplane {
             }
         }
 
+        bool shouldCollide() const noexcept override {
+            return !isDead() && !shouldBeDeleted();
+        }
+
         bool shouldBeDeleted() const noexcept override {
             return m_deletable 
                 && (m_health <= 0 || !m_gameState.inActiveArea(m_sprite.getPosition().x));
@@ -151,6 +141,10 @@ namespace Airplane {
         bool isPassable() const noexcept override {
             return false;
         }
+
+        bool canUsePickups() const noexcept {
+            return m_canUsePickups;
+        }
     private:
         sf::Sprite m_sprite;
 
@@ -165,7 +159,7 @@ namespace Airplane {
         sf::Time m_damageCooldown;
 
         bool m_playerSide;
-
+        bool m_canUsePickups;
         bool m_deletable;
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
@@ -173,9 +167,9 @@ namespace Airplane {
         }
 
         Airplane(GameState& gameState) noexcept : 
-            Entity{gameState},
+            EntityBase{gameState},
             m_health{0}, m_maxHealth{0}, m_damageCooldown{sf::seconds(0.f)}, 
-            m_playerSide{false}, m_deletable{true} {}
+            m_playerSide{false}, m_canUsePickups{false}, m_deletable{true} {}
     };
 }
 

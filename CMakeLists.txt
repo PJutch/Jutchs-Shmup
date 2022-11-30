@@ -10,7 +10,6 @@ include_directories(extlibs/SFML/include)
 
 add_executable(Jutchs_Shmup src/main.cpp 
                             src/Bullet.cpp
-                            src/Pickup.cpp 
                             src/Airplane/ShootComponent.cpp 
                             src/GameState.cpp 
                             src/Airplane/MoveComponent.cpp 

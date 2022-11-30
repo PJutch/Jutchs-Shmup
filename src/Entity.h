@@ -39,23 +39,38 @@ public:
 
     virtual sf::FloatRect getGlobalBounds() const noexcept = 0;
 
-    virtual void startCollide(Entity& other) noexcept = 0;   
+    virtual bool shouldCollide() const noexcept {
+        return !shouldBeDeleted();
+    }
 
+    virtual void startCollide(Entity& other) noexcept = 0;   
     virtual void acceptCollide(Airplane::Airplane& other) noexcept {}
     virtual void acceptCollide(Bullet& other) noexcept {}
     virtual void acceptCollide(Pickup& other) noexcept {}
     virtual void acceptCollide(AnimatedParticle& other) noexcept {}
 
+    // for AI only
     virtual bool isPassable() const noexcept = 0;
 
     virtual bool shouldBeDeleted() const noexcept = 0;
 
-    // return true if should be deleted after reset
+    // reset state
+    // return true if should be deleted after this
     virtual bool reset() noexcept { 
         return true;
     }
 protected:
     GameState& m_gameState;
+};
+
+// CRTP
+template<typename Child>
+class EntityBase : public Entity {
+    using Entity::Entity;
+
+    void startCollide(Entity& other) noexcept override {
+        other.acceptCollide(static_cast<Child&>(*this));
+    }
 };
 
 #endif

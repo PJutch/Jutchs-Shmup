@@ -24,7 +24,7 @@ namespace Airplane {
     class Airplane;
 }
 
-class Bullet : public Entity {
+class Bullet : public EntityBase<Bullet> {
 public:
     Bullet(Airplane::Airplane* owner, bool playerSide, sf::Vector2f position, 
             GameState& gameState) noexcept;
@@ -44,10 +44,6 @@ public:
         return m_sprite.getGlobalBounds();
     }
 
-    void startCollide(Entity& other) noexcept override {
-        other.acceptCollide(*this);
-    }
-
     void acceptCollide(Airplane::Airplane& other) noexcept override;
 
     bool shouldBeDeleted() const noexcept override {
@@ -60,10 +56,6 @@ public:
 
     bool isOnPlayerSide() const noexcept {
         return m_playerSide;
-    }
-
-    void die() noexcept {
-        m_alive = false;
     }
 private:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {

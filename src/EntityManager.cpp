@@ -41,8 +41,11 @@ void EntityManager::update(Time elapsedTime) noexcept {
     
     for (int i = 0; i < ssize(m_entities); ++ i) 
         for (int j = i + 1; j < ssize(m_entities); ++ j) 
-            if (m_entities[i]->getGlobalBounds().intersects(m_entities[j]->getGlobalBounds())) 
+            if (m_entities[i]->shouldCollide() && m_entities[j]->shouldCollide() && 
+                    m_entities[i]->getGlobalBounds().intersects(m_entities[j]->getGlobalBounds())) {
                 m_entities[i]->startCollide(*m_entities[j]);
+                m_entities[j]->startCollide(*m_entities[i]);
+    }
 
     erase_if(m_entities, [this](const unique_ptr<Entity>& entity) -> bool {
         return entity->shouldBeDeleted();

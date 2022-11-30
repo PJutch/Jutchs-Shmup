@@ -184,32 +184,46 @@ namespace Gui {
             m_menuOpen = !m_menuOpen;
     }
 
-    void Manager::drawNumber(int n, sf::Vector2f position, 
+    sf::Vector2f Manager::drawNumber(int n, sf::Vector2f position, 
                              sf::RenderTarget& target, sf::RenderStates states) const {
         auto score = std::to_string(n);
         const auto& digitTextures = m_gameState.getAssets().getDigitTextures();
         auto digitSize = digitTextures[0].getSize();
-        for (int i = 0; i < ssize(score); ++ i) {
+
+        for (int i = 0; i < std::ssize(score); ++ i) {
             sf::Sprite digitSprite{digitTextures[score[i] - '0']};
             digitSprite.setPosition(i * digitSize.x + position.x, position.y);
             target.draw(digitSprite, states);
         }
+
+        return sf::Vector2f(std::ssize(score) * digitSize.x, digitSize.y);
     }
 
-    void Manager::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-        const auto& assets = m_gameState.getAssets();
+    sf::Vector2f Manager::drawHealth(sf::Vector2f position, 
+            sf::RenderTarget& target, sf::RenderStates states) const {
+        int health = m_gameState.getPlayer().getHealth();
 
+        const auto& assets = m_gameState.getAssets();
         auto healthSize = 2u * assets.getHealthTexture().getSize();
         sf::Sprite healthSprite{assets.getHealthTexture()};
         healthSprite.scale(2, 2);
-        for (int i = 0; i < m_gameState.getPlayer().getHealth(); ++ i) {
-            healthSprite.setPosition(i * healthSize.x, 0.f);
+
+        for (int i = 0; i < health; ++ i) {
+            healthSprite.setPosition(position.x + i * healthSize.x, position.y);
             target.draw(healthSprite, states);
         }
 
-        drawNumber(m_gameState.getScore(), sf::Vector2f(0.f, healthSize.y), target, states);
+        return sf::Vector2f(health * healthSize.x, healthSize.y);
+    }
+
+    sf::Vector2f Manager::drawScore(sf::Vector2f position, 
+            sf::RenderTarget& target, sf::RenderStates states) const {
+        auto maxWidth = drawNumber(m_gameState.getScore(), position, target, states).x;
+
+        const auto& assets = m_gameState.getAssets();
         auto digitSize = assets.getDigitTextures()[0].getSize();
         const auto& scoreChanges = m_gameState.getScoreChanges();
+
         for (int i = 0; i < std::ssize(scoreChanges); ++ i) {
             sf::Sprite signSprite;
             if (scoreChanges[i].value >= 0) {
@@ -217,12 +231,21 @@ namespace Gui {
             } else {
                 signSprite.setTexture(assets.getMinusTexture());
             }
-            signSprite.setPosition(0.f, healthSize.y + digitSize.y * (i + 1));
+            signSprite.setPosition(position.x, position.y + digitSize.y * (i + 1));
             target.draw(signSprite, states);
 
-            drawNumber(scoreChanges[i].value, 
-                    sf::Vector2f(digitSize.x, healthSize.y + digitSize.y * (i + 1)), target, states);
+            maxWidth = std::max(maxWidth,
+                drawNumber(scoreChanges[i].value, 
+                    sf::Vector2f(position.x + digitSize.x, position.y + digitSize.y * (i + 1)), 
+                    target, states).x);
         }
+
+        return sf::Vector2f(maxWidth, (std::ssize(scoreChanges) + 1) * digitSize.y);
+    }
+
+    void Manager::draw(sf::RenderTarget& target, sf::RenderStates states) const {
+        auto healthSize = drawHealth({0.f, 0.f}, target, states);
+        drawScore({0.f, healthSize.y}, target, states);
 
         if (m_menuOpen) target.draw(m_menu, states);
     }

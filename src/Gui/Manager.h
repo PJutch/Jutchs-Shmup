@@ -39,8 +39,13 @@ namespace Gui {
         bool m_menuOpen;
         Gui::Panel m_menu;
 
-        void drawNumber(int n, sf::Vector2f position, 
-                        sf::RenderTarget& target, sf::RenderStates states) const;
+        // return element size
+        sf::Vector2f drawNumber(int n, sf::Vector2f position, 
+                sf::RenderTarget& target, sf::RenderStates states) const;
+        sf::Vector2f drawHealth(sf::Vector2f position, 
+            sf::RenderTarget& target, sf::RenderStates states) const;
+        sf::Vector2f drawScore(sf::Vector2f position, 
+            sf::RenderTarget& target, sf::RenderStates states) const;
     };
 }
 

@@ -23,7 +23,7 @@ using std::ssize;
 
 AnimatedParticle::AnimatedParticle(sf::Vector2f position, span<const sf::Texture> animation, 
                                    sf::Time delay, GameState& gameState) noexcept :
-        Entity{gameState}, m_animation{animation}, m_delay{delay}, m_sprite{animation[0]}, 
+        EntityBase{gameState}, m_animation{animation}, m_delay{delay}, m_sprite{animation[0]}, 
         m_currentTexture{0}, m_untilNext{delay} {
     auto size = m_animation[0].getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);

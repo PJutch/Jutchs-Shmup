@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <span>
 
-class AnimatedParticle : public Entity {
+class AnimatedParticle : public EntityBase<AnimatedParticle> {
 public:
     AnimatedParticle(sf::Vector2f position, std::span<const sf::Texture> animation, 
                      sf::Time delay, GameState& gameState) noexcept;
@@ -30,10 +30,6 @@ public:
 
     sf::FloatRect getGlobalBounds() const noexcept override {
         return m_sprite.getGlobalBounds();
-    }
-
-    void startCollide(Entity& other) noexcept override {
-        other.acceptCollide(*this);
     }
 
     bool isPassable() const noexcept override {

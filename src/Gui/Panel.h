@@ -33,8 +33,7 @@ namespace Gui {
         }
 
         sf::Vector2f getSize() const noexcept {
-            auto localBounds = m_shape.getLocalBounds();
-            return {localBounds.width, localBounds.height};
+            return m_shape.getSize();
         }
 
         void setRect(sf::FloatRect rect) noexcept {

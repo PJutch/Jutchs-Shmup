@@ -32,86 +32,78 @@ namespace Gui {
 
     Manager::Manager(GameState& gameState) : m_gameState{gameState}, m_menuOpen{false} {}
 
-    void Manager::initGui() {
+    sf::Vector2f Manager::addMenuText(sf::Vector2f position) {
+        auto menuText = std::make_unique<Text>(m_gameState.getLanguageManager().getMenuText(), 
+            m_gameState.getAssets().getFont(), 100, sf::Color::White);
+        
+        auto size = menuText->getSize();
+        menuText->setOrigin({size.x / 2.f, 0.f});
+        menuText->setPosition(position);
+
+        m_menu.addChild(std::move(menuText));
+        return size;
+    }
+
+    sf::Vector2f Manager::addVolumeSlider(sf::Vector2f position) {
         sf::Vector2f screenSize = m_gameState.getScreenSize();
-        auto& languageManager = m_gameState.getLanguageManager();
 
-        sf::Vector2f menuSize{screenSize.y * 0.75f, screenSize.y * 0.75f};
-        sf::Vector2f menuPos = (screenSize - menuSize) / 2.f;
-        m_menu.setRect({menuPos.x, menuPos.y, menuSize.x, menuSize.y});
-        m_menu.setColor(sf::Color{0, 0, 0, 128});
-        m_menu.clearChildren();
+        auto volumeText = std::make_unique<Text>(m_gameState.getLanguageManager().getVolumeText(), 
+            m_gameState.getAssets().getFont(), 50, sf::Color::White);
+        
+        auto textSize = volumeText->getSize();
+        volumeText->setOrigin({textSize.x / 2.f, 0.f});
+        volumeText->setPosition(position);
 
-        int characterSize = 100;
-        const auto& font = m_gameState.getAssets().getFont();
+        position.y += textSize.y;
+        m_menu.addChild(std::move(volumeText));
 
-        float buttonOutline = std::max(screenSize.y / 256.f, 0.5f);
-        float buttonTextPadding = screenSize.y / 10.f;
-        sf::Vector2f buttonSize{buttonTextPadding, screenSize.y / 10.f}; // .x will be updated
-        sf::Color buttonColor{0, 0, 0, 128};
-        sf::Color buttonElementColor = sf::Color::White;
-        int buttonCharacterSize = 80;
-        float buttonOffset = std::max(screenSize.y / 64.f, 1.f);
+        float sliderTextOffset = std::max(screenSize.y / 32.f, 1.f);
+        position.y += sliderTextOffset;
 
-        float sliderHeight = std::max(screenSize.y / 64.f, 1.f);
+        auto volumeSlider = std::make_unique<HorizontalSlider>(
+           [&sounds = m_gameState.getSounds()]() -> float {
+            return sounds.getVolume() / 100.f;
+        }, [&sounds = m_gameState.getSounds()](float volume){
+            sounds.setVolume(volume * 100.f);
+        }, sf::Color::White, sf::Color::Black);
+
+        sf::Vector2f sliderSize{2.f / 3.f * m_menu.getSize().x, std::max(screenSize.y / 64.f, 1.f)};
+        volumeSlider->setSize(sliderSize);
+        volumeSlider->setOrigin({sliderSize.x / 2, 0.f});
+        volumeSlider->setPosition(position); // under the volumeText
+        
         sf::Vector2f sliderRunnerSize{std::max(screenSize.y / 64.f, 1.f), 
                                       std::max(screenSize.y / 24.f, 1.f)};
-        float sliderOffset = std::max(screenSize.y / 16.f, 1.f);
-        float sliderLabelOffset = std::max(screenSize.y / 32.f, 1.f);
-        int sliderCharacterSize = 50;
-
-        sf::Color comboColor{0, 0, 0, 128};
-        sf::Color comboElementColor = sf::Color::White;
-        sf::Color comboSelectionColor{64, 96, 255};
-        float comboOutline = -std::max(screenSize.y / 256.f, 0.5f);
-        float comboTextPadding = screenSize.y / 10.f;
-        sf::Vector2f comboSize{comboTextPadding, screenSize.y / 10.f}; // .x will be updated
-        float comboOffset = std::max(screenSize.y / 16.f, 1.f);
-        float comboLabelOffset = std::max(screenSize.y / 32.f, 1.f);
-        int comboCharacterSize = 50;
-
-        auto menuText = std::make_unique<Text>(languageManager.getMenuText(), 
-                                                font, characterSize, sf::Color::White);
-        menuText->setOrigin({menuText->getSize().x / 2.f, 0.f});
-        menuText->setPosition({menuSize.x / 2.f, 0.f}); // .x at center, .y at top
-        
-        auto volumeText = std::make_unique<Text>(languageManager.getVolumeText(), 
-                                                    font, sliderCharacterSize, sf::Color::White);
-
-        // .x at center, .y under menuText
-        volumeText->setOrigin({volumeText->getSize().x / 2.f, 0.f});
-        volumeText->setPosition({menuSize.x / 2.f, menuText->getSize().y + sliderOffset});
-
-        auto volumeSlider = std::make_unique<HorizontalSlider>([&gameState = m_gameState]() -> float {
-            return gameState.getSounds().getVolume() / 100.f;
-        }, [&gameState = m_gameState](float volume){
-            gameState.getSounds().setVolume(volume * 100.f);
-        }, sf::Color::White, sf::Color::Black);
-        volumeSlider->setSize({2.f / 3.f * menuSize.x, sliderHeight});
-
-        // .x at center, .y under volumeText
-        volumeSlider->setOrigin({volumeSlider->getSize().x / 2, 0.f});
-        volumeSlider->setPosition({menuSize.x / 2.f, 
-            menuText->getSize().y + sliderOffset + volumeText->getSize().y + sliderLabelOffset});
-        
         volumeSlider->setRunnerSize(sliderRunnerSize);
 
-        // move center to center of the line
-        volumeSlider->setRunnerOrigin({sliderRunnerSize.x / 2.f,
-                                    sliderRunnerSize.y / 2.f - sliderHeight / 2.f});
+        // move the center to the center of the line
+        volumeSlider->setRunnerOrigin({sliderRunnerSize.x / 2.f, 
+                                       sliderRunnerSize.y / 2.f - sliderSize.y / 2.f});
+
+        m_menu.addChild(std::move(volumeSlider));
+        return {std::max(textSize.x, sliderSize.x), textSize.y + sliderTextOffset + sliderSize.y};
+    }
+
+    sf::Vector2f Manager::addLanguageCombo(sf::Vector2f position) {
+        sf::Vector2f screenSize = m_gameState.getScreenSize();
+        const auto& font = m_gameState.getAssets().getFont();
+        auto& languageManager = m_gameState.getLanguageManager();
+
+        float comboTextPadding = screenSize.y / 10.f;
+        sf::Vector2f comboSize{comboTextPadding, comboTextPadding}; // .x will be updated
 
         auto englishText = std::make_unique<Text>(
             languageManager.getLanguageName(LanguageManager::Language::ENGLISH), 
-            font, comboCharacterSize, comboElementColor);
+            font, 50, sf::Color::White);
         englishText->setOrigin({englishText->getSize().x / 2.f, englishText->getSize().y * (2.f / 3.f)});
-        englishText->setPosition({0.f, comboSize.y / 2.f}); // place in the center of the button
+        englishText->setPosition({0.f, comboSize.y / 2.f}); // at the center of the combo
         comboSize.x = std::max(englishText->getSize().x + comboTextPadding, comboSize.x);
 
         auto russianText = std::make_unique<Text>(
             languageManager.getLanguageName(LanguageManager::Language::RUSSIAN), 
-            font, comboCharacterSize, comboElementColor);
+            font, 50, sf::Color::White);
         russianText->setOrigin({russianText->getSize().x / 2.f, russianText->getSize().y * (2.f / 3.f)});
-        russianText->setPosition({0.f, comboSize.y / 2.f}); // place in the center of the button
+        russianText->setPosition({0.f, comboSize.y / 2.f}); // at the center of the combo
         comboSize.x = std::max(russianText->getSize().x + comboTextPadding, comboSize.x);
 
         auto languageCombo = std::make_unique<ComboBox>([&languageManager]() -> int {
@@ -120,57 +112,96 @@ namespace Gui {
             languageManager.setLanguage(static_cast<LanguageManager::Language>(current));
             initGui();
             throw Invalidated{"Gui reloaded"};
-        }, comboColor, comboElementColor, comboOutline, comboSelectionColor);
+        }, sf::Color{0, 0, 0, 128}, sf::Color::White, 
+            -std::max(screenSize.y / 256.f, 0.5f), sf::Color{64, 96, 255});
         languageCombo->setSize(comboSize);
         languageCombo->addChild(std::move(englishText));
         languageCombo->addChild(std::move(russianText));
 
-        // .x at center, .y under volumeSlider
-        languageCombo->setOrigin({languageCombo->getSize().x / 2, 0.f});
-        languageCombo->setPosition({menuSize.x / 2.f, 
-            menuText->getSize().y + sliderOffset + volumeText->getSize().y 
-            + sliderLabelOffset + sliderHeight + comboOffset});
+        languageCombo->setOrigin({comboSize.x / 2, 0.f});
+        languageCombo->setPosition(position);
+
+        m_menu.addChild(std::move(languageCombo));
+        return comboSize;
+    }
+
+    sf::Vector2f Manager::addMenuButtons(sf::Vector2f position) {
+        sf::Vector2f screenSize = m_gameState.getScreenSize();
+        const auto& font = m_gameState.getAssets().getFont();
+        auto& languageManager = m_gameState.getLanguageManager();
+
+        float buttonTextPadding = screenSize.y / 10.f;
+        sf::Vector2f buttonSize{buttonTextPadding, buttonTextPadding}; // .x will be updated
 
         auto resumeText = std::make_unique<Text>(languageManager.getResumeText(), 
-                                                 font, buttonCharacterSize, buttonElementColor);
+                                                 font, 80, sf::Color::White);
         resumeText->setOrigin({resumeText->getSize().x / 2.f, resumeText->getSize().y});
         resumeText->setPosition({0.f, -buttonSize.y / 2.f}); // place in the center of the button
         buttonSize.x = std::max(resumeText->getSize().x + buttonTextPadding, buttonSize.x);
 
         auto exitText = std::make_unique<Text>(languageManager.getExitText(), 
-                                               font, buttonCharacterSize, buttonElementColor);
+                                               font, 80, sf::Color::White);
         exitText->setOrigin({exitText->getSize().x / 2.f, exitText->getSize().y});
         exitText->setPosition({0.f, -buttonSize.y / 2.f}); // place in the center of the button
         buttonSize.x = std::max(exitText->getSize().x + buttonTextPadding, buttonSize.x);
 
+        float buttonOutline = std::max(screenSize.y / 256.f, 0.5f);
+        float buttonOffset = std::max(screenSize.y / 64.f, 1.f);
+
+        sf::Vector2f totalSize{buttonSize.x, 0.f};
+
+        totalSize.y += buttonOffset + buttonOutline;
+
+        auto exitButton = std::make_unique<Button>([&gameState = m_gameState]{
+            gameState.setShouldEnd(true);
+        }, sf::Color{0, 0, 0, 128}, sf::Color::White, buttonOutline, buttonOutline);
+        exitButton->setSize(buttonSize);
+
+        exitButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
+        exitButton->setPosition({position.x, position.y - totalSize.y});
+        exitButton->setChild(std::move(exitText));
+
+        totalSize.y += buttonSize.y;
+        m_menu.addChild(std::move(exitButton));
+
+        totalSize.y += buttonOutline + buttonOffset + buttonOutline;
+
         auto resumeButton = std::make_unique<Button>([this]{
             m_menuOpen = false;
-        }, buttonColor, buttonElementColor, buttonOutline, buttonOutline);
+        }, sf::Color{0, 0, 0, 128}, sf::Color::White, buttonOutline, buttonOutline);
         resumeButton->setSize(buttonSize);
 
         // .x at center, .y above exitButton
         resumeButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
-        resumeButton->setPosition({menuSize.x / 2.f, 
-            menuSize.y- 2 * buttonOffset - 3 * buttonOutline - buttonSize.y}); 
+        resumeButton->setPosition({position.x, position.y - totalSize.y});
         resumeButton->setChild(std::move(resumeText));
 
-        auto exitButton = std::make_unique<Button>([&gameState = m_gameState]{
-            gameState.setShouldEnd(true);
-        }, buttonColor, buttonElementColor, buttonOutline, buttonOutline);
-        exitButton->setSize(buttonSize);
-
-        // .x at center, .y at bottom
-        exitButton->setOrigin({buttonSize.x / 2.f, buttonSize.y});
-        exitButton->setPosition({menuSize.x / 2.f, menuSize.y - buttonOffset - buttonOutline});
-        exitButton->setChild(std::move(exitText));
-
-        m_menu.addChild(std::move(menuText));
-        m_menu.addChild(std::move(volumeText));
-        m_menu.addChild(std::move(volumeSlider));
+        totalSize.y += buttonSize.y;
         m_menu.addChild(std::move(resumeButton));
-        m_menu.addChild(std::move(exitButton));
 
-        m_menu.addChild(std::move(languageCombo)); // over buttons
+        return totalSize;
+    }
+
+    void Manager::initGui() {
+        sf::Vector2f screenSize = m_gameState.getScreenSize();
+
+        sf::Vector2f menuSize{screenSize.y * 0.75f, screenSize.y * 0.75f};
+        sf::Vector2f menuPos = (screenSize - menuSize) / 2.f;
+        m_menu.setRect({menuPos.x, menuPos.y, menuSize.x, menuSize.y});
+        m_menu.setColor(sf::Color{0, 0, 0, 128});
+        m_menu.clearChildren();
+
+        sf::Vector2f topCenterPos{m_menu.getSize().x / 2.f, 0.f};
+
+        topCenterPos.y += addMenuText(topCenterPos).y; // at top center
+
+        topCenterPos.y += std::max(screenSize.y / 16.f, 1.f); // at the center under the menuText
+        topCenterPos.y += addVolumeSlider(topCenterPos).y; 
+
+        addMenuButtons({menuSize.x / 2.f, menuSize.y}); // at center bottom
+
+        topCenterPos.y += std::max(screenSize.y / 16.f, 1.f); // at center under the volumeSlider   
+        addLanguageCombo(topCenterPos); // over the buttons
     }
 
     void Manager::handleEvent(const sf::Event& event) {

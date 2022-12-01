@@ -33,9 +33,9 @@ public:
     Entity(GameState& gameState) noexcept : m_gameState{gameState} {}
     virtual ~Entity() = default;
 
-    void handleEvent(sf::Event event) noexcept {}
+    void handleEvent(sf::Event event) {}
 
-    virtual void update(sf::Time elapsedTime) noexcept = 0;
+    virtual void update(sf::Time elapsedTime) = 0;
 
     virtual sf::FloatRect getGlobalBounds() const noexcept = 0;
 
@@ -43,11 +43,11 @@ public:
         return !shouldBeDeleted();
     }
 
-    virtual void startCollide(Entity& other) noexcept = 0;   
-    virtual void acceptCollide(Airplane::Airplane& other) noexcept {}
-    virtual void acceptCollide(Bullet& other) noexcept {}
-    virtual void acceptCollide(Pickup& other) noexcept {}
-    virtual void acceptCollide(AnimatedParticle& other) noexcept {}
+    virtual void startCollide(Entity& other) = 0;   
+    virtual void acceptCollide(Airplane::Airplane& other) {}
+    virtual void acceptCollide(Bullet& other) {}
+    virtual void acceptCollide(Pickup& other) {}
+    virtual void acceptCollide(AnimatedParticle& other) {}
 
     // for AI only
     virtual bool isPassable() const noexcept = 0;
@@ -68,7 +68,7 @@ template<typename Child>
 class EntityBase : public Entity {
     using Entity::Entity;
 
-    void startCollide(Entity& other) noexcept override {
+    void startCollide(Entity& other) noexcept override final {
         other.acceptCollide(static_cast<Child&>(*this));
     }
 };

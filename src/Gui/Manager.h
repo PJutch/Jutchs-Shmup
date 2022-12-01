@@ -51,8 +51,16 @@ namespace Gui {
 
         // return element size
         // element's origin at its top left corner
-        sf::Vector2f drawNumber(int n, sf::Vector2f position, 
+        // alpha in [0.f, 1.f]
+        sf::Vector2f drawNumber(int n, sf::Vector2f position, float alpha,
                 sf::RenderTarget& target, sf::RenderStates states) const;
+        sf::Vector2f drawNumber(int n, sf::Vector2f position, 
+                sf::RenderTarget& target, sf::RenderStates states) const {
+            return drawNumber(n, position, 1.f, target, states);
+        }
+        
+        // return element size
+        // element's origin at its top left corner
         sf::Vector2f drawHealth(sf::Vector2f position, 
             sf::RenderTarget& target, sf::RenderStates states) const;
         sf::Vector2f drawScore(sf::Vector2f position, 

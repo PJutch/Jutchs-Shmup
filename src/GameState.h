@@ -130,6 +130,10 @@ public:
         return m_scoreChanges;
     }
 
+    float getScoreChangeAlpha(int index) const noexcept {
+        return 1.f - (m_clock.getElapsedTime() - m_scoreChanges[index].time) / sf::seconds(0.5f);
+    }
+
     void handleEvent(const sf::Event& event);
 
     void update();

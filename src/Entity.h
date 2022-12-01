@@ -66,6 +66,7 @@ protected:
 // CRTP
 template<typename Child>
 class EntityBase : public Entity {
+public:
     using Entity::Entity;
 
     void startCollide(Entity& other) noexcept override final {

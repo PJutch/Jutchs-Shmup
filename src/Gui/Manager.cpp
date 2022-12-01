@@ -215,7 +215,7 @@ namespace Gui {
             m_menuOpen = !m_menuOpen;
     }
 
-    sf::Vector2f Manager::drawNumber(int n, sf::Vector2f position, 
+    sf::Vector2f Manager::drawNumber(int n, sf::Vector2f position, float alpha,
                              sf::RenderTarget& target, sf::RenderStates states) const {
         auto score = std::to_string(n);
         const auto& digitTextures = m_gameState.getAssets().getDigitTextures();
@@ -223,6 +223,7 @@ namespace Gui {
 
         for (int i = 0; i < std::ssize(score); ++ i) {
             sf::Sprite digitSprite{digitTextures[score[i] - '0']};
+            digitSprite.setColor(sf::Color(255, 255, 255, alpha * 255));
             digitSprite.setPosition(i * digitSize.x + position.x, position.y);
             target.draw(digitSprite, states);
         }
@@ -255,20 +256,26 @@ namespace Gui {
         auto digitSize = assets.getDigitTextures()[0].getSize();
         const auto& scoreChanges = m_gameState.getScoreChanges();
 
-        for (int i = 0; i < std::ssize(scoreChanges); ++ i) {
+        for (int i = std::ssize(scoreChanges) - 1; i >= 0; -- i) {
+            float alpha = m_gameState.getScoreChangeAlpha(i);
+            if (alpha <= 0) continue;
+
+            float yPos = position.y + digitSize.y * (std::ssize(scoreChanges) - i);
+
             sf::Sprite signSprite;
+            signSprite.setColor(sf::Color(255, 255, 255, alpha * 255));
             if (scoreChanges[i].value >= 0) {
                 signSprite.setTexture(assets.getPlusTexture());
             } else {
                 signSprite.setTexture(assets.getMinusTexture());
             }
-            signSprite.setPosition(position.x, position.y + digitSize.y * (i + 1));
+            signSprite.setPosition(position.x, yPos);
             target.draw(signSprite, states);
 
             maxWidth = std::max(maxWidth,
                 drawNumber(scoreChanges[i].value, 
-                    sf::Vector2f(position.x + digitSize.x, position.y + digitSize.y * (i + 1)), 
-                    target, states).x);
+                    sf::Vector2f(position.x + digitSize.x, yPos), 
+                    alpha, target, states).x);
         }
 
         return sf::Vector2f(maxWidth, (std::ssize(scoreChanges) + 1) * digitSize.y);

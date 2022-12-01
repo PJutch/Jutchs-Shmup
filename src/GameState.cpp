@@ -40,11 +40,13 @@ GameState::GameState(sf::Vector2f screenSize) :
 
 void GameState::initPlayer() {
     m_player = Airplane::Builder{*this}
-        .position({0.f, 0.f}).maxHealth(3).deletable(false).canUsePickups(true)
+        .position({0.f, 0.f}).maxHealth(3)
         .flags(Airplane::Flags::PLAYER_SIDE
              | Airplane::Flags::HEAVY
              | Airplane::Flags::SLOW    
-             | Airplane::Flags::NO_WEAPON)
+             | Airplane::Flags::NO_WEAPON
+             | Airplane::Flags::UNIQUE
+             | Airplane::Flags::USE_PICKUPS)
         .shootComponent<Airplane::BasicShootComponent>()
         .shootControlComponent<Airplane::PlayerShootControlComponent>()
         .moveComponent<Airplane::PlayerMoveComponent>().speed({250.f, 250.f})
@@ -134,8 +136,9 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
     if (genRandom(canonicalDistribution) < 0.01) {
         Airplane::Builder builder{*this};
 
-        builder.position(position).maxHealth(1)
-            .deletable(true).canUsePickups(false).flags(Airplane::Flags::ENEMY_SIDE);
+        builder.position(position).maxHealth(1).flags(Airplane::Flags::ENEMY_SIDE 
+                                                    | Airplane::Flags::UNIQUE
+                                                    | Airplane::Flags::DELETABLE);
 
         int score = 10;
 

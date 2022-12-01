@@ -42,16 +42,6 @@ namespace Airplane {
             return *this;
         }
 
-        Builder& deletable(bool deletable) noexcept {
-            m_build->m_deletable = deletable;
-            return *this;
-        }
-
-        Builder& canUsePickups(bool canUsePickups) noexcept {
-            m_build->m_canUsePickups = canUsePickups;
-            return *this;
-        }
-
         Builder& speed(sf::Vector2f speed) noexcept {
             m_speed = speed;
             return *this;
@@ -91,19 +81,18 @@ namespace Airplane {
         }
 
         Builder& flags(Flags flags) noexcept {
-            m_flags = flags;
+            m_build->m_flags = flags;
             return *this;
         }
 
         Flags& flags() noexcept {
-            return m_flags;
+            return m_build->m_flags;
         }
 
         std::unique_ptr<Airplane> build() noexcept {
             m_build->m_moveComponent->setSpeed(m_speed);
-            m_build->m_playerSide = static_cast<bool>(m_flags & Flags::PLAYER_SIDE);
 
-            setTexture(m_gameState.getAssets().getAirplaneTexture(m_flags));
+            setTexture(m_gameState.getAssets().getAirplaneTexture(m_build->m_flags));
 
             return std::move(m_build);
         }
@@ -111,8 +100,6 @@ namespace Airplane {
         std::unique_ptr<Airplane> m_build;
 
         sf::Vector2f m_speed;
-
-        Flags m_flags;
 
         GameState& m_gameState;
 
@@ -127,7 +114,7 @@ namespace Airplane {
     template<typename... Args>
     Builder::Builder(GameState& gameState, Args&&... args) : 
         m_build{new Airplane{gameState, std::forward<Args>(args)...}}, m_gameState{gameState},         
-        m_speed{0.f, 0.f}, m_flags{} {}
+        m_speed{0.f, 0.f} {}
 }
 
 #endif

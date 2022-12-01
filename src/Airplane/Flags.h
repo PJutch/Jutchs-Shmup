@@ -21,17 +21,26 @@ namespace Airplane {
     // bitmasks
     struct Flags {
         enum Masks : uint8_t {
-            ENEMY_SIDE  = 0b0000,
-            PLAYER_SIDE = 0b0001,
-            LIGHT       = 0b0000,
-            HEAVY       = 0b0010,
-            SLOW        = 0b0000,
-            FAST        = 0b0100,
-            NO_WEAPON   = 0b0000,
-            HAS_WEAPON  = 0b1000
+            ENEMY_SIDE  = 0b000000,
+            PLAYER_SIDE = 0b000001,
+
+            LIGHT       = 0b000000,
+            HEAVY       = 0b000010,
+            SLOW        = 0b000000,
+            FAST        = 0b000100,
+            NO_WEAPON   = 0b000000,
+            HAS_WEAPON  = 0b001000,
+
+            UNIQUE      = 0b000000,
+            DELETABLE   = 0b010000,
+            NO_PICKUPS  = 0b000000,
+            USE_PICKUPS = 0b100000,
+
+            TEXTURE     = 0b001111, // flags used to determinate texture, must be continuous
+            RUNTIME     = 0b110001, // flags used to tweak runtime behaviour
         };
 
-        const static int TEXTURE_VARIANTS = 16;
+        const static int TEXTURE_VARIANTS = static_cast<int>(TEXTURE) + 1;
 
         uint8_t m_flags;
 

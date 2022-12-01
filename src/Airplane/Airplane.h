@@ -59,7 +59,7 @@ namespace Airplane {
         }
 
         void acceptCollide(Bullet& other) noexcept override {
-            if (other.isOnPlayerSide() == m_playerSide) return;
+            if (other.isOnPlayerSide() == isOnPlayerSide()) return;
             handleDamaged();
         }
 
@@ -118,12 +118,12 @@ namespace Airplane {
         }
 
         bool shouldBeDeleted() const noexcept override {
-            return m_deletable 
+            return (m_flags & Flags::DELETABLE)
                 && (m_health <= 0 || !m_gameState.inActiveArea(m_sprite.getPosition().x));
         }
 
         bool reset() noexcept override {
-            if (m_deletable) return true;
+            if (m_flags & Flags::DELETABLE) return true;
 
             m_health = m_maxHealth;
             m_sprite.setPosition({0.f, 0.f});
@@ -135,7 +135,7 @@ namespace Airplane {
         }
 
         bool isOnPlayerSide() const noexcept {
-            return m_playerSide;
+            return static_cast<bool>(m_flags & Flags::PLAYER_SIDE);
         }
 
         bool isPassable() const noexcept override {
@@ -143,7 +143,7 @@ namespace Airplane {
         }
 
         bool canUsePickups() const noexcept {
-            return m_canUsePickups;
+            return static_cast<bool>(m_flags & Flags::USE_PICKUPS);
         }
     private:
         sf::Sprite m_sprite;
@@ -158,9 +158,7 @@ namespace Airplane {
         int m_maxHealth;
         sf::Time m_damageCooldown;
 
-        bool m_playerSide;
-        bool m_canUsePickups;
-        bool m_deletable;
+        Flags m_flags;
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
             if (m_health > 0) target.draw(m_sprite, states);
@@ -168,8 +166,7 @@ namespace Airplane {
 
         Airplane(GameState& gameState) noexcept : 
             EntityBase{gameState},
-            m_health{0}, m_maxHealth{0}, m_damageCooldown{sf::seconds(0.f)}, 
-            m_playerSide{false}, m_canUsePickups{false}, m_deletable{true} {}
+            m_health{0}, m_maxHealth{0}, m_damageCooldown{sf::seconds(0.f)} {}
     };
 }
 

@@ -46,7 +46,7 @@ public:
     }
 
     const sf::Texture& getAirplaneTexture(Airplane::Flags flags) const noexcept {
-        return m_airplaneTextures[static_cast<uint8_t>(flags)];
+        return m_airplaneTextures[static_cast<uint8_t>(flags & Airplane::Flags::TEXTURE)];
     }
     
     sf::Vector2u getAirplaneTextureSize() const noexcept {

@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class SoundManager {
 public:
-    SoundManager() : m_volume{100.f} {}
+    SoundManager() : m_volume{1.f} {}
 
     void update() {
         std::erase_if(m_sounds, [this](const std::unique_ptr<SoundEffect>& sound) -> bool {

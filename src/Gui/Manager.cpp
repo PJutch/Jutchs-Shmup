@@ -62,9 +62,9 @@ namespace Gui {
 
         auto volumeSlider = std::make_unique<HorizontalSlider>(
            [&sounds = m_gameState.getSounds()]() -> float {
-            return sounds.getVolume() / 100.f;
+            return sounds.getVolume();
         }, [&sounds = m_gameState.getSounds()](float volume){
-            sounds.setVolume(volume * 100.f);
+            sounds.setVolume(volume);
         }, sf::Color::White, sf::Color::Black);
 
         sf::Vector2f sliderSize{2.f / 3.f * m_menu.getSize().x, std::max(screenSize.y / 64.f, 1.f)};

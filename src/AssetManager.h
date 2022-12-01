@@ -14,6 +14,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef ASSET_MANAGER_
 #define ASSET_MANAGER_
 
+#include "Airplane/Flags.h"
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Audio.hpp>
@@ -43,13 +45,12 @@ public:
         return m_explosionAnimation;
     }
 
-    const sf::Texture& getAirplaneTexture(bool playerSide, 
-                                          bool heavy, 
-                                          bool fast, 
-                                          bool hasWeapon) const noexcept;
+    const sf::Texture& getAirplaneTexture(Airplane::Flags flags) const noexcept {
+        return m_airplaneTextures[static_cast<uint8_t>(flags)];
+    }
     
     sf::Vector2u getAirplaneTextureSize() const noexcept {
-        return m_airplaneTextures[0][0][0][0].getSize();
+        return m_airplaneTextures[0].getSize();
     }
 
     const sf::Texture& getPlusTexture() const noexcept {
@@ -91,7 +92,7 @@ private:
     sf::Texture m_healthPickupTexture;
     std::vector<sf::Texture> m_explosionAnimation;
 
-    std::array<std::array<std::array<std::array<sf::Texture, 2>, 2>, 2>, 2> m_airplaneTextures;
+    std::array<sf::Texture, Airplane::Flags::TEXTURE_VARIANTS> m_airplaneTextures;
 
     sf::Texture m_plusTexture;
     sf::Texture m_minusTexture;

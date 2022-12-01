@@ -40,8 +40,11 @@ GameState::GameState(sf::Vector2f screenSize) :
 
 void GameState::initPlayer() {
     m_player = Airplane::Builder{*this}
-        .position({0.f, 0.f}).maxHealth(3).deletable(false).playerSide(true).canUsePickups(true)
-        .textureHeavy(true).textureFast(false).textureHasWeapon(false)
+        .position({0.f, 0.f}).maxHealth(3).deletable(false).canUsePickups(true)
+        .flags(Airplane::Flags::PLAYER_SIDE
+             | Airplane::Flags::HEAVY
+             | Airplane::Flags::SLOW    
+             | Airplane::Flags::NO_WEAPON)
         .shootComponent<Airplane::BasicShootComponent>()
         .shootControlComponent<Airplane::PlayerShootControlComponent>()
         .moveComponent<Airplane::PlayerMoveComponent>().speed({250.f, 250.f})
@@ -126,33 +129,37 @@ void GameState::checkEnemySpawn() {
 }
 
 void GameState::trySpawnEnemy(sf::Vector2f position) {
+
     std::uniform_real_distribution canonicalDistribution{0.0, 1.0};
     if (genRandom(canonicalDistribution) < 0.01) {
         Airplane::Builder builder{*this};
 
-        builder.position(position).maxHealth(1).deletable(true).playerSide(false).canUsePickups(false);
+        builder.position(position).maxHealth(1)
+            .deletable(true).canUsePickups(false).flags(Airplane::Flags::ENEMY_SIDE);
 
         int score = 10;
 
         if (genRandom(canonicalDistribution) < 0.1) {
-            builder.maxHealth(3).textureHeavy(true);
+            builder.maxHealth(3);
+            builder.flags() |= Airplane::Flags::HEAVY;
             score *= 2;
         } else {
-            builder.maxHealth(1).textureHeavy(false);
+            builder.maxHealth(1);
+            builder.flags() |= Airplane::Flags::LIGHT;
         }
 
         double shootSeed = genRandom(canonicalDistribution);
         if (shootSeed < 0.1) {
-            builder.shootComponent<Airplane::TripleShootComponent>()
-                   .textureHasWeapon(true);
+            builder.shootComponent<Airplane::TripleShootComponent>();
+            builder.flags() |= Airplane::Flags::HAS_WEAPON;
             score *= 2;
         } else if (shootSeed < 0.2) {
-            builder.shootComponent<Airplane::VolleyShootComponent>()
-                   .textureHasWeapon(false);
+            builder.shootComponent<Airplane::VolleyShootComponent>();
+            builder.flags() |= Airplane::Flags::NO_WEAPON;
             score *= 2;
         } else {
-            builder.shootComponent<Airplane::BasicShootComponent >()
-                   .textureHasWeapon(false);
+            builder.shootComponent<Airplane::BasicShootComponent >();
+            builder.flags() |= Airplane::Flags::NO_WEAPON;
         }
 
         double shootControlSeed = genRandom(canonicalDistribution);
@@ -163,7 +170,8 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
         } else if (shootControlSeed < 0.2) {
             shootControl = builder.createShootControlComponent
                 <Airplane::NeverShootControlComponent>();
-            builder.textureHasWeapon(false);
+            builder.flags() &= ~Airplane::Flags::HAS_WEAPON;
+            builder.flags() |= Airplane::Flags::NO_WEAPON;
             score /= 2;
         } else {
             shootControl = builder.createShootControlComponent
@@ -174,10 +182,12 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
             builder.createShootControlComponent<Airplane::CanHitPlayerShootControlComponent>());
 
         if (genRandom(canonicalDistribution) < 0.1) {
-            builder.speed({500.f, 250.f}).textureFast(true);
+            builder.speed({500.f, 250.f});
+            builder.flags() |= Airplane::Flags::FAST;
             score *= 2;
         } else {
-            builder.speed({250.f, 250.f}).textureFast(false);
+            builder.speed({250.f, 250.f});
+            builder.flags() |= Airplane::Flags::SLOW;
         }
 
         double moveSeed = genRandom(canonicalDistribution);

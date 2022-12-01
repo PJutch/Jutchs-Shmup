@@ -23,6 +23,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Airplane/ShootControlComponent.h"
 #include "Airplane/MoveComponent.h"
 #include "Airplane/DeathEffect.h"
+#include "Airplane/Flags.h"
 
 namespace Airplane {
     class Builder {
@@ -53,11 +54,6 @@ namespace Airplane {
 
         Builder& speed(sf::Vector2f speed) noexcept {
             m_speed = speed;
-            return *this;
-        }
-
-        Builder& playerSide(bool playerSide) noexcept {
-            m_build->m_playerSide = playerSide;
             return *this;
         }
 
@@ -94,29 +90,21 @@ namespace Airplane {
             return *this;
         }
 
-        Builder& textureHeavy(bool heavy) noexcept {
-            m_textureHeavy = heavy;
+        Builder& flags(Flags flags) noexcept {
+            m_flags = flags;
             return *this;
         }
 
-        Builder& textureFast(bool fast) noexcept {
-            m_textureFast = fast;
-            return *this;
-        }
-
-        Builder& textureHasWeapon(bool hasWeapon) noexcept {
-            m_textureHasWeapon = hasWeapon;
-            return *this;
+        Flags& flags() noexcept {
+            return m_flags;
         }
 
         std::unique_ptr<Airplane> build() noexcept {
             m_build->m_moveComponent->setSpeed(m_speed);
-            
-            setTexture(m_gameState.getAssets().getAirplaneTexture(m_build->m_playerSide, 
-                                                                m_textureHeavy, 
-                                                                m_textureFast, 
-                                                                m_textureHasWeapon));
-            
+            m_build->m_playerSide = static_cast<bool>(m_flags & Flags::PLAYER_SIDE);
+
+            setTexture(m_gameState.getAssets().getAirplaneTexture(m_flags));
+
             return std::move(m_build);
         }
     private:
@@ -124,9 +112,7 @@ namespace Airplane {
 
         sf::Vector2f m_speed;
 
-        bool m_textureHeavy;
-        bool m_textureFast;
-        bool m_textureHasWeapon;
+        Flags m_flags;
 
         GameState& m_gameState;
 
@@ -141,7 +127,7 @@ namespace Airplane {
     template<typename... Args>
     Builder::Builder(GameState& gameState, Args&&... args) : 
         m_build{new Airplane{gameState, std::forward<Args>(args)...}}, m_gameState{gameState},         
-        m_speed{0.f, 0.f}, m_textureHeavy{false}, m_textureFast{false}, m_textureHasWeapon{false} {}
+        m_speed{0.f, 0.f}, m_flags{} {}
 }
 
 #endif

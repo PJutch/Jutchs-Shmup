@@ -187,8 +187,7 @@ private:
 
     void trySpawnEnemy(sf::Vector2f position);
 
-    void drawNumber(int n, sf::Vector2f position, 
-                    sf::RenderTarget& target, sf::RenderStates states) const noexcept;
+    void drawBackground(sf::RenderTarget& target, sf::RenderStates states) const;
 };
 
 #endif

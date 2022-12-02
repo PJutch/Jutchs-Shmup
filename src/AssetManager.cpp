@@ -52,12 +52,15 @@ AssetManager::AssetManager() {
                 flags & Airplane::Flags::FAST        ? " fast"  : "", 
                 flags & Airplane::Flags::HAS_WEAPON  ? "with"   : "without")};
     }
+
+    if (!m_backgroundTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0110.png"))
+        throw TextureLoadError{"Can't load background texture"};
     
     if (!m_plusTexture.loadFromFile("resources/textures/plus.png"))
-        throw TextureLoadError{"Can't load plus {} texture"};
+        throw TextureLoadError{"Can't load plus texture"};
     
     if (!m_minusTexture.loadFromFile("resources/textures/minus.png"))
-        throw TextureLoadError{"Can't load minus {} texture"};
+        throw TextureLoadError{"Can't load minus texture"};
 
     for (int i = 0; i < std::ssize(m_digitTextures); ++ i) 
         if (!m_digitTextures[i].loadFromFile(

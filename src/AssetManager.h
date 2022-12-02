@@ -53,6 +53,10 @@ public:
         return m_airplaneTextures[0].getSize();
     }
 
+    const sf::Texture& getBackgroundTexture() const noexcept {
+        return m_backgroundTexture;
+    }
+
     const sf::Texture& getPlusTexture() const noexcept {
         return m_plusTexture;
     }
@@ -93,6 +97,8 @@ private:
     std::vector<sf::Texture> m_explosionAnimation;
 
     std::array<sf::Texture, Airplane::Flags::TEXTURE_VARIANTS> m_airplaneTextures;
+
+    sf::Texture m_backgroundTexture;
 
     sf::Texture m_plusTexture;
     sf::Texture m_minusTexture;

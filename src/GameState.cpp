@@ -101,10 +101,24 @@ bool GameState::inActiveArea(float x) const noexcept {
         && x - 5 * getGameHeight() <= getPlayer().getPosition().x;
 }
 
+void GameState::drawBackground(sf::RenderTarget& target, sf::RenderStates states) const {
+    const auto& texture = getAssets().getBackgroundTexture();
+    auto textureSize = texture.getSize();
+    auto playerPos = getPlayer().getPosition();
+    for (float x = playerPos.x - getGameHeight() - std::fmodf(playerPos.x, textureSize.x);
+            x < playerPos.x + 4 * getGameHeight(); x += textureSize.x)
+        for (float y = - getGameHeight(); y < getGameHeight(); y += textureSize.y) {
+            sf::Sprite sprite{texture};
+            sprite.setPosition(x, y);
+            target.draw(sprite, states);
+    }
+}
+
 void GameState::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     auto prevView = target.getView();
-    target.setView(getView());
 
+    target.setView(getView());
+    drawBackground(target, states);
     target.draw(m_entityManager, states);
 
     target.setView(prevView);

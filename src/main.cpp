@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
 
         gameState.update();
 
-        window.clear(sf::Color::Green);
+        window.clear(sf::Color::Red);
         window.draw(gameState);
         window.display();
     }

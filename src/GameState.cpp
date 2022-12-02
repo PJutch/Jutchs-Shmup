@@ -19,6 +19,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Gui/Button.h"
 #include "Gui/HorizontalSlider.h"
 #include "Gui/ComboBox.h"
+#include "LandType.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -101,9 +102,9 @@ bool GameState::inActiveArea(float x) const noexcept {
         && x - 5 * getGameHeight() <= getPlayer().getPosition().x;
 }
 
-void GameState::drawBackground(sf::RenderTarget& target, sf::RenderStates states) const {
-    const auto& texture = getAssets().getBackgroundTexture();
-    auto textureSize = texture.getSize();
+void GameState::drawLand(sf::RenderTarget& target, sf::RenderStates states) const {
+    const auto& texture = getAssets().getLandTexture(LandType::HOUSE);
+    auto textureSize = getAssets().getLandTextureSize();
     auto playerPos = getPlayer().getPosition();
     for (float x = playerPos.x - getGameHeight() - std::fmodf(playerPos.x, textureSize.x);
             x < playerPos.x + 4 * getGameHeight(); x += textureSize.x)
@@ -118,7 +119,7 @@ void GameState::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     auto prevView = target.getView();
 
     target.setView(getView());
-    drawBackground(target, states);
+    drawLand(target, states);
     target.draw(m_entityManager, states);
 
     target.setView(prevView);

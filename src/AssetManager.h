@@ -15,6 +15,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define ASSET_MANAGER_
 
 #include "Airplane/Flags.h"
+#include "LandType.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -46,15 +47,19 @@ public:
     }
 
     const sf::Texture& getAirplaneTexture(Airplane::Flags flags) const noexcept {
-        return m_airplaneTextures[static_cast<uint8_t>(flags & Airplane::Flags::TEXTURE)];
+        return m_airplaneTextures[static_cast<Airplane::Flags::Base>(flags & Airplane::Flags::TEXTURE)];
     }
     
     sf::Vector2u getAirplaneTextureSize() const noexcept {
         return m_airplaneTextures[0].getSize();
     }
 
-    const sf::Texture& getBackgroundTexture() const noexcept {
-        return m_backgroundTexture;
+    const sf::Texture& getLandTexture(LandType type) const noexcept {
+        return m_landTextures[static_cast<LandType::Base>(type)];
+    }
+
+    sf::Vector2u getLandTextureSize() const noexcept {
+        return m_landTextures[0].getSize();
     }
 
     const sf::Texture& getPlusTexture() const noexcept {
@@ -98,7 +103,7 @@ private:
 
     std::array<sf::Texture, Airplane::Flags::TEXTURE_VARIANTS> m_airplaneTextures;
 
-    sf::Texture m_backgroundTexture;
+    std::array<sf::Texture, LandType::TOTAL_VARIANTS> m_landTextures;
 
     sf::Texture m_plusTexture;
     sf::Texture m_minusTexture;

@@ -187,7 +187,7 @@ private:
 
     void trySpawnEnemy(sf::Vector2f position);
 
-    void drawBackground(sf::RenderTarget& target, sf::RenderStates states) const;
+    void drawLand(sf::RenderTarget& target, sf::RenderStates states) const;
 };
 
 #endif

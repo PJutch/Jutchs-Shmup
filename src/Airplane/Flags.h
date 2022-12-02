@@ -18,9 +18,13 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <type_traits>
 
 namespace Airplane {
-    // bitmasks
-    struct Flags {
-        enum Masks : uint8_t {
+    // bitmask
+    class Flags {
+    public:
+        using Base = uint8_t;
+
+        // don't use directly
+        enum class Masks : Base {
             ENEMY_SIDE  = 0b000000,
             PLAYER_SIDE = 0b000001,
 
@@ -39,20 +43,19 @@ namespace Airplane {
             TEXTURE     = 0b001111, // flags used to determinate texture, must be continuous
             RUNTIME     = 0b110001, // flags used to tweak runtime behaviour
         };
+        using enum Masks;
 
         const static int TEXTURE_VARIANTS = static_cast<int>(TEXTURE) + 1;
 
-        uint8_t m_flags;
-
         Flags() = default;
-        Flags(uint8_t flags) : m_flags{flags} {}
-        Flags(Masks flags) : m_flags{flags} {}
+        Flags(Base flags) : m_flags{flags} {}
+        Flags(Masks flags) : m_flags{static_cast<Base>(flags)} {}
 
         explicit operator bool() noexcept {
             return m_flags != 0;
         }
 
-        explicit operator uint8_t() noexcept {
+        explicit operator Base() noexcept {
             return m_flags;
         }
 
@@ -77,7 +80,21 @@ namespace Airplane {
             m_flags &= flags.m_flags;
             return *this;
         }
+    private:
+        Base m_flags;
     };
+
+    inline Flags operator ~ (Flags::Masks flags) noexcept {
+        return ~static_cast<Flags>(flags);
+    }
+
+    inline Flags operator | (Flags::Masks lhs, Flags::Masks rhs) noexcept {
+        return static_cast<Flags>(lhs) | static_cast<Flags>(rhs);
+    }
+
+    inline Flags operator & (Flags::Masks lhs, Flags::Masks rhs) noexcept {
+        return static_cast<Flags>(lhs) & static_cast<Flags>(rhs);
+    }
 }
 
 #endif

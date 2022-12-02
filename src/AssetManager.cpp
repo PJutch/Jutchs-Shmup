@@ -53,8 +53,14 @@ AssetManager::AssetManager() {
                 flags & Airplane::Flags::HAS_WEAPON  ? "with"   : "without")};
     }
 
-    if (!m_backgroundTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0110.png"))
-        throw TextureLoadError{"Can't load background texture"};
+    for (int i = 0; i < LandType::TOTAL_VARIANTS; ++ i) {
+        auto type = static_cast<LandType>(i);
+        if (!type.isValid()) continue;
+        
+        if (!m_landTextures[i].loadFromFile(("resources/textures/kenney_pixelshmup/Land/" 
+                / type.getTextureFileName()).generic_string()))
+            throw TextureLoadError{std::format("Can't load {} tile texture", type.getName())};
+    }
     
     if (!m_plusTexture.loadFromFile("resources/textures/plus.png"))
         throw TextureLoadError{"Can't load plus texture"};

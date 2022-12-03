@@ -34,8 +34,9 @@ GameState::GameState(sf::Vector2f screenSize) :
         m_score{0}, m_shouldResetAfter{sf::Time::Zero},
         m_shouldEnd{false}, m_guiManager{*this} {
     initPlayer();
-    m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);
-    
+    initLand();        
+
+    m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);   
     m_guiManager.initGui();
 }
 
@@ -57,6 +58,64 @@ void GameState::initPlayer() {
     m_entityManager.addEntity(m_player);
 }
 
+void GameState::initLand() {
+    auto playerPos = getPlayer().getPosition();
+    auto tileSize = getAssets().getLandTextureSize();
+
+    float x;
+    for (x = playerPos.x - getGameHeight(); 
+            x < playerPos.x + 5 * getGameHeight(); x += tileSize.x)
+        m_land.push_back(createLandRow());
+    
+    m_landEnd = x;
+}
+
+void GameState::updateLand() {
+    auto playerPos = getPlayer().getPosition();
+    if (playerPos.x + 5 * getGameHeight() < m_landEnd) return;
+
+    m_land.pop_front();
+    m_land.push_back(createLandRow());
+    m_landEnd += getAssets().getLandTextureSize().x; 
+}
+
+std::vector<LandType> GameState::createLandRow() {
+    auto playerPos = getPlayer().getPosition();
+
+    std::vector<LandType> row;
+    for (float y = playerPos.y - getGameHeight(); y < playerPos.y + getGameHeight(); 
+            y += getAssets().getLandTextureSize().y) {
+        row.push_back(randomLandType());
+    }
+    return row;
+}
+
+LandType GameState::randomLandType() {
+    double value = std::uniform_real_distribution{0.0, 1.0}(m_randomEngine);
+    // Airdromes aren't generating indently
+    if (value < 0.01) {
+        return LandType::CRATER;
+    } else if (value < 0.02) {
+        return LandType::FIELD;
+    } else if (value < 0.03) {
+        return LandType::FLAG;
+    } else if (value < 0.04) {
+        return LandType::HOUSE;
+    } else if (value < 0.045) {
+        return LandType::LOW_HOUSE;
+    } else if (value < 0.05) {
+        return LandType::TREE;
+    } else if (value < 0.06) {
+        return LandType::TREES;
+    } else if (value < 0.07) {
+        return LandType::BUSH;
+    } else if (value < 0.535) {
+        return LandType::PLAINS;
+    } else {
+        return LandType::PLAINS2;
+    }
+}
+
 void GameState::handleEvent(const sf::Event& event) {
     m_guiManager.handleEvent(event);
 
@@ -69,8 +128,13 @@ void GameState::handleEvent(const sf::Event& event) {
 void GameState::update() {
     sf::Time elapsedTime = m_tickClock.restart();
 
-    if (!m_guiManager.isMenuOpen()) m_entityManager.update(elapsedTime);
     m_soundManager.update();
+
+    if (m_guiManager.isMenuOpen()) return;
+
+    m_entityManager.update(elapsedTime);
+    updateLand();
+
     checkReset(elapsedTime);
     checkEnemySpawn();
     updateScore();
@@ -91,6 +155,9 @@ void GameState::reset() {
 
     m_spawnX = m_gameHeight * 4;
 
+    m_land.clear();
+    initLand();
+
     m_score = 0;
     m_scoreChanges.clear();
 
@@ -103,14 +170,15 @@ bool GameState::inActiveArea(float x) const noexcept {
 }
 
 void GameState::drawLand(sf::RenderTarget& target, sf::RenderStates states) const {
-    const auto& texture = getAssets().getLandTexture(LandType::HOUSE);
     auto textureSize = getAssets().getLandTextureSize();
     auto playerPos = getPlayer().getPosition();
-    for (float x = playerPos.x - getGameHeight() - std::fmodf(playerPos.x, textureSize.x);
-            x < playerPos.x + 4 * getGameHeight(); x += textureSize.x)
-        for (float y = - getGameHeight(); y < getGameHeight(); y += textureSize.y) {
-            sf::Sprite sprite{texture};
-            sprite.setPosition(x, y);
+
+    sf::Vector2f start{playerPos.x - getGameHeight() - std::fmodf(playerPos.x, textureSize.x), 
+                       -getGameHeight()};
+    for (int ix = 0; start.x + ix * textureSize.x < playerPos.x + 4 * getGameHeight(); ++ ix)
+        for (float iy = 0; start.y + iy * textureSize.y < getGameHeight(); ++ iy) {
+            sf::Sprite sprite{getAssets().getLandTexture(m_land[ix][iy])};
+            sprite.setPosition(start.x + ix * textureSize.x, start.y + iy * textureSize.y);
             target.draw(sprite, states);
     }
 }

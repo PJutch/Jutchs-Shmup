@@ -144,6 +144,9 @@ private:
 
     EntityManager m_entityManager;
 
+    std::deque<std::vector<LandType>> m_land;
+    float m_landEnd;
+
     SoundManager m_soundManager;
 
     LanguageManager m_languageManager;
@@ -169,6 +172,11 @@ private:
     bool m_shouldEnd;
 
     void initPlayer();
+    
+    void initLand();
+    void updateLand();
+    std::vector<LandType> createLandRow();
+    LandType randomLandType();
 
     sf::View getView() const noexcept;
 

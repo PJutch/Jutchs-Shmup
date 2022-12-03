@@ -24,6 +24,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+#include <iostream>
 #include <algorithm>
 #include <memory>
 #include <utility>
@@ -94,25 +95,25 @@ LandType GameState::randomLandType() {
     double value = std::uniform_real_distribution{0.0, 1.0}(m_randomEngine);
     // Airdromes aren't generating indently
     if (value < 0.01) {
-        return LandType::CRATER;
+        return LandType::FEATURE | LandType::CRATER;
     } else if (value < 0.02) {
-        return LandType::FIELD;
+        return LandType::FEATURE | LandType::FIELD;
     } else if (value < 0.03) {
-        return LandType::FLAG;
+        return LandType::FEATURE | LandType::FLAG;
     } else if (value < 0.04) {
-        return LandType::HOUSE;
+        return LandType::FEATURE | LandType::HOUSE;
     } else if (value < 0.045) {
-        return LandType::LOW_HOUSE;
+        return LandType::FEATURE | LandType::LOW_HOUSE;
     } else if (value < 0.05) {
-        return LandType::TREE;
+        return LandType::FEATURE | LandType::TREE;
     } else if (value < 0.06) {
-        return LandType::TREES;
+        return LandType::FEATURE | LandType::TREES;
     } else if (value < 0.07) {
-        return LandType::BUSH;
+        return LandType::FEATURE | LandType::BUSH;
     } else if (value < 0.535) {
-        return LandType::PLAINS;
+        return LandType::FEATURE | LandType::PLAINS;
     } else {
-        return LandType::PLAINS2;
+        return LandType::FEATURE | LandType::PLAINS2;
     }
 }
 

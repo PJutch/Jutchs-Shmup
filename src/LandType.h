@@ -17,94 +17,127 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <filesystem>
 #include <format>
 #include <string>
+#include <concepts>
 #include <cstdint>
 
 // bitmask
 class LandType {
 public:
-    using Base = uint16_t;
+    using Base = uint8_t;
 
     // don't use directly
     enum class Masks : Base {
-        PLAINS    = 0b0000,
-        AIRDROME  = 0b0001,
-        CRATER    = 0b0010,
-        FIELD     = 0b0011,
-        FLAG      = 0b0100,
-        TREE      = 0b0101,
-        BUSH      = 0b0110,
-        HOUSE     = 0b0111,
+        FEATURE   = 0b000000, // tile has feature, use like FEATURE | AIRDROME or AIRDROME
+        PLAINS    = 0b000000,
+        AIRDROME  = 0b000001,
+        CRATER    = 0b000010,
+        FIELD     = 0b000011,
+        FLAG      = 0b000100,
+        TREE      = 0b000101,
+        BUSH      = 0b000110,
+        HOUSE     = 0b000111,
 
-        MODIFIED  = 0b1000, // apply to get special meaning
+        ROAD      = 0b100000, // tile has road, use like ROAD | NORTH | EAST
+        NORTH     = 0b001000,
+        EAST      = 0b000100,
+        SOUTH     = 0b000010,
+        WEST      = 0b000001,
+
+        MODIFIED  = 0b010000, // apply to get special meaning
         PLAINS2   = PLAINS | MODIFIED,
         TREES     = TREE   | MODIFIED,
         LOW_HOUSE = HOUSE  | MODIFIED,
+        // also applyable to:
+        // ROAD | NORTH | SOUTH 
+        // ROAD | EAST  | WEST
     };
     using enum Masks;
 
-    const static int TOTAL_VARIANTS = 16; // WARNING: some are invalid
+    constexpr const static Base TOTAL_VARIANTS   = 64; // WARNING: some are invalid
+    constexpr const static Base FEATURE_VARIANTS = 8; // WARNING: some are invalid
+    constexpr const static Base ROAD_VARIANTS    = 16; // WARNING: some are invalid
 
-    LandType() = default;
-    LandType(Base type) : m_type{type} {}
-    LandType(Masks type) : m_type{static_cast<Base>(type)} {}
+    constexpr LandType() = default;
+    constexpr LandType(Base type) : m_type{type} {}
+    constexpr LandType(Masks type) : m_type{static_cast<Base>(type)} {}
 
-    explicit operator bool() noexcept {
+    constexpr explicit operator bool() noexcept {
         return m_type != 0;
     }
 
-    explicit operator Base() noexcept {
+    constexpr explicit operator Base() noexcept {
         return m_type;
     }
 
-    LandType operator ~ () noexcept {
+    constexpr LandType operator ~ () noexcept {
         return ~m_type;
     }
 
-    friend LandType operator | (LandType lhs, LandType rhs) noexcept {
+    constexpr friend LandType operator | (LandType lhs, LandType rhs) noexcept {
         return lhs.m_type | rhs.m_type;
     }
 
-    LandType& operator |= (LandType flags) noexcept {
+    constexpr LandType& operator |= (LandType flags) noexcept {
         m_type |= flags.m_type;
         return *this;
     }
 
-    friend LandType operator & (LandType lhs, LandType rhs) noexcept {
+    constexpr friend LandType operator & (LandType lhs, LandType rhs) noexcept {
         return lhs.m_type & rhs.m_type;
     }
 
-    LandType& operator &= (LandType flags) noexcept {
+    constexpr LandType& operator &= (LandType flags) noexcept {
         m_type &= flags.m_type;
         return *this;
     }
 
     bool isModyfiable() const noexcept;
 
-    bool isValid() const noexcept {
-        return m_type < TOTAL_VARIANTS && (!(*this & MODIFIED) || isModyfiable());
-    }
+    bool isValid() const noexcept;
 
     // only file name, add path to search by yourself
     std::filesystem::path getTextureFileName() const;
     std::string getName() const;
+
+    template<std::invocable<LandType> Fn>
+    static void for_each_valid(Fn f);
 private:
     Base m_type;
 
-    explicit operator Masks() noexcept {
+    constexpr explicit operator Masks() noexcept {
         return static_cast<Masks>(m_type);
     }
 };
 
-inline LandType operator ~ (LandType::Masks flags) noexcept {
+constexpr inline LandType operator ~ (LandType::Masks flags) noexcept {
     return ~static_cast<LandType>(flags);
 }
 
-inline LandType operator | (LandType::Masks lhs, LandType::Masks rhs) noexcept {
+constexpr inline LandType operator | (LandType::Masks lhs, LandType::Masks rhs) noexcept {
     return static_cast<LandType>(lhs) | static_cast<LandType>(rhs);
 }
 
-inline LandType operator & (LandType::Masks lhs, LandType::Masks rhs) noexcept {
+constexpr inline LandType operator & (LandType::Masks lhs, LandType::Masks rhs) noexcept {
     return static_cast<LandType>(lhs) & static_cast<LandType>(rhs);
+}
+
+template<std::invocable<LandType> Fn>
+static void LandType::for_each_valid(Fn f) {
+    for (Base var = 0; var < FEATURE_VARIANTS; ++ var) {
+        LandType type = FEATURE | static_cast<LandType>(var);
+        if (type.isValid()) std::invoke(f, type);
+
+        type |= MODIFIED;
+        if (type.isValid()) std::invoke(f, type);
+    }
+
+    for (Base var = 0; var < ROAD_VARIANTS; ++ var) {
+        LandType type = ROAD | static_cast<LandType>(var);
+        if (type.isValid()) std::invoke(f, type);
+
+        type |= MODIFIED;
+        if (type.isValid()) std::invoke(f, type);
+    }
 }
 
 #endif

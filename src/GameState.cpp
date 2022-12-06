@@ -131,40 +131,23 @@ void GameState::addLandRow() {
     row.push_back(ChanceTable::getRandom(
             m_landChances 
                | std::views::filter(
-                [left     = prevRow[0], 
-                 downLeft = prevRow[1]] 
+                [left = prevRow[0]] 
                 (const auto& entry) -> bool {
-                return isCompatableHorizontal(left, value(entry))
-                    && !willBeCycle(left    , value(entry), 
-                                    downLeft              );
+                return isCompatableHorizontal(left, value(entry));
             }) | ChanceTable::views::normalize, 
         m_randomEngine));
 
-    while (std::ssize(row) < std::ssize(prevRow) - 1)
+    while (std::ssize(row) < std::ssize(prevRow))
         row.push_back(ChanceTable::getRandom(
                 m_landChances 
                    | std::views::filter(
                     [up = row.back(), 
-                     left     = prevRow[std::ssize(row)    ], 
-                     downLeft = prevRow[std::ssize(row) + 1]] 
+                     left = prevRow[std::ssize(row)]] 
                     (const auto& entry) -> bool {
                         return isCompatableVertical  (up,   value(entry))
-                            && isCompatableHorizontal(left, value(entry))
-                            && !willBeCycle(left    , value(entry), 
-                                            downLeft              );
+                            && isCompatableHorizontal(left, value(entry));
                 }) | ChanceTable::views::normalize, 
             m_randomEngine));
-
-    row.push_back(ChanceTable::getRandom(
-            m_landChances 
-                | std::views::filter(
-                [up   = row    .back(), 
-                 left = prevRow.back()] 
-                (const auto& entry) -> bool {
-                    return isCompatableVertical  (up,   value(entry))
-                        && isCompatableHorizontal(left, value(entry));
-            }) | ChanceTable::views::normalize, 
-        m_randomEngine));
     
     m_landEnd += getAssets().getLandTextureSize().x;
 }

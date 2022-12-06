@@ -93,11 +93,10 @@ std::string LandType::getName() const {
 bool isCompatableHorizontal(LandType left, LandType right) {
     if (left & LandType::ROAD) {
         if (right & LandType::ROAD) {
-            if (left & LandType::EAST) {
-                return static_cast<bool>(right & LandType::WEST);
-            } else {
-                return !(right & LandType::WEST);
-            }
+            return (    (left & LandType::EAST) &&  (right & LandType::WEST)
+                    || !(left & LandType::EAST) && !(right & LandType::WEST))
+                && !(left & LandType::NORTH && right & LandType::NORTH)
+                && !(left & LandType::SOUTH && right & LandType::SOUTH);
         } else {
             return !(left & LandType::EAST); 
         }
@@ -113,11 +112,10 @@ bool isCompatableHorizontal(LandType left, LandType right) {
 bool isCompatableVertical(LandType up, LandType down) {
     if (up & LandType::ROAD) {
         if (down & LandType::ROAD) {
-            if (up & LandType::SOUTH) {
-                return static_cast<bool>(down & LandType::NORTH);
-            } else {
-                return !(down & LandType::NORTH);
-            }
+            return (    (up & LandType::SOUTH) &&  (down & LandType::NORTH)
+                    || !(up & LandType::SOUTH) && !(down & LandType::NORTH))
+                && !(up & LandType::EAST && down & LandType::EAST)
+                && !(up & LandType::WEST && down & LandType::WEST);
         } else {
             return !(up & LandType::SOUTH); 
         }

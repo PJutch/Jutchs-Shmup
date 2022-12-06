@@ -18,6 +18,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <format>
 #include <string>
 #include <concepts>
+#include <bit>
 #include <cstdint>
 
 // bitmask
@@ -38,6 +39,7 @@ public:
         HOUSE     = 0b000111,
 
         ROAD      = 0b100000, // tile has road, use like ROAD | NORTH | EAST
+        ROAD_MASK = 0b001111,
         NORTH     = 0b001000,
         EAST      = 0b000100,
         SOUTH     = 0b000010,
@@ -96,6 +98,12 @@ public:
 
     bool isValid() const noexcept;
 
+    // number of roads leving the tile
+    // WARNING: unsafe, use only if (*this) & ROAD
+    int getRoadCount() const noexcept {
+        return std::popcount(static_cast<Base>(*this & ROAD_MASK));
+    }
+
     // only file name, add path to search by yourself
     std::filesystem::path getTextureFileName() const;
     std::string getName() const;
@@ -146,5 +154,13 @@ bool isCompatableHorizontal(LandType left, LandType right);
 
 // true if it's valid to place top tile next to the down tile (in vertical row)
 bool isCompatableVertical(LandType up, LandType down);
+
+// true if roads form cycle
+bool isCycle(LandType upLeft,   LandType upRight, 
+             LandType downLeft, LandType downRight);
+
+// will become a cycle after adding downRight
+bool willBeCycle(LandType upLeft,   LandType upRight, 
+                 LandType downLeft);
 
 #endif

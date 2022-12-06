@@ -149,6 +149,7 @@ private:
     float m_landEnd;
 
     std::vector<ChanceTable::BasicEntry<LandType>> m_landChances;
+    const static std::array<double, 4> s_roadChances; // index is roadCount - 1
 
     SoundManager m_soundManager;
 

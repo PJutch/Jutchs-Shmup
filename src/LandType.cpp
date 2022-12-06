@@ -129,3 +129,28 @@ bool isCompatableVertical(LandType up, LandType down) {
         }
     }
 }
+
+bool isCycle(LandType upLeft,   LandType upRight, 
+             LandType downLeft, LandType downRight) {
+    return upLeft    & LandType::ROAD && upRight   & LandType::ROAD
+        && downLeft  & LandType::ROAD && downRight & LandType::ROAD
+
+        && upLeft   & LandType::EAST && upRight   & LandType::WEST
+        && downLeft & LandType::EAST && downRight & LandType::WEST
+
+        && upLeft  & LandType::SOUTH && downLeft  & LandType::NORTH
+        && upRight & LandType::SOUTH && downRight & LandType::NORTH;
+}
+
+// will become a cycle after adding downRight
+bool willBeCycle(LandType upLeft,   LandType upRight, 
+                 LandType downLeft) {
+    return upLeft    & LandType::ROAD && upRight   & LandType::ROAD
+        && downLeft  & LandType::ROAD
+
+        && upLeft   & LandType::EAST && upRight   & LandType::WEST
+        && downLeft & LandType::EAST
+
+        && upLeft  & LandType::SOUTH && downLeft  & LandType::NORTH
+        && upRight & LandType::SOUTH;
+}

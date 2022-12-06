@@ -26,38 +26,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 template <typename T>
 concept ExecutionPolicy = std::is_execution_policy_v<std::remove_cvref_t<T>>;
 
-/* namespace detail {
-    template <typename Operation, typename Result, typename T, 
-              typename T2ListToCheck, typename T2List, typename TestedList>                  
-    struct isReducable {
-        using Result1 = std::invoke_result<Operation, T, head_t<T2ListToCheck>>;
-        using Result2 = std::invoke_result<Operation, T, head_t<T2ListToCheck>>;
-        using newT2 = pushFront_t<T, T2List>;
-        using newTested = pushFront_t<T, TestedList>;
-
-        inline static constexpr bool value = std::convertible_to<T, Result>
-            && std::regular_invocable<Operation, T, head_t<T2ListToCheck>>
-            && std::regular_invocable<Operation, head_t<T2ListToCheck>, T>
-            && isReducable<Operation, Result, Result1, newT2, newT2, TestedList>::value
-            && isReducable<Operation, Result, Result1, newT2, newT2>::value
-            && isReducable<Operation, Result, T, tail_t<T2ListToCheck>, T2List>::value;
-    };
-
-    template <typename Operation, typename Result, typename T, typename T2List, typename TestedList> 
-    struct isReducable<Operation, Result, T, Empty, T2List, TestedList> {
-        inline static constexpr bool value = std::convertible_to<T, Result>;
-    };
-
-    template <typename Operation, typename Result, std::convertible_to<Result> T, 
-        typename T2ListToCheck, typename T2List, typename TestedList> 
-    inline constexpr bool isReducable_v = isReducable<Operation, Result, T, 
-                                            T2ListToCheck, T2List, TestedList>::value;
-}
-
-template <typename T, typename Init, typename Element>
-concept ReduceOperation = detail::isReducable_v<T, Init, Init, 
-                            TypeList<Element>, TypeList<Element>, TypeList<>>; */
-
 template <std::ranges::input_range Range, 
           std::indirectly_regular_unary_invocable<std::ranges::iterator_t<Range>> Proj = std::identity, 
           typename T = std::iter_value_t<std::projected<std::ranges::iterator_t<Range>, Proj>>, 

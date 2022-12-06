@@ -180,7 +180,6 @@ private:
     void initLand();
     void updateLand();
     void addLandRow();
-    LandType randomLandType();
 
     sf::View getView() const noexcept;
 

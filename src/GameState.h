@@ -22,6 +22,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "LanguageManager.h"
 #include "Gui/Manager.h"
 #include "SoundManager.h"
+#include "ChanceTable.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -147,6 +148,8 @@ private:
     std::deque<std::vector<LandType>> m_land;
     float m_landEnd;
 
+    std::vector<ChanceTable::BasicEntry<LandType>> m_landChances;
+
     SoundManager m_soundManager;
 
     LanguageManager m_languageManager;
@@ -175,7 +178,7 @@ private:
     
     void initLand();
     void updateLand();
-    std::vector<LandType> createLandRow();
+    void addLandRow();
     LandType randomLandType();
 
     sf::View getView() const noexcept;

@@ -25,6 +25,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/System.hpp>
 
 #include <iostream>
+#include <ranges>
 #include <algorithm>
 #include <memory>
 #include <utility>
@@ -60,35 +61,86 @@ void GameState::initPlayer() {
 }
 
 void GameState::initLand() {
+    m_landChances.reserve(LandType::TOTAL_VARIANTS);
+    for (LandType::Base i = 0; i < LandType::ROAD_VARIANTS; ++ i) {
+        auto type = LandType::ROAD | static_cast<LandType>(i);
+        if (type.isValid()) {
+            m_landChances.emplace_back(type, 1.0);
+            if (type.isModifiable())
+                m_landChances.emplace_back(type | LandType::MODIFIED, 1.0);
+        }
+    }
+    ChanceTable::normalize(m_landChances);
+
+    m_landChances.emplace_back(LandType::FEATURE | LandType::CRATER   , 1.0 /  8.0);
+    m_landChances.emplace_back(LandType::FEATURE | LandType::FIELD    , 1.0 /  8.0);
+    m_landChances.emplace_back(LandType::FEATURE | LandType::FLAG     , 1.0 /  8.0);
+    m_landChances.emplace_back(LandType::FEATURE | LandType::TREE     , 1.0 / 16.0);
+    m_landChances.emplace_back(LandType::FEATURE | LandType::TREES    , 1.0 / 16.0);
+    m_landChances.emplace_back(LandType::FEATURE | LandType::BUSH     , 1.0 /  8.0);
+    m_landChances.emplace_back(LandType::FEATURE | LandType::HOUSE    , 1.0 /  8.0);
+    ChanceTable::normalize(m_landChances);
+
+    m_landChances.emplace_back(LandType::PLAINS , 5.0);
+    m_landChances.emplace_back(LandType::PLAINS2, 5.0);
+    ChanceTable::normalize(m_landChances);
+
     auto playerPos = getPlayer().getPosition();
     auto tileSize = getAssets().getLandTextureSize();
 
-    float x;
-    for (x = playerPos.x - getGameHeight(); 
-            x < playerPos.x + 5 * getGameHeight(); x += tileSize.x)
-        m_land.push_back(createLandRow());
-    
-    m_landEnd = x;
+    m_land.emplace_back();
+    m_landEnd = playerPos.x - getGameHeight();
+
+    float y = -getGameHeight();
+    m_land.back().push_back(ChanceTable::getRandom(m_landChances, m_randomEngine));
+    y += tileSize.y;
+
+    while (y < getGameHeight()) {
+        m_land.back().push_back(ChanceTable::getRandom(
+                m_landChances 
+                   | std::views::filter([upper = m_land.back().back()] (const auto& entry) -> bool {
+                    return isCompatableVertical(upper, value(entry));
+                }) | ChanceTable::views::normalize, 
+            m_randomEngine));
+        y += tileSize.y;
+    }
+
+    while (m_landEnd < playerPos.x + 5 * getGameHeight())
+        addLandRow();
 }
 
 void GameState::updateLand() {
     auto playerPos = getPlayer().getPosition();
-    if (playerPos.x + 5 * getGameHeight() < m_landEnd) return;
-
-    m_land.pop_front();
-    m_land.push_back(createLandRow());
-    m_landEnd += getAssets().getLandTextureSize().x; 
+    while (playerPos.x + 5 * getGameHeight() >= m_landEnd) {
+        m_land.pop_front();
+        addLandRow();
+    }
 }
 
-std::vector<LandType> GameState::createLandRow() {
-    auto playerPos = getPlayer().getPosition();
+void GameState::addLandRow() {
+    m_land.emplace_back();
+    const auto& prevRow = m_land[std::ssize(m_land) - 2];
+    auto& row = m_land.back();
+    row.reserve(std::ssize(prevRow));
 
-    std::vector<LandType> row;
-    for (float y = playerPos.y - getGameHeight(); y < playerPos.y + getGameHeight(); 
-            y += getAssets().getLandTextureSize().y) {
-        row.push_back(randomLandType());
-    }
-    return row;
+    row.push_back(ChanceTable::getRandom(
+            m_landChances 
+               | std::views::filter([left = prevRow[std::ssize(row)]] (const auto& entry) -> bool {
+                return isCompatableHorizontal(left,  value(entry));
+            }) | ChanceTable::views::normalize, 
+        m_randomEngine));
+
+    while (std::ssize(row) < std::ssize(prevRow))
+        row.push_back(ChanceTable::getRandom(
+                m_landChances 
+                   | std::views::filter(
+                [upper = row.back(), left = prevRow[std::ssize(row)]] (const auto& entry) -> bool {
+                    return isCompatableVertical  (upper, value(entry))
+                        && isCompatableHorizontal(left,  value(entry));
+                }) | ChanceTable::views::normalize, 
+            m_randomEngine));
+    
+    m_landEnd += getAssets().getLandTextureSize().x;
 }
 
 LandType GameState::randomLandType() {

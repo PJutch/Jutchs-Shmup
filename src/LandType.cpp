@@ -13,7 +13,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "LandType.h"
 
-bool LandType::isModyfiable() const noexcept {
+bool LandType::isModifiable() const noexcept {
     switch (static_cast<Masks>(*this & ~MODIFIED)) {
         case static_cast<Masks>(FEATURE | PLAINS):
         case static_cast<Masks>(FEATURE | TREE):
@@ -30,10 +30,10 @@ bool LandType::isValid() const noexcept {
     if (*this & ROAD) {
         return static_cast<Base>(*this & ~ROAD & ~MODIFIED) < ROAD_VARIANTS
             && (*this & ~ROAD & ~MODIFIED)
-            && (!(*this & MODIFIED) || isModyfiable());
+            && (!(*this & MODIFIED) || isModifiable());
     } else
         return static_cast<Base>(*this & ~FEATURE & ~MODIFIED) < FEATURE_VARIANTS && 
-            (!(*this & MODIFIED) || isModyfiable());
+            (!(*this & MODIFIED) || isModifiable());
 }
 
 std::filesystem::path LandType::getTextureFileName() const {
@@ -88,4 +88,44 @@ std::string LandType::getName() const {
         case LOW_HOUSE: return "low house (grass)";
         default:        return "invalid";
         }
+}
+
+bool isCompatableHorizontal(LandType left, LandType right) {
+    if (left & LandType::ROAD) {
+        if (right & LandType::ROAD) {
+            if (left & LandType::EAST) {
+                return static_cast<bool>(right & LandType::WEST);
+            } else {
+                return !(right & LandType::WEST);
+            }
+        } else {
+            return !(left & LandType::EAST); 
+        }
+    } else {
+        if (right & LandType::ROAD) {
+            return !(right & LandType::WEST); 
+        } else {
+            return true;
+        }
+    }
+}
+
+bool isCompatableVertical(LandType up, LandType down) {
+    if (up & LandType::ROAD) {
+        if (down & LandType::ROAD) {
+            if (up & LandType::SOUTH) {
+                return static_cast<bool>(down & LandType::NORTH);
+            } else {
+                return !(down & LandType::NORTH);
+            }
+        } else {
+            return !(up & LandType::SOUTH); 
+        }
+    } else {
+        if (down & LandType::ROAD) {
+            return !(down & LandType::NORTH); 
+        } else {
+            return true;
+        }
+    }
 }

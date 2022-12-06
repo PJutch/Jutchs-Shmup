@@ -53,12 +53,13 @@ public:
     };
     using enum Masks;
 
-    constexpr const static Base TOTAL_VARIANTS   = 64; // WARNING: some are invalid
-    constexpr const static Base FEATURE_VARIANTS = 8; // WARNING: some are invalid
-    constexpr const static Base ROAD_VARIANTS    = 16; // WARNING: some are invalid
+    // WARNING: some of counted variants are invalid
+    constexpr const static Base TOTAL_VARIANTS   = 64; // include with MODIFIED bit
+    constexpr const static Base FEATURE_VARIANTS = 8;  // doesn't include with MODIFIED bit
+    constexpr const static Base ROAD_VARIANTS    = 16; // doesn't include with MODIFIED bit
 
     constexpr LandType() = default;
-    constexpr LandType(Base type) : m_type{type} {}
+    constexpr explicit LandType(Base type) : m_type{type} {}
     constexpr LandType(Masks type) : m_type{static_cast<Base>(type)} {}
 
     constexpr explicit operator bool() noexcept {
@@ -70,11 +71,11 @@ public:
     }
 
     constexpr LandType operator ~ () noexcept {
-        return ~m_type;
+        return static_cast<LandType>(~m_type);
     }
 
     constexpr friend LandType operator | (LandType lhs, LandType rhs) noexcept {
-        return lhs.m_type | rhs.m_type;
+        return static_cast<LandType>(lhs.m_type | rhs.m_type);
     }
 
     constexpr LandType& operator |= (LandType flags) noexcept {
@@ -83,7 +84,7 @@ public:
     }
 
     constexpr friend LandType operator & (LandType lhs, LandType rhs) noexcept {
-        return lhs.m_type & rhs.m_type;
+        return static_cast<LandType>(lhs.m_type & rhs.m_type);
     }
 
     constexpr LandType& operator &= (LandType flags) noexcept {
@@ -91,7 +92,7 @@ public:
         return *this;
     }
 
-    bool isModyfiable() const noexcept;
+    bool isModifiable() const noexcept;
 
     bool isValid() const noexcept;
 
@@ -100,7 +101,7 @@ public:
     std::string getName() const;
 
     template<std::invocable<LandType> Fn>
-    static void for_each_valid(Fn f);
+    static void forValid(Fn f);
 private:
     Base m_type;
 
@@ -122,7 +123,7 @@ constexpr inline LandType operator & (LandType::Masks lhs, LandType::Masks rhs) 
 }
 
 template<std::invocable<LandType> Fn>
-static void LandType::for_each_valid(Fn f) {
+static void LandType::forValid(Fn f) {
     for (Base var = 0; var < FEATURE_VARIANTS; ++ var) {
         LandType type = FEATURE | static_cast<LandType>(var);
         if (type.isValid()) std::invoke(f, type);
@@ -139,5 +140,11 @@ static void LandType::for_each_valid(Fn f) {
         if (type.isValid()) std::invoke(f, type);
     }
 }
+
+// true if it's valid to place left tile next to the right tile (in horizontal row)
+bool isCompatableHorizontal(LandType left, LandType right);
+
+// true if it's valid to place top tile next to the down tile (in vertical row)
+bool isCompatableVertical(LandType up, LandType down);
 
 #endif

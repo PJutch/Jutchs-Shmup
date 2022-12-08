@@ -47,7 +47,8 @@ public:
     }
 
     const sf::Texture& getAirplaneTexture(Airplane::Flags flags) const noexcept {
-        return m_airplaneTextures[static_cast<Airplane::Flags::Base>(flags & Airplane::Flags::TEXTURE)];
+        using Base = std::underlying_type_t<Airplane::Flags>;
+        return m_airplaneTextures[static_cast<Base>(flags & Airplane::Flags::TEXTURE)];
     }
     
     sf::Vector2u getAirplaneTextureSize() const noexcept {
@@ -101,7 +102,7 @@ private:
     sf::Texture m_healthPickupTexture;
     std::vector<sf::Texture> m_explosionAnimation;
 
-    std::array<sf::Texture, Airplane::Flags::TEXTURE_VARIANTS> m_airplaneTextures;
+    std::array<sf::Texture, Airplane::TEXTURE_VARIANTS> m_airplaneTextures;
 
     std::array<sf::Texture, LandType::TOTAL_VARIANTS> m_landTextures;
 

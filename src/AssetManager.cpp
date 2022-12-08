@@ -38,19 +38,19 @@ AssetManager::AssetManager() {
             sf::IntRect(x, 0, explosionAnimationMap.getSize().y, explosionAnimationMap.getSize().y));
     }
 
-    for (int i = 0; i < Airplane::Flags::TEXTURE_VARIANTS; ++ i) {
+    for (int i = 0; i < Airplane::TEXTURE_VARIANTS; ++ i) {
         auto flags = static_cast<Airplane::Flags>(i);
         if (!m_airplaneTextures[i].loadFromFile(
                 std::format("resources/textures/Airplanes/airplane_{}{}{}{}.png", 
-                    flags & Airplane::Flags::PLAYER_SIDE ? "player"  : "enemy", 
-                    flags & Airplane::Flags::HEAVY       ? "_heavy"  : "", 
-                    flags & Airplane::Flags::FAST        ? "_fast"   : "", 
-                    flags & Airplane::Flags::HAS_WEAPON  ? "_weapon" : "")))
+                    test(flags, Airplane::Flags::PLAYER_SIDE) ? "player"  : "enemy", 
+                    test(flags, Airplane::Flags::HEAVY      ) ? "_heavy"  : "", 
+                    test(flags, Airplane::Flags::FAST       ) ? "_fast"   : "", 
+                    test(flags, Airplane::Flags::HAS_WEAPON ) ? "_weapon" : "")))
             throw TextureLoadError{std::format("Can't load {}{}{} airplane texture {} weapon", 
-                flags & Airplane::Flags::PLAYER_SIDE ? "player" : "enemy",
-                flags & Airplane::Flags::HEAVY       ? " heavy" : "",
-                flags & Airplane::Flags::FAST        ? " fast"  : "", 
-                flags & Airplane::Flags::HAS_WEAPON  ? "with"   : "without")};
+                test(flags, Airplane::Flags::PLAYER_SIDE) ? "player" : "enemy",
+                test(flags, Airplane::Flags::HEAVY      ) ? " heavy" : "",
+                test(flags, Airplane::Flags::FAST       ) ? " fast"  : "", 
+                test(flags, Airplane::Flags::HAS_WEAPON ) ? "with"   : "without")};
     }
 
     LandType::forValid([&landTextures = m_landTextures](LandType type) {

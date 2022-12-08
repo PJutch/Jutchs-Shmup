@@ -43,14 +43,11 @@ GameState::GameState(sf::Vector2f screenSize) :
 }
 
 void GameState::initPlayer() {
+    using enum Airplane::Flags;
+
     m_player = Airplane::Builder{*this}
         .position({0.f, 0.f}).maxHealth(3)
-        .flags(Airplane::Flags::PLAYER_SIDE
-             | Airplane::Flags::HEAVY
-             | Airplane::Flags::SLOW    
-             | Airplane::Flags::NO_WEAPON
-             | Airplane::Flags::UNIQUE
-             | Airplane::Flags::USE_PICKUPS)
+        .flags(PLAYER_SIDE | HEAVY | SLOW | NO_WEAPON | UNIQUE | USE_PICKUPS)
         .shootComponent<Airplane::BasicShootComponent>()
         .shootControlComponent<Airplane::PlayerShootControlComponent>()
         .moveComponent<Airplane::PlayerMoveComponent>().speed({250.f, 250.f})
@@ -300,38 +297,36 @@ void GameState::checkEnemySpawn() {
 }
 
 void GameState::trySpawnEnemy(sf::Vector2f position) {
-
     std::uniform_real_distribution canonicalDistribution{0.0, 1.0};
     if (genRandom(canonicalDistribution) < 0.01) {
-        Airplane::Builder builder{*this};
+        using enum Airplane::Flags;
 
-        builder.position(position).maxHealth(1).flags(Airplane::Flags::ENEMY_SIDE 
-                                                    | Airplane::Flags::UNIQUE
-                                                    | Airplane::Flags::DELETABLE);
+        Airplane::Builder builder{*this};
+        builder.position(position).maxHealth(1).flags(ENEMY_SIDE | UNIQUE | DELETABLE);
 
         int score = 10;
 
         if (genRandom(canonicalDistribution) < 0.1) {
             builder.maxHealth(3);
-            builder.flags() |= Airplane::Flags::HEAVY;
+            builder.flags() |= HEAVY;
             score *= 2;
         } else {
             builder.maxHealth(1);
-            builder.flags() |= Airplane::Flags::LIGHT;
+            builder.flags() |= LIGHT;
         }
 
         double shootSeed = genRandom(canonicalDistribution);
         if (shootSeed < 0.1) {
             builder.shootComponent<Airplane::TripleShootComponent>();
-            builder.flags() |= Airplane::Flags::HAS_WEAPON;
+            builder.flags() |= HAS_WEAPON;
             score *= 2;
         } else if (shootSeed < 0.2) {
             builder.shootComponent<Airplane::VolleyShootComponent>();
-            builder.flags() |= Airplane::Flags::NO_WEAPON;
+            builder.flags() |= NO_WEAPON;
             score *= 2;
         } else {
             builder.shootComponent<Airplane::BasicShootComponent >();
-            builder.flags() |= Airplane::Flags::NO_WEAPON;
+            builder.flags() |= NO_WEAPON;
         }
 
         double shootControlSeed = genRandom(canonicalDistribution);
@@ -342,8 +337,8 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
         } else if (shootControlSeed < 0.2) {
             shootControl = builder.createShootControlComponent
                 <Airplane::NeverShootControlComponent>();
-            builder.flags() &= ~Airplane::Flags::HAS_WEAPON;
-            builder.flags() |= Airplane::Flags::NO_WEAPON;
+            builder.flags() &= ~HAS_WEAPON;
+            builder.flags() |= NO_WEAPON;
             score /= 2;
         } else {
             shootControl = builder.createShootControlComponent
@@ -355,11 +350,11 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
 
         if (genRandom(canonicalDistribution) < 0.1) {
             builder.speed({500.f, 250.f});
-            builder.flags() |= Airplane::Flags::FAST;
+            builder.flags() |= FAST;
             score *= 2;
         } else {
             builder.speed({250.f, 250.f});
-            builder.flags() |= Airplane::Flags::SLOW;
+            builder.flags() |= SLOW;
         }
 
         double moveSeed = genRandom(canonicalDistribution);

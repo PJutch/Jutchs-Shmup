@@ -65,7 +65,7 @@ struct isRangeAdaptor<detail::CombinedAdaptor<Adaptor1, Adaptor2>> {
 template <typename Adaptor1, typename Adaptor2> 
     requires RangeAdaptor<Adaptor1> || RangeAdaptor<Adaptor2>
 inline detail::CombinedAdaptor<Adaptor1, Adaptor2> operator | 
-        (Adaptor1&& adaptor1, Adaptor1&& adaptor2) noexcept {
+        (Adaptor1&& adaptor1, Adaptor2&& adaptor2) noexcept {
     return {std::forward<Adaptor1>(adaptor1), std::forward<Adaptor2>(adaptor2)};
 }
 

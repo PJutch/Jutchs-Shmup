@@ -25,7 +25,8 @@ add_executable(Jutchs_Shmup src/main.cpp
                             src/LanguageManager.cpp
                             src/Gui/ComboBox.cpp
                             src/Gui/Manager.cpp
-                            src/Land.cpp)
+                            src/Land/Type.cpp
+                            src/Land/Manager.cpp)
 set_property(TARGET Jutchs_Shmup PROPERTY MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
 
 add_library(OpenGL STATIC IMPORTED)

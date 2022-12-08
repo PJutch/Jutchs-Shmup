@@ -11,8 +11,8 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef LAND_H_
-#define LAND_H_
+#ifndef LAND_TYPE_H_
+#define LAND_TYPE_H_
 
 #include <filesystem>
 #include <format>
@@ -103,7 +103,7 @@ namespace Land {
 
     bool isModifiable(Type type) noexcept;
 
-    bool hasBadlandVariant(Type type) noexcept {
+    inline bool hasBadlandVariant(Type type) noexcept {
         return type != (Type::FEATURE | Type::BUSH) 
             && type != Type::WATER;
     }
@@ -112,27 +112,27 @@ namespace Land {
 
     // number of roads leaving the tile / number of shores
     // WARNING: unsafe, use only if (*this & ROAD) || (*this & WATER)
-    int getActiveDirCount(Type type) noexcept {
+    inline int getActiveDirCount(Type type) noexcept {
         using Base = std::underlying_type_t<Type>;
         return std::popcount(static_cast<Base>(type & Type::DIR_MASK));
     }
 
     // WARNING: side must be a single dir flag
     // e. g. it must be one of NORTH, EAST, SOUTH, WEST
-    bool hasRoadSide(Type type, Type side) noexcept {
+    inline bool hasRoadSide(Type type, Type side) noexcept {
         return test(type, Type::ROAD) && test(type, side);
     }
 
     // WARNING: side must be a single dir flag
     // e. g. it must be one of NORTH, EAST, SOUTH, WEST
-    bool hasWaterSide(Type type, Type side) noexcept {
+    inline bool hasWaterSide(Type type, Type side) noexcept {
         return test(type, Type::WATER) && (!test(type, Type::DIR_MASK) 
                                         || !test(type, Type::MODIFIED) && test(type, side));
     }
 
     // WARNING: corner must be a combination of two dir flags that form a corner
     // e. g. sit must be one of NORTH | EAST, NORTH | WEST, SOUTH | EAST, SOUTH | WEST
-    bool hasWaterCorner(Type type, Type corner) noexcept {
+    inline bool hasWaterCorner(Type type, Type corner) noexcept {
         return test(type, Type::WATER) && ( !test(type,  Type::DIR_MASK) 
                                             ||  test(type, corner) && !test(type,  Type::MODIFIED) 
                                             ||  (type & Type::DIR_MASK) == corner);
@@ -148,17 +148,17 @@ namespace Land {
     std::string getName(Type type);
 
     template<std::invocable<Type> Fn>
-    void forValidVariants(Type type, Fn&& f) {
+    inline void forValidVariants(Type type, Fn&& f) {
         if (isValid(type)) {
             std::invoke(std::forward<Fn>(f), type);
-            if (isModifiable(type)) 
+            if (isModifiable(type)) {
                 std::invoke(std::forward<Fn>(f), type | Type::MODIFIED);
-
-            if (hasBadlandVariant(type)) {
-                std::invoke(std::forward<Fn>(f), type | Type::BADLAND);
-                if (isModifiable(type)) 
+                if (hasBadlandVariant(type | Type::MODIFIED))
                     std::invoke(std::forward<Fn>(f), type | Type::MODIFIED | Type::BADLAND);
             }
+
+            if (hasBadlandVariant(type))
+                std::invoke(std::forward<Fn>(f), type | Type::BADLAND);
         }
     }
 

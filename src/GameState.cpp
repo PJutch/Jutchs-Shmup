@@ -19,7 +19,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Gui/Button.h"
 #include "Gui/HorizontalSlider.h"
 #include "Gui/ComboBox.h"
-#include "LandType.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -31,12 +30,13 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <utility>
 
 GameState::GameState(sf::Vector2f screenSize) : 
+        m_landManager{*this},
         m_randomEngine{std::random_device{}()},
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
         m_score{0}, m_shouldResetAfter{sf::Time::Zero},
         m_shouldEnd{false}, m_guiManager{*this} {
     initPlayer();
-    initLand();        
+    m_landManager.init();      
 
     m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);   
     m_guiManager.initGui();
@@ -57,133 +57,6 @@ void GameState::initPlayer() {
     m_entityManager.addEntity(m_player);
 }
 
-const std::array<double, 5> GameState::s_roadChances {0.0, 0.05, 1.0, 0.3, 0.3};
-const std::array<double, 5> GameState::s_waterChances{0.0, 1.0,  0.5, 0.0, 0.3};
-
-void GameState::prepareLandChances() {
-    m_landChances.reserve(Land::TOTAL_VARIANTS);
-
-    Land::forValidRoad(
-        [&landChances = m_landChances, 
-         &roadChances = s_roadChances] 
-        (Land::Type type) {
-            landChances.emplace_back(type, roadChances[getActiveDirCount(type)]);
-    });
-
-    Land::forValidWater(
-        [&landChances = m_landChances, 
-         &waterChances = s_waterChances] 
-        (Land::Type type) {
-            landChances.emplace_back(type, waterChances[getActiveDirCount(type)]);
-    });
-
-    ChanceTable::normalize(m_landChances);
-
-    using enum Land::Type;
-
-    registerLandFeature(FEATURE | CRATER, 0.25);
-    registerLandFeature(FEATURE | FIELD , 0.25);
-    registerLandFeature(FEATURE | FLAG  , 0.25);
-    registerLandFeature(FEATURE | BUSH  , 0.25);
-    registerLandFeature(FEATURE | HOUSE , 0.25);
-    // tree generation chance is bigger
-    registerLandFeature(FEATURE | TREE  , 0.25);
-    registerLandFeature(FEATURE | TREES , 0.25);
-    ChanceTable::normalize(m_landChances);
-
-    registerLandFeature(PLAINS , 10.0);
-    registerLandFeature(PLAINS2, 10.0);
-    registerLandFeature(WATER  , 10.0);
-    registerLandFeature(ISLANDS,  0.1);
-    ChanceTable::normalize(m_landChances);
-}
-
-void GameState::initLand() {
-    prepareLandChances();
-
-    auto playerPos = getPlayer().getPosition();
-    auto tileSize = getAssets().getLandTextureSize();
-
-    m_land.emplace_back();
-    m_landEnd = playerPos.x - getGameHeight();
-
-    float y = -getGameHeight();
-    m_land.back().push_back(ChanceTable::getRandom(m_landChances, m_randomEngine));
-    y += tileSize.y;
-
-    while (y < getGameHeight()) {
-        m_land.back().push_back(ChanceTable::getRandom(
-                m_landChances 
-                    | std::views::filter(
-                        [up = m_land.back().back()] 
-                        (const auto& entry) -> bool {
-                            return isCompatableVertical(up, value(entry));
-                })  | ChanceTable::views::normalize, 
-            m_randomEngine));
-        y += tileSize.y;
-    }
-
-    while (m_landEnd < playerPos.x + 5 * getGameHeight())
-        addLandRow();
-}
-
-void GameState::updateLand() {
-    auto playerPos = getPlayer().getPosition();
-    while (playerPos.x + 5 * getGameHeight() >= m_landEnd) {
-        m_land.pop_front();
-        addLandRow();
-    }
-}
-
-void GameState::addLandRow() {
-    m_land.emplace_back();
-    const auto& prevRow = m_land[std::ssize(m_land) - 2];
-    auto& row = m_land.back();
-    row.reserve(std::ssize(prevRow));
-
-    row.push_back(ChanceTable::getRandom(
-            m_landChances 
-                | std::views::filter(
-                    [left    = prevRow[0],
-                    downLeft = prevRow[1]] 
-                    (const auto& entry) -> bool {
-                    return isCompatableHorizontal(left, value(entry))
-                        && isCompatableAntiDiagonal(downLeft, value(entry));
-            })  | ChanceTable::views::normalize, 
-        m_randomEngine));
-
-    while (std::ssize(row) < std::ssize(prevRow) - 1)
-        row.push_back(ChanceTable::getRandom(
-                m_landChances 
-                    | std::views::filter(
-                       [up = row.back(), 
-                        left     = prevRow[std::ssize(row)    ],
-                        upLeft   = prevRow[std::ssize(row) - 1],
-                        downLeft = prevRow[std::ssize(row) + 1]] 
-                        (const auto& entry) -> bool {
-                            return isCompatableVertical    (up      , value(entry))
-                                && isCompatableHorizontal  (left    , value(entry))
-                                && isCompatableDiagonal    (upLeft  , value(entry))
-                                && isCompatableAntiDiagonal(downLeft, value(entry));
-                })  | ChanceTable::views::normalize, 
-            m_randomEngine));
-
-    row.push_back(ChanceTable::getRandom(
-            m_landChances 
-                | std::views::filter(
-                   [up   = row    .back(), 
-                    left = prevRow.back(),
-                    upLeft = prevRow[std::ssize(row) - 1]] 
-                    (const auto& entry) -> bool {
-                        return isCompatableVertical  (up    , value(entry))
-                            && isCompatableHorizontal(left  , value(entry))
-                            && isCompatableDiagonal  (upLeft, value(entry));
-            })  | ChanceTable::views::normalize, 
-        m_randomEngine));
-    
-    m_landEnd += getAssets().getLandTextureSize().x;
-}
-
 void GameState::handleEvent(const sf::Event& event) {
     m_guiManager.handleEvent(event);
 
@@ -201,7 +74,7 @@ void GameState::update() {
     if (m_guiManager.isMenuOpen()) return;
 
     m_entityManager.update(elapsedTime);
-    updateLand();
+    m_landManager.update();
 
     checkReset(elapsedTime);
     checkEnemySpawn();
@@ -223,8 +96,7 @@ void GameState::reset() {
 
     m_spawnX = m_gameHeight * 4;
 
-    m_land.clear();
-    initLand();
+    m_landManager.reset();
 
     m_score = 0;
     m_scoreChanges.clear();
@@ -237,25 +109,11 @@ bool GameState::inActiveArea(float x) const noexcept {
         && x - 5 * getGameHeight() <= getPlayer().getPosition().x;
 }
 
-void GameState::drawLand(sf::RenderTarget& target, sf::RenderStates states) const {
-    auto textureSize = getAssets().getLandTextureSize();
-    auto playerPos = getPlayer().getPosition();
-
-    sf::Vector2f start{playerPos.x - getGameHeight() - std::fmodf(playerPos.x, textureSize.x), 
-                       -getGameHeight()};
-    for (int ix = 0; start.x + ix * textureSize.x < playerPos.x + 4 * getGameHeight(); ++ ix)
-        for (float iy = 0; start.y + iy * textureSize.y < getGameHeight(); ++ iy) {
-            sf::Sprite sprite{getAssets().getLandTexture(m_land[ix][iy])};
-            sprite.setPosition(start.x + ix * textureSize.x, start.y + iy * textureSize.y);
-            target.draw(sprite, states);
-    }
-}
-
 void GameState::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     auto prevView = target.getView();
 
     target.setView(getView());
-    drawLand(target, states);
+    target.draw(m_landManager, states);
     target.draw(m_entityManager, states);
 
     target.setView(prevView);

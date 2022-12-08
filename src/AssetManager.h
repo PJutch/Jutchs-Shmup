@@ -15,7 +15,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define ASSET_MANAGER_
 
 #include "Airplane/Flags.h"
-#include "Land.h"
+#include "Land/Type.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>

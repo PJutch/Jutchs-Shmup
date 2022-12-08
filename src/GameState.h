@@ -14,15 +14,13 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef GAME_STATE_H_
 #define GAME_STATE_H_
 
-#include "Entity.h"
 #include "AssetManager.h"
-#include "SoundEffect.h"
 #include "EntityManager.h"
 #include "Gui/Panel.h"
 #include "LanguageManager.h"
 #include "Gui/Manager.h"
 #include "SoundManager.h"
-#include "ChanceTable.h"
+#include "Land/Manager.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -145,12 +143,7 @@ private:
 
     EntityManager m_entityManager;
 
-    std::deque<std::vector<Land::Type>> m_land;
-    float m_landEnd;
-
-    std::vector<ChanceTable::BasicEntry<Land::Type>> m_landChances;
-    const static std::array<double, 5> s_roadChances ; // index is activeDirCount
-    const static std::array<double, 5> s_waterChances; // index is activeDirCount
+    Land::Manager m_landManager;
 
     SoundManager m_soundManager;
 
@@ -178,18 +171,6 @@ private:
 
     void initPlayer();
 
-    void registerLand(Land::Type feature, double chance) {
-        m_landChances.emplace_back(feature, chance);
-        if (feature != Land::Type::BUSH) 
-            m_landChances.emplace_back(feature | Land::Type::BADLAND, chance);
-    }
-
-    void prepareLandChances();
-
-    void initLand();
-    void updateLand();
-    void addLandRow();
-
     sf::View getView() const noexcept;
 
     void reset();
@@ -206,8 +187,6 @@ private:
     void updateScore();
 
     void trySpawnEnemy(sf::Vector2f position);
-
-    void drawLand(sf::RenderTarget& target, sf::RenderStates states) const;
 };
 
 #endif

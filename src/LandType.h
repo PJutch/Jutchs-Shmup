@@ -18,6 +18,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <format>
 #include <string>
 #include <concepts>
+#include <compare>
 #include <bit>
 #include <cstdint>
 
@@ -28,37 +29,50 @@ public:
 
     // don't use directly
     enum class Masks : Base {
-        FEATURE   = 0b000000, // tile has feature, use like FEATURE | AIRDROME or AIRDROME
-        PLAINS    = 0b000000,
-        AIRDROME  = 0b000001,
-        CRATER    = 0b000010,
-        FIELD     = 0b000011,
-        FLAG      = 0b000100,
-        TREE      = 0b000101,
-        BUSH      = 0b000110,
-        HOUSE     = 0b000111,
+        MODIFIED  = 0b0010000, // apply to get special meaning
 
-        ROAD      = 0b100000, // tile has road, use like ROAD | NORTH | EAST
-        ROAD_MASK = 0b001111,
-        NORTH     = 0b001000,
-        EAST      = 0b000100,
-        SOUTH     = 0b000010,
-        WEST      = 0b000001,
+        FEATURE   = 0b0000000, // tile has feature, use like FEATURE | AIRDROME or AIRDROME
+        PLAINS    = 0b0000000,
+        AIRDROME  = 0b0000001,
+        CRATER    = 0b0000010,
+        FIELD     = 0b0000011,
+        FLAG      = 0b0000100,
+        TREE      = 0b0000101,
+        BUSH      = 0b0000110,
+        HOUSE     = 0b0000111,
 
-        MODIFIED  = 0b010000, // apply to get special meaning
         PLAINS2   = PLAINS | MODIFIED,
         TREES     = TREE   | MODIFIED,
         LOW_HOUSE = HOUSE  | MODIFIED,
-        // also applyable to:
+
+        ROAD      = 0b0100000, // tile has road, use like ROAD | NORTH | EAST
+        // MODIFIED applyable to:
         // ROAD | NORTH | SOUTH 
         // ROAD | EAST  | WEST
+
+        WATER     = 0b1000000,
+        // can be used by itself or combined with NORTH, EAST, SOUTH, WEST to make shores
+        ISLANDS  = WATER | MODIFIED,
+        // MODIFIED also applyable to:
+        // WATER | NORTH | EAST 
+        // WATER | NORTH | WEST 
+        // WATER | SOUTH | EAST 
+        // WATER | SOUTH | WEST 
+        // to make water corners
+
+        NORTH     = 0b0001000,
+        EAST      = 0b0000100,
+        SOUTH     = 0b0000010,
+        WEST      = 0b0000001,
+        DIR_MASK  = 0b0001111, // mask for internal use
     };
     using enum Masks;
 
     // WARNING: some of counted variants are invalid
-    constexpr const static Base TOTAL_VARIANTS   = 64; // include with MODIFIED bit
+    constexpr const static Base TOTAL_VARIANTS   = 128; // include with MODIFIED bit
     constexpr const static Base FEATURE_VARIANTS = 8;  // doesn't include with MODIFIED bit
     constexpr const static Base ROAD_VARIANTS    = 16; // doesn't include with MODIFIED bit
+    constexpr const static Base WATER_VARIANTS   = 16; // doesn't include with MODIFIED bit
 
     constexpr LandType() = default;
     constexpr explicit LandType(Base type) : m_type{type} {}
@@ -94,15 +108,42 @@ public:
         return *this;
     }
 
+    constexpr friend auto operator <=> (LandType lhs, LandType rhs) noexcept = default;
     bool isModifiable() const noexcept;
 
     bool isValid() const noexcept;
 
-    // number of roads leving the tile
-    // WARNING: unsafe, use only if (*this) & ROAD
-    int getRoadCount() const noexcept {
-        return std::popcount(static_cast<Base>(*this & ROAD_MASK));
+    // number of roads leaving the tile / number of shores
+    // WARNING: unsafe, use only if (*this & ROAD) || (*this & WATER)
+    int getActiveDirCount() const noexcept {
+        return std::popcount(static_cast<Base>(*this & DIR_MASK));
     }
+
+    // WARNING: side must be a single dir flag
+    // e. g. it must be one of NORTH, EAST, SOUTH, WEST
+    bool hasRoadSide(LandType side) const noexcept {
+        return (*this & ROAD) && (*this & side);
+    }
+
+    // WARNING: side must be a single dir flag
+    // e. g. it must be one of NORTH, EAST, SOUTH, WEST
+    bool hasWaterSide(LandType side) const noexcept {
+        return (*this & WATER) && (!(*this & DIR_MASK) 
+                                || !(*this & MODIFIED) && (*this & side));
+    }
+
+    // WARNING: corner must be a combination of two dir flags that form a corner
+    // e. g. sit must be one of NORTH | EAST, NORTH | WEST, SOUTH | EAST, SOUTH | WEST
+    bool hasWaterCorner(LandType corner) const noexcept {
+        return (*this & WATER) && ( !(*this & DIR_MASK) 
+                                 ||  (*this & corner) && !(*this & MODIFIED) 
+                                 ||  (*this & DIR_MASK) == corner);
+    }
+
+    // true if has water on this side or to adjenct corners
+    // WARNING: side must be a single dir flag
+    // e. g. it must be one of NORTH, EAST, SOUTH, WEST
+    bool hasWaterAny(LandType side) const noexcept;
 
     // only file name, add path to search by yourself
     std::filesystem::path getTextureFileName() const;
@@ -134,26 +175,37 @@ template<std::invocable<LandType> Fn>
 static void LandType::forValid(Fn f) {
     for (Base var = 0; var < FEATURE_VARIANTS; ++ var) {
         LandType type = FEATURE | static_cast<LandType>(var);
-        if (type.isValid()) std::invoke(f, type);
 
-        type |= MODIFIED;
         if (type.isValid()) std::invoke(f, type);
+        if (type.isModifiable()) std::invoke(f, type | MODIFIED);
     }
 
     for (Base var = 0; var < ROAD_VARIANTS; ++ var) {
         LandType type = ROAD | static_cast<LandType>(var);
-        if (type.isValid()) std::invoke(f, type);
 
-        type |= MODIFIED;
         if (type.isValid()) std::invoke(f, type);
+        if (type.isModifiable()) std::invoke(f, type | MODIFIED);
+    }
+
+    for (Base var = 0; var < WATER_VARIANTS; ++ var) {
+        LandType type = WATER | static_cast<LandType>(var);
+
+        if (type.isValid()) std::invoke(f, type);
+        if (type.isModifiable()) std::invoke(f, type | MODIFIED);
     }
 }
 
-// true if it's valid to place left tile next to the right tile (in horizontal row)
+// true if it's valid to place the left tile next to the right tile (in horizontal row)
 bool isCompatableHorizontal(LandType left, LandType right);
 
-// true if it's valid to place top tile next to the down tile (in vertical row)
+// true if it's valid to place the up tile next to the down tile (in vertical row)
 bool isCompatableVertical(LandType up, LandType down);
+
+// true if it's valid to place the upLeft tile next to the downRight tile (in diagonal manner)
+bool isCompatableDiagonal(LandType upLeft, LandType downRight);
+
+// true if it's valid to place the downLeft tile next to the upRight tile (in anti-diagonal manner)
+bool isCompatableAntiDiagonal(LandType downLeft, LandType upRight);
 
 // true if roads form cycle
 bool isCycle(LandType upLeft,   LandType upRight, 

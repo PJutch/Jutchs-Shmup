@@ -60,20 +60,34 @@ void GameState::initPlayer() {
     m_entityManager.addEntity(m_player);
 }
 
-const std::array<double, 4> GameState::s_roadChances{0.05, 1.0, 0.3, 0.3};
+const std::array<double, 5> GameState::s_roadChances {0.0, 0.05, 1.0, 0.3, 0.3};
+const std::array<double, 5> GameState::s_waterChances{0.0, 1.0,  0.5, 0.0, 0.3};
 
-void GameState::initLand() {
+void GameState::prepareLandChances() {
     m_landChances.reserve(LandType::TOTAL_VARIANTS);
-    for (LandType::Base i = 0; i < LandType::ROAD_VARIANTS; ++ i) {
+
+    for (LandType::Base i = 1; i < LandType::ROAD_VARIANTS; ++ i) {
         auto type = LandType::ROAD | static_cast<LandType>(i);
         if (type.isValid()) {
             m_landChances.emplace_back(type, 
-                s_roadChances[type.getRoadCount() - 1]);
+                s_roadChances[type.getActiveDirCount()]);
             if (type.isModifiable())
                 m_landChances.emplace_back(type | LandType::MODIFIED, 
-                    s_roadChances[type.getRoadCount() - 1]);
+                    s_roadChances[type.getActiveDirCount()]);
         }
     }
+
+    for (LandType::Base i = 1; i < LandType::WATER_VARIANTS; ++ i) {
+        auto type = LandType::WATER | static_cast<LandType>(i);
+        if (type.isValid()) {
+            m_landChances.emplace_back(type, 
+                s_waterChances[type.getActiveDirCount()]);
+            if (type.isModifiable())
+                m_landChances.emplace_back(type | LandType::MODIFIED, 
+                    s_waterChances[type.getActiveDirCount()]);
+        }
+    }
+
     ChanceTable::normalize(m_landChances);
 
     m_landChances.emplace_back(LandType::FEATURE | LandType::CRATER, 0.25);
@@ -88,7 +102,13 @@ void GameState::initLand() {
 
     m_landChances.emplace_back(LandType::PLAINS , 10.0);
     m_landChances.emplace_back(LandType::PLAINS2, 10.0);
+    m_landChances.emplace_back(LandType::WATER  , 10.0);
+    m_landChances.emplace_back(LandType::ISLANDS,  0.1);
     ChanceTable::normalize(m_landChances);
+}
+
+void GameState::initLand() {
+    prepareLandChances();
 
     auto playerPos = getPlayer().getPosition();
     auto tileSize = getAssets().getLandTextureSize();
@@ -103,9 +123,11 @@ void GameState::initLand() {
     while (y < getGameHeight()) {
         m_land.back().push_back(ChanceTable::getRandom(
                 m_landChances 
-                   | std::views::filter([up = m_land.back().back()] (const auto& entry) -> bool {
-                    return isCompatableVertical(up, value(entry));
-                }) | ChanceTable::views::normalize, 
+                    | std::views::filter(
+                        [up = m_land.back().back()] 
+                        (const auto& entry) -> bool {
+                            return isCompatableVertical(up, value(entry));
+                })  | ChanceTable::views::normalize, 
             m_randomEngine));
         y += tileSize.y;
     }
@@ -130,24 +152,43 @@ void GameState::addLandRow() {
 
     row.push_back(ChanceTable::getRandom(
             m_landChances 
-               | std::views::filter(
-                [left = prevRow[0]] 
-                (const auto& entry) -> bool {
-                return isCompatableHorizontal(left, value(entry));
-            }) | ChanceTable::views::normalize, 
+                | std::views::filter(
+                    [left    = prevRow[0],
+                    downLeft = prevRow[1]] 
+                    (const auto& entry) -> bool {
+                    return isCompatableHorizontal(left, value(entry))
+                        && isCompatableAntiDiagonal(downLeft, value(entry));
+            })  | ChanceTable::views::normalize, 
         m_randomEngine));
 
-    while (std::ssize(row) < std::ssize(prevRow))
+    while (std::ssize(row) < std::ssize(prevRow) - 1)
         row.push_back(ChanceTable::getRandom(
                 m_landChances 
-                   | std::views::filter(
-                    [up = row.back(), 
-                     left = prevRow[std::ssize(row)]] 
-                    (const auto& entry) -> bool {
-                        return isCompatableVertical  (up,   value(entry))
-                            && isCompatableHorizontal(left, value(entry));
-                }) | ChanceTable::views::normalize, 
+                    | std::views::filter(
+                       [up = row.back(), 
+                        left     = prevRow[std::ssize(row)    ],
+                        upLeft   = prevRow[std::ssize(row) - 1],
+                        downLeft = prevRow[std::ssize(row) + 1]] 
+                        (const auto& entry) -> bool {
+                            return isCompatableVertical    (up      , value(entry))
+                                && isCompatableHorizontal  (left    , value(entry))
+                                && isCompatableDiagonal    (upLeft  , value(entry))
+                                && isCompatableAntiDiagonal(downLeft, value(entry));
+                })  | ChanceTable::views::normalize, 
             m_randomEngine));
+
+    row.push_back(ChanceTable::getRandom(
+            m_landChances 
+                | std::views::filter(
+                   [up   = row    .back(), 
+                    left = prevRow.back(),
+                    upLeft = prevRow[std::ssize(row) - 1]] 
+                    (const auto& entry) -> bool {
+                        return isCompatableVertical  (up    , value(entry))
+                            && isCompatableHorizontal(left  , value(entry))
+                            && isCompatableDiagonal  (upLeft, value(entry));
+            })  | ChanceTable::views::normalize, 
+        m_randomEngine));
     
     m_landEnd += getAssets().getLandTextureSize().x;
 }

@@ -147,11 +147,6 @@ namespace ChanceTable {
             detail::TransformChanceEntryView<Base, Proj> operator () (const Base& entry) const noexcept {
                 return {entry, m_proj};
             }
-
-            template <ConstEntry Base>
-            detail::TransformChanceEntryView<Base, Proj> operator () (const Base& entry) noexcept {
-                return {entry, std::move(m_proj)};
-            }
         private:
             Proj m_proj;
         };

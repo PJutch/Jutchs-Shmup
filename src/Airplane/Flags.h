@@ -41,34 +41,32 @@ namespace Airplane {
 
     const int TEXTURE_VARIANTS = static_cast<int>(Flags::TEXTURE) + 1;
 
-    inline Flags operator ~ (Flags flags) noexcept {
+    inline constexpr Flags operator ~ (Flags flags) noexcept {
         using Base = std::underlying_type_t<Flags>;
         return static_cast<Flags>(~static_cast<Base>(flags));
     }
 
-    inline Flags operator | (Flags lhs, Flags rhs) noexcept {
+    inline constexpr Flags operator | (Flags lhs, Flags rhs) noexcept {
         using Base = std::underlying_type_t<Flags>;
         return static_cast<Flags>(static_cast<Base>(lhs) | static_cast<Base>(rhs));
     }
 
-    inline Flags& operator |= (Flags& lhs, Flags rhs) noexcept {
-        using Base = std::underlying_type_t<Flags>;
+    inline constexpr Flags& operator |= (Flags& lhs, Flags rhs) noexcept {
         lhs = lhs | rhs;
         return lhs;
     }
 
-    inline Flags operator & (Flags lhs, Flags rhs) noexcept {
+    inline constexpr Flags operator & (Flags lhs, Flags rhs) noexcept {
         using Base = std::underlying_type_t<Flags>;
         return static_cast<Flags>(static_cast<Base>(lhs) & static_cast<Base>(rhs));
     }
 
-    inline Flags& operator &= (Flags& lhs, Flags rhs) noexcept {
-        using Base = std::underlying_type_t<Flags>;
+    inline constexpr Flags& operator &= (Flags& lhs, Flags rhs) noexcept {
         lhs = lhs & rhs;
         return lhs;
     }
 
-    inline bool test(Flags lhs, Flags rhs) noexcept {
+    inline constexpr bool test(Flags lhs, Flags rhs) noexcept {
         return static_cast<bool>(lhs & rhs);
     }
 }

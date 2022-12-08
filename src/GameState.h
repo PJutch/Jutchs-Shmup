@@ -145,10 +145,10 @@ private:
 
     EntityManager m_entityManager;
 
-    std::deque<std::vector<LandType>> m_land;
+    std::deque<std::vector<Land::Type>> m_land;
     float m_landEnd;
 
-    std::vector<ChanceTable::BasicEntry<LandType>> m_landChances;
+    std::vector<ChanceTable::BasicEntry<Land::Type>> m_landChances;
     const static std::array<double, 5> s_roadChances ; // index is activeDirCount
     const static std::array<double, 5> s_waterChances; // index is activeDirCount
 
@@ -177,8 +177,15 @@ private:
     bool m_shouldEnd;
 
     void initPlayer();
-    
+
+    void registerLand(Land::Type feature, double chance) {
+        m_landChances.emplace_back(feature, chance);
+        if (feature != Land::Type::BUSH) 
+            m_landChances.emplace_back(feature | Land::Type::BADLAND, chance);
+    }
+
     void prepareLandChances();
+
     void initLand();
     void updateLand();
     void addLandRow();

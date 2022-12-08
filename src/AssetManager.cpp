@@ -53,11 +53,11 @@ AssetManager::AssetManager() {
                 test(flags, Airplane::Flags::HAS_WEAPON ) ? "with"   : "without")};
     }
 
-    LandType::forValid([&landTextures = m_landTextures](LandType type) {
-        if (!landTextures[static_cast<LandType::Base>(type)]
+    Land::forValid([&landTextures = m_landTextures](Land::Type type) {
+        if (!landTextures[static_cast<std::underlying_type_t<Land::Type>>(type)]
             .loadFromFile(("resources/textures/kenney_pixelshmup/Land/" 
-                          / type.getTextureFileName()).generic_string()))
-            throw TextureLoadError{std::format("Can't load {} tile texture", type.getName())};
+                          / getTextureFileName(type)).generic_string()))
+            throw TextureLoadError{std::format("Can't load {} tile texture", getName(type))};
     });
     
     if (!m_plusTexture.loadFromFile("resources/textures/plus.png"))

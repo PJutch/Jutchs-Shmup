@@ -61,55 +61,40 @@ const std::array<double, 5> GameState::s_roadChances {0.0, 0.05, 1.0, 0.3, 0.3};
 const std::array<double, 5> GameState::s_waterChances{0.0, 1.0,  0.5, 0.0, 0.3};
 
 void GameState::prepareLandChances() {
-    m_landChances.reserve(LandType::TOTAL_VARIANTS);
+    m_landChances.reserve(Land::TOTAL_VARIANTS);
 
-    for (LandType::Base i = 1; i < LandType::ROAD_VARIANTS; ++ i) {
-        auto type = LandType::ROAD | static_cast<LandType>(i);
-        if (type.isValid()) {
-            m_landChances.emplace_back(type, 
-                s_roadChances[type.getActiveDirCount()]);
-            if (type.isModifiable())
-                m_landChances.emplace_back(type | LandType::MODIFIED, 
-                    s_roadChances[type.getActiveDirCount()]);
-        }
-    }
+    Land::forValidRoad(
+        [&landChances = m_landChances, 
+         &roadChances = s_roadChances] 
+        (Land::Type type) {
+            landChances.emplace_back(type, roadChances[getActiveDirCount(type)]);
+    });
 
-    for (LandType::Base i = 1; i < LandType::WATER_VARIANTS; ++ i) {
-        auto type = LandType::WATER | static_cast<LandType>(i);
-        if (type.isValid()) {
-            m_landChances.emplace_back(type, 
-                s_waterChances[type.getActiveDirCount()]);
-            if (type.isModifiable())
-                m_landChances.emplace_back(type | LandType::MODIFIED, 
-                    s_waterChances[type.getActiveDirCount()]);
-        }
-    }
+    Land::forValidWater(
+        [&landChances = m_landChances, 
+         &waterChances = s_waterChances] 
+        (Land::Type type) {
+            landChances.emplace_back(type, waterChances[getActiveDirCount(type)]);
+    });
 
     ChanceTable::normalize(m_landChances);
 
-    m_landChances.emplace_back(LandType::FEATURE | LandType::CRATER, 0.25);
-    m_landChances.emplace_back(LandType::FEATURE | LandType::FIELD , 0.25);
-    m_landChances.emplace_back(LandType::FEATURE | LandType::FLAG  , 0.25);
-    m_landChances.emplace_back(LandType::FEATURE | LandType::BUSH  , 0.25);
-    m_landChances.emplace_back(LandType::FEATURE | LandType::HOUSE , 0.25);
+    using enum Land::Type;
+
+    registerLandFeature(FEATURE | CRATER, 0.25);
+    registerLandFeature(FEATURE | FIELD , 0.25);
+    registerLandFeature(FEATURE | FLAG  , 0.25);
+    registerLandFeature(FEATURE | BUSH  , 0.25);
+    registerLandFeature(FEATURE | HOUSE , 0.25);
     // tree generation chance is bigger
-    m_landChances.emplace_back(LandType::FEATURE | LandType::TREE  , 0.25);
-    m_landChances.emplace_back(LandType::FEATURE | LandType::TREES , 0.25);
+    registerLandFeature(FEATURE | TREE  , 0.25);
+    registerLandFeature(FEATURE | TREES , 0.25);
     ChanceTable::normalize(m_landChances);
 
-    m_landChances.emplace_back(LandType::PLAINS , 10.0);
-    m_landChances.emplace_back(LandType::PLAINS2, 10.0);
-    m_landChances.emplace_back(LandType::WATER  , 10.0);
-    m_landChances.emplace_back(LandType::ISLANDS,  0.1);
-    ChanceTable::normalize(m_landChances);
-
-    int size = std::ssize(m_landChances);
-    for (int i = 0; i < size; ++ i) {
-        auto val = value(m_landChances[i]);
-        if (val != (LandType::FEATURE | LandType::BUSH) && val != LandType::WATER)
-            m_landChances.emplace_back(value(m_landChances[i]) | LandType::BADLAND, 
-                                       chance(m_landChances[i]));
-    }
+    registerLandFeature(PLAINS , 10.0);
+    registerLandFeature(PLAINS2, 10.0);
+    registerLandFeature(WATER  , 10.0);
+    registerLandFeature(ISLANDS,  0.1);
     ChanceTable::normalize(m_landChances);
 }
 

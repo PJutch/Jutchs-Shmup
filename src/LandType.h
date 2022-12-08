@@ -29,28 +29,31 @@ public:
 
     // don't use directly
     enum class Masks : Base {
-        MODIFIED  = 0b0010000, // apply to get special meaning
+        MODIFIED  = 0b00010000, // apply to get special meaning
 
-        FEATURE   = 0b0000000, // tile has feature, use like FEATURE | AIRDROME or AIRDROME
-        PLAINS    = 0b0000000,
-        AIRDROME  = 0b0000001,
-        CRATER    = 0b0000010,
-        FIELD     = 0b0000011,
-        FLAG      = 0b0000100,
-        TREE      = 0b0000101,
-        BUSH      = 0b0000110,
-        HOUSE     = 0b0000111,
+        GRASS     = 0b00000000,
+        BADLAND   = 0b10000000,
+
+        FEATURE   = 0b00000000, // tile has feature, use like FEATURE | AIRDROME or AIRDROME
+        PLAINS    = 0b00000000,
+        AIRDROME  = 0b00000001,
+        CRATER    = 0b00000010,
+        FIELD     = 0b00000011,
+        FLAG      = 0b00000100,
+        TREE      = 0b00000101,
+        BUSH      = 0b00000110,
+        HOUSE     = 0b00000111,
 
         PLAINS2   = PLAINS | MODIFIED,
         TREES     = TREE   | MODIFIED,
         LOW_HOUSE = HOUSE  | MODIFIED,
 
-        ROAD      = 0b0100000, // tile has road, use like ROAD | NORTH | EAST
+        ROAD      = 0b00100000, // tile has road, use like ROAD | NORTH | EAST
         // MODIFIED applyable to:
         // ROAD | NORTH | SOUTH 
         // ROAD | EAST  | WEST
 
-        WATER     = 0b1000000,
+        WATER     = 0b01000000,
         // can be used by itself or combined with NORTH, EAST, SOUTH, WEST to make shores
         ISLANDS  = WATER | MODIFIED,
         // MODIFIED also applyable to:
@@ -60,19 +63,19 @@ public:
         // WATER | SOUTH | WEST 
         // to make water corners
 
-        NORTH     = 0b0001000,
-        EAST      = 0b0000100,
-        SOUTH     = 0b0000010,
-        WEST      = 0b0000001,
-        DIR_MASK  = 0b0001111, // mask for internal use
+        NORTH     = 0b00001000,
+        EAST      = 0b00000100,
+        SOUTH     = 0b00000010,
+        WEST      = 0b00000001,
+        DIR_MASK  = 0b00001111, // mask for internal use
     };
     using enum Masks;
 
     // WARNING: some of counted variants are invalid
-    constexpr const static Base TOTAL_VARIANTS   = 128; // include with MODIFIED bit
-    constexpr const static Base FEATURE_VARIANTS = 8;  // doesn't include with MODIFIED bit
-    constexpr const static Base ROAD_VARIANTS    = 16; // doesn't include with MODIFIED bit
-    constexpr const static Base WATER_VARIANTS   = 16; // doesn't include with MODIFIED bit
+    constexpr const static size_t TOTAL_VARIANTS = 256; // with MODIFIED or BADLAND tiles
+    constexpr const static Base FEATURE_VARIANTS = 8;  // withot MODIFIED or BADLAND tiles
+    constexpr const static Base ROAD_VARIANTS    = 16; // withot MODIFIED or BADLAND tiles
+    constexpr const static Base WATER_VARIANTS   = 16; // withot MODIFIED or BADLAND tiles
 
     constexpr LandType() = default;
     constexpr explicit LandType(Base type) : m_type{type} {}
@@ -176,22 +179,47 @@ static void LandType::forValid(Fn f) {
     for (Base var = 0; var < FEATURE_VARIANTS; ++ var) {
         LandType type = FEATURE | static_cast<LandType>(var);
 
-        if (type.isValid()) std::invoke(f, type);
-        if (type.isModifiable()) std::invoke(f, type | MODIFIED);
+        if (type.isValid()) {
+            std::invoke(f, type);
+            if (type.isModifiable()) 
+                std::invoke(f, type | MODIFIED);
+
+            if (type != BUSH) {
+                std::invoke(f, type | BADLAND);
+                if (type.isModifiable()) 
+                    std::invoke(f, type | MODIFIED | BADLAND);
+            }
+        }
     }
 
     for (Base var = 0; var < ROAD_VARIANTS; ++ var) {
         LandType type = ROAD | static_cast<LandType>(var);
 
-        if (type.isValid()) std::invoke(f, type);
-        if (type.isModifiable()) std::invoke(f, type | MODIFIED);
+        if (type.isValid()) {
+            std::invoke(f, type);
+            std::invoke(f, type | BADLAND);
+
+            if (type.isModifiable()) {
+                std::invoke(f, type | MODIFIED);
+                std::invoke(f, type | MODIFIED | BADLAND);
+            }
+        }
     }
 
     for (Base var = 0; var < WATER_VARIANTS; ++ var) {
         LandType type = WATER | static_cast<LandType>(var);
 
-        if (type.isValid()) std::invoke(f, type);
-        if (type.isModifiable()) std::invoke(f, type | MODIFIED);
+        if (type.isValid()) {
+            std::invoke(f, type);
+            if (type.isModifiable()) {
+                std::invoke(f, type | MODIFIED);
+                std::invoke(f, type | MODIFIED | BADLAND);
+            }
+
+            if (type & DIR_MASK) {
+                std::invoke(f, type | BADLAND);
+            }
+        }
     }
 }
 

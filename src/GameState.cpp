@@ -105,6 +105,15 @@ void GameState::prepareLandChances() {
     m_landChances.emplace_back(LandType::WATER  , 10.0);
     m_landChances.emplace_back(LandType::ISLANDS,  0.1);
     ChanceTable::normalize(m_landChances);
+
+    int size = std::ssize(m_landChances);
+    for (int i = 0; i < size; ++ i) {
+        auto val = value(m_landChances[i]);
+        if (val != (LandType::FEATURE | LandType::BUSH) && val != LandType::WATER)
+            m_landChances.emplace_back(value(m_landChances[i]) | LandType::BADLAND, 
+                                       chance(m_landChances[i]));
+    }
+    ChanceTable::normalize(m_landChances);
 }
 
 void GameState::initLand() {

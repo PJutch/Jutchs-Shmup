@@ -44,12 +44,12 @@ namespace ChanceTable {
     }
 
     template <typename T>
-    double& chance(BasicEntry<T>& entry) noexcept {
+    inline double& chance(BasicEntry<T>& entry) noexcept {
         return entry.chance;
     }
 
     template <typename T>
-    double chance(const BasicEntry<T>& entry) noexcept {
+    inline double chance(const BasicEntry<T>& entry) noexcept {
         return entry.chance;
     }
 
@@ -122,11 +122,12 @@ namespace ChanceTable {
                     m_base{base}, m_proj{          proj } {}
 
                 template <ConstEntry Base>
-                friend const value_type& value(const TransformChanceEntryView<Base, Proj>& entry) noexcept {
+                friend inline const value_type& value(
+                        const TransformChanceEntryView<Base, Proj>& entry) noexcept {
                     return value(entry.m_base);
                 }
                 
-                friend double chance(const TransformChanceEntryView<Base, Proj>& entry) {
+                friend inline double chance(const TransformChanceEntryView<Base, Proj>& entry) {
                     return entry.m_proj(chance(entry.m_base));
                 }   
             private:

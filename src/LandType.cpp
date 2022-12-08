@@ -14,7 +14,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "LandType.h"
 
 bool LandType::isModifiable() const noexcept {
-    switch (static_cast<Masks>(*this & ~MODIFIED)) {
+    switch (static_cast<Masks>(*this & ~MODIFIED & ~BADLAND)) {
         case static_cast<Masks>(FEATURE | PLAINS    ):
         case static_cast<Masks>(FEATURE | TREE      ):
         case static_cast<Masks>(FEATURE | HOUSE     ):
@@ -37,14 +37,15 @@ bool LandType::isValid() const noexcept {
             && (*this & DIR_MASK)
             && (!(*this & MODIFIED) || isModifiable());
     } else if (*this & WATER) {
-
         return static_cast<Base>(*this & DIR_MASK) < WATER_VARIANTS
             && ((*this & DIR_MASK) != (NORTH | SOUTH))
             && ((*this & DIR_MASK) != (WEST  | EAST ))
             && (getActiveDirCount() != 3)
             && (!(*this & MODIFIED) || isModifiable());
+    } else if ((*this & ~FEATURE & ~MODIFIED & ~BADLAND) == BUSH) {
+        return !(*this & BADLAND) && !(*this & MODIFIED);
     } else
-        return static_cast<Base>(*this & ~FEATURE & ~MODIFIED) < FEATURE_VARIANTS && 
+        return static_cast<Base>(*this & ~FEATURE & ~MODIFIED & ~BADLAND) < FEATURE_VARIANTS && 
             (!(*this & MODIFIED) || isModifiable());
 }
 
@@ -70,80 +71,97 @@ bool LandType::hasWaterAny(LandType side) const noexcept {
 std::filesystem::path LandType::getTextureFileName() const {
     if (*this & WATER && !(*this & DIR_MASK)) {
         if (*this & MODIFIED) {
-            return "water_islands_grass.png";
+            if ((*this & BADLAND)) {
+                return "water_islands_grass.png";
+            } else {
+                return "water_islands_badland.png";
+            }
         } else 
             return "water.png";
-    } else if (*this & ROAD || *this & WATER) {
-        std::filesystem::path fileName = "grass_";
-        if (*this & ROAD) {
-            fileName += "road";
-        } else
-            fileName += "water";
+    } else {
+        std::filesystem::path fileName = ((*this & BADLAND) ? "badland" : "grass");
 
-        if (*this & NORTH)    fileName += 'N';
-        if (*this & SOUTH)    fileName += 'S';
-        if (*this & EAST)     fileName += 'E';
-        if (*this & WEST)     fileName += 'W';
-
-        if (*this & MODIFIED)
+        if (*this & ROAD || *this & WATER) {
             if (*this & ROAD) {
-                fileName += "2";
+                fileName += "_road";
             } else
-                fileName += "small";
+                fileName += "_water";
+
+            if (*this & NORTH)    fileName += 'N';
+            if (*this & SOUTH)    fileName += 'S';
+            if (*this & EAST)     fileName += 'E';
+            if (*this & WEST)     fileName += 'W';
+
+            if (*this & MODIFIED)
+                if (*this & ROAD) {
+                    fileName += "2";
+                } else
+                    fileName += "small";
+        } else
+            switch (static_cast<Masks>(*this & ~BADLAND)) {
+                case AIRDROME:  fileName +=  "_airdrome" ; break;
+                case CRATER:    fileName +=  "_crater"   ; break;
+                case FIELD:     fileName +=  "_field"    ; break;
+                case FLAG:      fileName +=  "_flag"     ; break;
+                case TREE:      fileName +=  "_tree"     ; break;
+                case BUSH:      fileName +=  "_bush"     ; break;
+                case HOUSE:     fileName +=  "_house"    ; break;
+                case PLAINS2:   fileName +=  "2"         ; break;
+                case TREES:     fileName +=  "_trees"    ; break;
+                case LOW_HOUSE: fileName +=  "_house_low"; break;
+            }
         
         fileName += ".png";
         return fileName;
-    } else
-        switch (static_cast<Masks>(m_type)) {
-            case PLAINS:    return "grass.png"          ;
-            case AIRDROME:  return "grass_airdrome.png" ;
-            case CRATER:    return "grass_crater.png"   ;
-            case FIELD:     return "grass_field.png"    ;
-            case FLAG:      return "grass_flag.png"     ;
-            case TREE:      return "grass_tree.png"     ;
-            case BUSH:      return "grass_bush.png"     ;
-            case HOUSE:     return "grass_house.png"    ;
-            case PLAINS2:   return "grass2.png"         ;
-            case TREES:     return "grass_trees.png"    ;
-            case LOW_HOUSE: return "grass_house_low.png";
-            default:        return ""                   ;
-        }
+    }
 }
 
 std::string LandType::getName() const {
     if (*this & WATER && !(*this & DIR_MASK)) {
         if (*this & MODIFIED) {
-            return "islands (grass)";
+            if ((*this & BADLAND)) {
+                return "islands (grass)";
+            } else {
+                return "islands (badland)";
+            }
         } else 
             return "water";
-    } else if (*this & ROAD || *this & WATER) {
+    } else {
         std::string name = "";
-        if (*this & NORTH)    name += "north ";
-        if (*this & SOUTH)    name += "south ";
-        if (*this & EAST)     name += "east ";
-        if (*this & WEST)     name += "west ";
-        if (*this & ROAD) {
-            if (*this & MODIFIED) name += "modified ";
-            name += "road";
-        } else {
-            if (*this & MODIFIED) name += "small ";
-            name += "shore";
+
+        if (*this & ROAD || *this & WATER) {
+            if (*this & NORTH)    name += "north ";
+            if (*this & SOUTH)    name += "south ";
+            if (*this & EAST)     name += "east ";
+            if (*this & WEST)     name += "west ";
+            if (*this & ROAD) {
+                if (*this & MODIFIED) name += "modified ";
+                name += "road";
+            } else {
+                if (*this & MODIFIED) name += "small ";
+                name += "shore";
+            }
+        } else switch (static_cast<Masks>(m_type)) {
+            case PLAINS   : name += "plains"   ; break;
+            case AIRDROME : name += "airdrome" ; break;
+            case CRATER   : name += "crater"   ; break;
+            case FIELD    : name += "field"    ; break;
+            case FLAG     : name += "flag"     ; break;
+            case TREE     : name += "tree"     ; break;
+            case BUSH     : name += "bush"     ; break;
+            case HOUSE    : name += "house"    ; break;
+            case PLAINS2  : name += "plains2"  ; break;
+            case TREES    : name += "trees"    ; break;
+            case LOW_HOUSE: name += "low house"; break;
+            default       : name += "invalid"  ; break;
         }
-        name += " (grass)";
+
+        if ((*this & BADLAND)) {
+            name += " (grass)";
+        } else {
+            name += " (badland)";
+        }
         return name;
-    } else switch (static_cast<Masks>(m_type)) {
-        case PLAINS   : return "plains (grass)"   ;
-        case AIRDROME : return "airdrome (grass)" ;
-        case CRATER   : return "crater (grass)"   ;
-        case FIELD    : return "field (grass)"    ;
-        case FLAG     : return "flag (grass)"     ;
-        case TREE     : return "tree (grass)"     ;
-        case BUSH     : return "bush (grass)"     ;
-        case HOUSE    : return "house (grass)"    ;
-        case PLAINS2  : return "plains2 (grass)"  ;
-        case TREES    : return "trees (grass)"    ;
-        case LOW_HOUSE: return "low house (grass)";
-        default       : return "invalid"          ;
     }
 }
 
@@ -155,9 +173,15 @@ bool isCompatableHorizontal(LandType left, LandType right) {
      || left.hasRoadSide(LandType::SOUTH) && right.hasRoadSide(LandType::SOUTH))
         return false;
 
-    if (left.hasWaterSide(LandType::EAST) != right.hasWaterSide(LandType::WEST))
+    bool leftWater  = left .hasWaterSide(LandType::EAST);
+    bool rightWater = right.hasWaterSide(LandType::WEST);
+    if (leftWater != rightWater)
         return false;
     
+    if (!leftWater && static_cast<bool>(left  & LandType::BADLAND) 
+                   != static_cast<bool>(right & LandType::BADLAND))
+        return false;
+
     if (    left .hasWaterCorner(LandType::NORTH | LandType::EAST) 
          != right.hasWaterCorner(LandType::NORTH | LandType::WEST)
      ||     left .hasWaterCorner(LandType::SOUTH | LandType::EAST) 
@@ -175,7 +199,13 @@ bool isCompatableVertical(LandType up, LandType down) {
      || up.hasRoadSide(LandType::WEST) && down.hasRoadSide(LandType::WEST))
         return false;
 
-    if (up.hasWaterSide(LandType::SOUTH) != down.hasWaterSide(LandType::NORTH))
+    bool upWater   = up  .hasWaterSide(LandType::SOUTH);
+    bool downWater = down.hasWaterSide(LandType::NORTH);
+    if (upWater != downWater)
+        return false;
+    
+    if (!upWater && static_cast<bool>(up   & LandType::BADLAND) 
+                 != static_cast<bool>(down & LandType::BADLAND))
         return false;
 
     if (    up  .hasWaterCorner(LandType::SOUTH | LandType::EAST) 
@@ -190,6 +220,11 @@ bool isCompatableVertical(LandType up, LandType down) {
 bool isCompatableAntiDiagonal(LandType downLeft, LandType upRight) {
     if (downLeft.hasRoadSide(LandType::EAST) && upRight.hasWaterAny(LandType::SOUTH)
      || downLeft.hasWaterAny(LandType::EAST) && upRight.hasRoadSide(LandType::SOUTH))
+        return false; // no tiles can be placed at downRight
+
+    if (!downLeft.hasWaterSide(LandType::EAST) && !upRight.hasWaterSide(LandType::SOUTH)
+     &&    static_cast<bool>(downLeft & LandType::BADLAND) 
+        != static_cast<bool>(upRight  & LandType::BADLAND))
         return false; // no tiles can be placed at downRight
     
     if (downLeft.hasWaterCorner(LandType::NORTH | LandType::EAST) 

@@ -79,6 +79,7 @@ public:
     }
 
     void addScore(int score) noexcept {
+        m_score += score;
         m_scoreChanges.emplace_back(score, m_clock.getElapsedTime());
     }
 

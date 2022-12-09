@@ -83,7 +83,6 @@ void GameState::update() {
 
 void GameState::updateScore() {
     while (!m_scoreChanges.empty() && getScoreChangeAlpha(0) <= 0.f) {
-        m_score += m_scoreChanges.front().value;
         m_scoreChanges.pop_front();
     }
 }

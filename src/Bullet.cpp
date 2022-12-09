@@ -19,12 +19,16 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/System.hpp>
 
 Bullet::Bullet(bool playerSide, sf::Vector2f position, GameState& gameState) noexcept :
-        EntityBase{gameState}, m_sprite{gameState.getAssets().getBulletTexture()}, 
+        Sprite{gameState},
         m_playerSide{playerSide}, m_alive{true} {
-    auto size = gameState.getAssets().getBulletTexture().getSize();
-    m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
-    m_sprite.setPosition(position);
-    m_sprite.setRotation(90.f);
+    auto& texture = gameState.getAssets().getBulletTexture();
+    setTexture(texture);
+
+    auto size = texture.getSize();
+    setOrigin(size.x / 2.f, size.y / 2.f);
+
+    setPosition(position);
+    setRotation(90.f);
 }
 
 void Bullet::acceptCollide(Airplane::Airplane& other) noexcept {

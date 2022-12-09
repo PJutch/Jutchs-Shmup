@@ -30,7 +30,6 @@ class GameState;
 
 class Entity : public sf::Drawable {
 public:
-    Entity(GameState& gameState) noexcept : m_gameState{gameState} {}
     virtual ~Entity() = default;
 
     void handleEvent(sf::Event event) {}
@@ -59,16 +58,12 @@ public:
     virtual bool reset() noexcept { 
         return true;
     }
-protected:
-    GameState& m_gameState;
 };
 
 // CRTP
-template<typename Child>
+template <typename Child>
 class EntityBase : public Entity {
 public:
-    using Entity::Entity;
-
     void startCollide(Entity& other) noexcept override final {
         other.acceptCollide(static_cast<Child&>(*this));
     }

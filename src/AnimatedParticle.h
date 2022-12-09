@@ -14,24 +14,20 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef ANIMATED_PARTICLE_H_
 #define ANIMATED_PARTICLE_H_
 
-#include "Entity.h"
+#include "Sprite.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
 #include <span>
 
-class AnimatedParticle : public EntityBase<AnimatedParticle> {
+class AnimatedParticle : public Sprite<AnimatedParticle> {
 public:
     AnimatedParticle(sf::Vector2f position, std::span<const sf::Texture> animation, 
                      sf::Time delay, GameState& gameState) noexcept;
 
     void update(sf::Time elapsedTime) noexcept override;
-
-    sf::FloatRect getGlobalBounds() const noexcept override {
-        return m_sprite.getGlobalBounds();
-    }
-
+    
     bool isPassable() const noexcept override {
         return true;
     }
@@ -43,14 +39,8 @@ private:
     std::span<const sf::Texture> m_animation;
     sf::Time m_delay;
 
-    sf::Sprite m_sprite;
-
     int m_currentTexture;
     sf::Time m_untilNext;
-
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
-        target.draw(m_sprite, states);
-    }
 };
 
 #endif

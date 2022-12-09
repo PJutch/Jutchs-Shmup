@@ -38,7 +38,7 @@ namespace Airplane {
         }
 
         Builder& position(sf::Vector2f position) noexcept {
-            m_build->m_sprite.setPosition(position);
+            m_build->setPosition(position);
             return *this;
         }
 
@@ -104,10 +104,10 @@ namespace Airplane {
         GameState& m_gameState;
 
         void setTexture(const sf::Texture& texture) noexcept {
-            m_build->m_sprite.setTexture(texture);
+            m_build->setTexture(texture);
 
             auto size = texture.getSize();
-            m_build->m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
+            m_build->setOrigin(size.x / 2.f, size.y / 2.f);
         }
     };
 

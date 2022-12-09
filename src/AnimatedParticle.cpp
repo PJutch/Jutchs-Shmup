@@ -23,11 +23,15 @@ using std::ssize;
 
 AnimatedParticle::AnimatedParticle(sf::Vector2f position, span<const sf::Texture> animation, 
                                    sf::Time delay, GameState& gameState) noexcept :
-        EntityBase{gameState}, m_animation{animation}, m_delay{delay}, m_sprite{animation[0]}, 
+        Sprite{gameState}, m_animation{animation}, m_delay{delay},
         m_currentTexture{0}, m_untilNext{delay} {
-    auto size = m_animation[0].getSize();
-    m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
-    m_sprite.setPosition(position);
+    auto& texture = m_animation[m_currentTexture];
+    setTexture(texture);
+
+    auto size = texture.getSize();
+    setOrigin(size.x / 2.f, size.y / 2.f);
+
+    setPosition(position);
 }
 
 void AnimatedParticle::update(sf::Time elapsedTime) noexcept {
@@ -38,6 +42,6 @@ void AnimatedParticle::update(sf::Time elapsedTime) noexcept {
     }
 
     if (m_currentTexture < std::ssize(m_animation)) {
-        m_sprite.setTexture(m_animation[m_currentTexture]);
+        setTexture(m_animation[m_currentTexture]);
     }
 }

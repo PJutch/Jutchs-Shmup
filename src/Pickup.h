@@ -21,26 +21,21 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-class Pickup : public EntityBase<Pickup> {
+class Pickup : public Sprite<Pickup> {
 public:
     Pickup(sf::Vector2f position, const sf::Texture& texture, GameState& gameState) noexcept: 
-            EntityBase{gameState}, m_sprite{texture}, m_alive{true} {
+            Sprite{gameState}, m_alive{true} {
+        setTexture(texture);
+
         auto size = texture.getSize();
-        m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
-        m_sprite.setPosition(position);
+        setOrigin(size.x / 2.f, size.y / 2.f);
+
+        setPosition(position);
     }
 
     virtual ~Pickup() = default;
 
-    sf::Vector2f getPosition() const noexcept {
-        return m_sprite.getPosition();
-    }
-
     void update(sf::Time) noexcept override {}
-
-    sf::FloatRect getGlobalBounds() const noexcept override {
-        return m_sprite.getGlobalBounds();
-    }
 
     void acceptCollide(Airplane::Airplane& other) noexcept override {
         if (other.canUsePickups()) apply(other);
@@ -49,7 +44,7 @@ public:
     virtual void apply(Airplane::Airplane& airplane) noexcept = 0;
 
     bool shouldBeDeleted() const noexcept override {
-        return !(m_alive && m_gameState.inActiveArea(m_sprite.getPosition().x));
+        return !(m_alive && m_gameState.inActiveArea(getPosition().x));
     }
 
     bool isPassable() const noexcept override {
@@ -60,13 +55,7 @@ protected:
         m_alive = false;
     }
 private:
-    sf::Sprite m_sprite;
-
     bool m_alive;
-
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
-        target.draw(m_sprite, states);
-    }
 };
 
 class HealthPickup : public Pickup {

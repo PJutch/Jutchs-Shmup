@@ -14,8 +14,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef BULLET_H_
 #define BULLET_H_
 
-#include "Entity.h"
 #include "GameState.h"
+#include "Sprite.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -24,7 +24,7 @@ namespace Airplane {
     class Airplane;
 }
 
-class Bullet : public EntityBase<Bullet> {
+class Bullet : public Sprite<Bullet> {
 public:
     Bullet(bool playerSide, sf::Vector2f position, GameState& gameState) noexcept;
     
@@ -38,17 +38,13 @@ public:
     }
 
     void update(sf::Time elapsedTime) noexcept {
-        m_sprite.move((m_playerSide ? 1 : -1) * 750.f * elapsedTime.asSeconds(), 0);
-    }
-
-    sf::FloatRect getGlobalBounds() const noexcept override {
-        return m_sprite.getGlobalBounds();
+        move((m_playerSide ? 1 : -1) * 750.f * elapsedTime.asSeconds(), 0);
     }
 
     void acceptCollide(Airplane::Airplane& other) noexcept override;
 
     bool shouldBeDeleted() const noexcept override {
-        return !(m_alive && m_gameState.inActiveArea(m_sprite.getPosition().x));
+        return !(m_alive && m_gameState.inActiveArea(getPosition().x));
     }
 
     bool isPassable() const noexcept override {
@@ -59,12 +55,6 @@ public:
         return m_playerSide;
     }
 private:
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
-        target.draw(m_sprite, states);
-    }
-
-    sf::Sprite m_sprite;
-
     bool m_playerSide;
     bool m_alive;
 };

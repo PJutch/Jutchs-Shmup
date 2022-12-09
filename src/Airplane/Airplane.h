@@ -15,7 +15,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define AIRPLANE_AIRPLANE_H_
 
 #include "GameState.h"
-#include "Entity.h"
+#include "Sprite.h"
 #include "Bullet.h"
 #include "Airplane/ShootComponent.h"
 #include "Airplane/ShootControlComponent.h"
@@ -30,28 +30,12 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <algorithm>
 
 namespace Airplane {
-    class Airplane : public EntityBase<Airplane> {
+    class Airplane : public Sprite<Airplane> {
     public:
         friend class Builder;
 
         void handleEvent(sf::Event event) noexcept {
             m_shootControlComponent->handleEvent(event);
-        }
-
-        sf::Vector2f getPosition() const noexcept {
-            return m_sprite.getPosition();
-        }
-
-        sf::FloatRect getGlobalBounds() const noexcept override {
-            return m_sprite.getGlobalBounds();
-        }
-
-        virtual void setPosition(sf::Vector2f position) noexcept {
-            m_sprite.setPosition(position);
-        }
-
-        virtual void move(sf::Vector2f offset) noexcept {
-            m_sprite.move(offset);
         }
 
         void acceptCollide(Airplane& other) noexcept override {
@@ -119,14 +103,14 @@ namespace Airplane {
 
         bool shouldBeDeleted() const noexcept override {
             return test(m_flags, Flags::DELETABLE)
-                && (m_health <= 0 || !m_gameState.inActiveArea(m_sprite.getPosition().x));
+                && (m_health <= 0 || !m_gameState.inActiveArea(getPosition().x));
         }
 
         bool reset() noexcept override {
             if (test(m_flags, Flags::DELETABLE)) return true;
 
             m_health = m_maxHealth;
-            m_sprite.setPosition({0.f, 0.f});
+            setPosition(0.f, 0.f);
             return false;
         }
 
@@ -146,8 +130,6 @@ namespace Airplane {
             return static_cast<bool>(m_flags & Flags::USE_PICKUPS);
         }
     private:
-        sf::Sprite m_sprite;
-
         std::unique_ptr<ShootComponent> m_shootComponent;
         std::unique_ptr<ShootControlComponent> m_shootControlComponent;
         std::unique_ptr<MoveComponent> m_moveComponent;
@@ -160,12 +142,8 @@ namespace Airplane {
 
         Flags m_flags;
 
-        void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
-            if (m_health > 0) target.draw(m_sprite, states);
-        }
-
         Airplane(GameState& gameState) noexcept : 
-            EntityBase{gameState},
+            Sprite{gameState},
             m_health{0}, m_maxHealth{0}, m_damageCooldown{sf::seconds(0.f)} {}
     };
 }

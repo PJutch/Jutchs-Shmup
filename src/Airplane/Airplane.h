@@ -113,7 +113,7 @@ namespace Airplane {
             }
         }
 
-        bool shouldCollide() const noexcept override {
+        bool isActive() const noexcept override {
             return !isDead() && !shouldBeDeleted();
         }
 
@@ -139,7 +139,7 @@ namespace Airplane {
         }
 
         bool isPassable() const noexcept override {
-            return false;
+            return !isActive();
         }
 
         bool canUsePickups() const noexcept {

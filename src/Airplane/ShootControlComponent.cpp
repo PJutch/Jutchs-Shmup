@@ -82,6 +82,8 @@ namespace Airplane {
                 return false;
 
             for (auto& entity : m_gameState.getEntities()) {
+                if (entity->isPassable()) continue;
+                
                 auto globalBounds = entity->getGlobalBounds();
                 float right = globalBounds.left + globalBounds.width;
 
@@ -96,6 +98,7 @@ namespace Airplane {
 
             float minLeft = playerBounds.left;
             for (auto& entity : m_gameState.getEntities()) {
+                if (!entity->isActive() || entity->isPassable()) continue;
                 auto globalBounds = entity->getGlobalBounds();
 
                 if (    globalBounds.top < ownerBounds.top + ownerBounds.height 

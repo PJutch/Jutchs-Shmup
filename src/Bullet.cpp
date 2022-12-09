@@ -18,20 +18,13 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-Bullet::Bullet(Airplane::Airplane* owner, bool playerSide, sf::Vector2f position, 
-               GameState& gameState) noexcept :
+Bullet::Bullet(bool playerSide, sf::Vector2f position, GameState& gameState) noexcept :
         EntityBase{gameState}, m_sprite{gameState.getAssets().getBulletTexture()}, 
-        m_playerSide{playerSide}, m_alive{true}, m_owner{owner} {
+        m_playerSide{playerSide}, m_alive{true} {
     auto size = gameState.getAssets().getBulletTexture().getSize();
     m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
     m_sprite.setPosition(position);
     m_sprite.setRotation(90.f);
-}
-
-void Bullet::update(sf::Time elapsedTime) noexcept {
-    if (!m_alive) return;
-
-    m_sprite.move((m_playerSide ? 1 : -1) * 750.f * elapsedTime.asSeconds(), 0);
 }
 
 void Bullet::acceptCollide(Airplane::Airplane& other) noexcept {

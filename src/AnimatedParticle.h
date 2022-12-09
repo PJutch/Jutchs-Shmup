@@ -49,8 +49,7 @@ private:
     sf::Time m_untilNext;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
-        if (!shouldBeDeleted())
-            target.draw(m_sprite, states);
+        target.draw(m_sprite, states);
     }
 };
 

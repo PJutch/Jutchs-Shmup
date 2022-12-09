@@ -28,7 +28,7 @@ namespace Airplane {
 
     void ShootComponent::shoot(sf::Vector2f position) noexcept {
         m_gameState.getEntities().addEntity(
-            std::make_unique<Bullet>(&m_owner, m_owner.isOnPlayerSide(), position, m_gameState));
+            std::make_unique<Bullet>(m_owner.isOnPlayerSide(), position, m_gameState));
     }
 
     sf::FloatRect ShootComponent::getAffectedArea() const noexcept {

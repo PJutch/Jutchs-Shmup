@@ -26,8 +26,7 @@ namespace Airplane {
 
 class Bullet : public EntityBase<Bullet> {
 public:
-    Bullet(Airplane::Airplane* owner, bool playerSide, sf::Vector2f position, 
-            GameState& gameState) noexcept;
+    Bullet(bool playerSide, sf::Vector2f position, GameState& gameState) noexcept;
     
     static sf::Vector2f getSize(GameState& gameState) noexcept {
         auto size = gameState.getAssets().getBulletTexture().getSize();
@@ -38,7 +37,9 @@ public:
         return {750.f, 0.f};
     }
 
-    void update(sf::Time elapsedTime) noexcept;
+    void update(sf::Time elapsedTime) noexcept {
+        m_sprite.move((m_playerSide ? 1 : -1) * 750.f * elapsedTime.asSeconds(), 0);
+    }
 
     sf::FloatRect getGlobalBounds() const noexcept override {
         return m_sprite.getGlobalBounds();
@@ -66,8 +67,6 @@ private:
 
     bool m_playerSide;
     bool m_alive;
-    
-    Airplane::Airplane* m_owner;
 };
 
 #endif

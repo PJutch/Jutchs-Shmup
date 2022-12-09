@@ -16,6 +16,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <cstdint>
 #include <type_traits>
+#include <filesystem>
 
 namespace Airplane {
     // bitmask
@@ -69,6 +70,9 @@ namespace Airplane {
     inline constexpr bool test(Flags lhs, Flags rhs) noexcept {
         return static_cast<bool>(lhs & rhs);
     }
+
+    std::filesystem::path getTextureFileName(Flags flags);
+    std::string getTextureName(Flags flags);
 }
 
 #endif

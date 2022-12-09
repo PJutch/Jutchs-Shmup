@@ -40,17 +40,9 @@ AssetManager::AssetManager(std::mt19937_64& randomEngine) : m_randomEngine{rando
 
     for (int i = 0; i < Airplane::TEXTURE_VARIANTS; ++ i) {
         auto flags = static_cast<Airplane::Flags>(i);
-        if (!m_airplaneTextures[i].loadFromFile(
-                std::format("resources/textures/Airplanes/airplane_{}{}{}{}.png", 
-                    test(flags, Airplane::Flags::PLAYER_SIDE) ? "player"  : "enemy", 
-                    test(flags, Airplane::Flags::HEAVY      ) ? "_heavy"  : "", 
-                    test(flags, Airplane::Flags::FAST       ) ? "_fast"   : "", 
-                    test(flags, Airplane::Flags::HAS_WEAPON ) ? "_weapon" : "")))
-            throw TextureLoadError{std::format("Can't load {}{}{} airplane texture {} weapon", 
-                test(flags, Airplane::Flags::PLAYER_SIDE) ? "player" : "enemy",
-                test(flags, Airplane::Flags::HEAVY      ) ? " heavy" : "",
-                test(flags, Airplane::Flags::FAST       ) ? " fast"  : "", 
-                test(flags, Airplane::Flags::HAS_WEAPON ) ? "with"   : "without")};
+        if (!m_airplaneTextures[i].loadFromFile(("resources/textures/Airplanes"
+                                                 / getTextureFileName(flags)).generic_string()))
+            throw TextureLoadError{std::format("Can't load {} airplane texture", getTextureName(flags))};
     }
 
     Land::forValid([&landTextures = m_landTextures](Land::Type type) {

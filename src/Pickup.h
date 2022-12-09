@@ -59,10 +59,6 @@ protected:
     void die() noexcept {
         m_alive = false;
     }
-
-    bool isAlive() const noexcept {
-        return m_alive;
-    }
 private:
     sf::Sprite m_sprite;
 
@@ -79,7 +75,7 @@ public:
         Pickup{position, gameState.getAssets().getHealthPickupTexture(), gameState} {}
 
     void apply(Airplane::Airplane& airplane) noexcept override {
-        if (isAlive() && airplane.addHealth(1)) {
+        if (isActive() && airplane.addHealth(1)) {
             m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomPowerUpSound());
             die();
         }

@@ -31,17 +31,17 @@ EntityManager::EntityManager() noexcept : m_entities{} {}
 
 void EntityManager::handleEvent(Event event) noexcept {
     for (auto& entity : m_entities) {
-        entity->handleEvent(event);
+        if (entity->isActive()) entity->handleEvent(event);
     }
 }
 
 void EntityManager::update(Time elapsedTime) noexcept {
     for (int i = 0; i < ssize(m_entities); ++ i) 
-        m_entities[i]->update(elapsedTime);
+        if (m_entities[i]->isActive()) m_entities[i]->update(elapsedTime);
     
     for (int i = 0; i < ssize(m_entities); ++ i) 
         for (int j = i + 1; j < ssize(m_entities); ++ j) 
-            if (m_entities[i]->shouldCollide() && m_entities[j]->shouldCollide() && 
+            if (m_entities[i]->isActive() && m_entities[j]->isActive() && 
                     m_entities[i]->getGlobalBounds().intersects(m_entities[j]->getGlobalBounds())) {
                 m_entities[i]->startCollide(*m_entities[j]);
                 m_entities[j]->startCollide(*m_entities[i]);
@@ -54,7 +54,7 @@ void EntityManager::update(Time elapsedTime) noexcept {
 
 void EntityManager::draw(RenderTarget& target, RenderStates states) const noexcept {
     for (const auto& entity : m_entities) {
-        target.draw(*entity, states);
+        if (entity->isActive()) target.draw(*entity, states);
     }
 }
 

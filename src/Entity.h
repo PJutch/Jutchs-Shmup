@@ -39,7 +39,7 @@ public:
 
     virtual sf::FloatRect getGlobalBounds() const noexcept = 0;
 
-    virtual bool shouldCollide() const noexcept {
+    virtual bool isActive() const noexcept {
         return !shouldBeDeleted();
     }
 

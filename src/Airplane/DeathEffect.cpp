@@ -19,7 +19,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "AnimatedParticle.h"
 
 #include <SFML/Audio.hpp>
-using sf::Sound;
 
 namespace Airplane {
     DeathEffect::DeathEffect(Airplane& owner, GameState& gameState) noexcept : 

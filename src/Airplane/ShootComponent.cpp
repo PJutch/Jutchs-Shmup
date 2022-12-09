@@ -17,30 +17,21 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "SoundEffect.h"
 
 #include <SFML/Graphics.hpp>
-using sf::Texture;
-using sf::Vector2f;
-using sf::FloatRect;
-
 #include <SFML/System.hpp>
-using sf::Time;
-using sf::seconds;
 
 #include <vector>
-using std::vector;
-
 #include <memory>
-using std::unique_ptr;
 
 namespace Airplane {
     ShootComponent::ShootComponent(Airplane& owner, GameState& gameState) noexcept : 
-            m_shootCooldown{Time::Zero}, m_owner{owner}, m_gameState{gameState} {};
+            m_shootCooldown{sf::Time::Zero}, m_owner{owner}, m_gameState{gameState} {};
 
-    void ShootComponent::shoot(Vector2f position) noexcept {
+    void ShootComponent::shoot(sf::Vector2f position) noexcept {
         m_gameState.getEntities().addEntity(
             std::make_unique<Bullet>(&m_owner, m_owner.isOnPlayerSide(), position, m_gameState));
     }
 
-    FloatRect ShootComponent::getAffectedArea() const noexcept {
+    sf::FloatRect ShootComponent::getAffectedArea() const noexcept {
         auto position = m_owner.getPosition();
         auto size = Bullet::getSize(m_gameState);
         if (m_owner.isOnPlayerSide()) {
@@ -50,19 +41,19 @@ namespace Airplane {
         }
     }   
 
-    FloatRect ShootComponent::getStartShotBounds() const noexcept {
+    sf::FloatRect ShootComponent::getStartShotBounds() const noexcept {
         auto position = m_owner.getPosition();
         auto size = Bullet::getSize(m_gameState);
         return {position.x - size.x / 2.f, position.y - size.y / 2.f, size.x, size.y};
     }   
 
-    Vector2f ShootComponent::getShotSpeed() const noexcept {
+    sf::Vector2f ShootComponent::getShotSpeed() const noexcept {
         auto speed = Bullet::getSpeed();
         return {(m_owner.isOnPlayerSide() ? 1 : -1) * speed.x, speed.y};
     }
 
     void BasicShootComponent::tryShoot() noexcept {
-        if (m_shootCooldown <= Time::Zero) {
+        if (m_shootCooldown <= sf::Time::Zero) {
             shoot(m_owner.getPosition());
             m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
             m_shootCooldown = sf::seconds(0.25f);
@@ -70,7 +61,7 @@ namespace Airplane {
     }
 
     void TripleShootComponent::tryShoot() noexcept {
-        if (m_shootCooldown <= Time::Zero) {
+        if (m_shootCooldown <= sf::Time::Zero) {
             auto position = m_owner.getPosition();
             float height = m_owner.getGlobalBounds().height;
 
@@ -109,7 +100,7 @@ namespace Airplane {
     }  
 
     void VolleyShootComponent::tryShoot() noexcept {
-        if (m_shootCooldown <= Time::Zero) {
+        if (m_shootCooldown <= sf::Time::Zero) {
             auto position = m_owner.getPosition();
             float height = m_owner.getGlobalBounds().height;
 

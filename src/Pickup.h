@@ -80,8 +80,7 @@ public:
 
     void apply(Airplane::Airplane& airplane) noexcept override {
         if (isAlive() && airplane.addHealth(1)) {
-            m_gameState.getSounds().addSound(m_gameState.getAssets()
-                .getRandomPowerUpSound(m_gameState.getRandomEngine()));
+            m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomPowerUpSound());
             die();
         }
     };

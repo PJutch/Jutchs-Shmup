@@ -28,7 +28,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class AssetManager {
 public:
-    AssetManager();
+    AssetManager(std::mt19937_64& randomEngine);
 
     const sf::Texture& getHealthTexture() const noexcept {
         return m_healthTexture;
@@ -75,22 +75,19 @@ public:
         return m_digitTextures;
     }
 
-    template <std::uniform_random_bit_generator Engine>
-    const sf::SoundBuffer& getRandomExplosionSound(Engine& engine) const noexcept {
-        return m_explosionSounds[std::uniform_int_distribution<int>(
-                                    0, std::ssize(m_explosionSounds) - 1)(engine)];
+    const sf::SoundBuffer& getRandomExplosionSound() const noexcept {
+        auto ditribution = std::uniform_int_distribution<int64_t>(0, std::ssize(m_explosionSounds) - 1);
+        return m_explosionSounds[ditribution(m_randomEngine)];
     }
 
-    template <std::uniform_random_bit_generator Engine>
-    const sf::SoundBuffer& getRandomShotSound(Engine& engine) const noexcept {
-        return m_shotSounds[std::uniform_int_distribution<int>(
-                            0, std::ssize(m_shotSounds) - 1)(engine)];
+    const sf::SoundBuffer& getRandomShotSound() const noexcept {
+        auto ditribution = std::uniform_int_distribution<int64_t>(0, std::ssize(m_shotSounds) - 1);
+        return m_shotSounds[ditribution(m_randomEngine)];
     }
 
-    template <std::uniform_random_bit_generator Engine>
-    const sf::SoundBuffer& getRandomPowerUpSound(Engine& engine) const noexcept {
-        return m_powerUpSounds[std::uniform_int_distribution<int>(
-                                0, std::ssize(m_powerUpSounds) - 1)(engine)];
+    const sf::SoundBuffer& getRandomPowerUpSound() const noexcept {
+        auto ditribution = std::uniform_int_distribution<int64_t>(0, std::ssize(m_powerUpSounds) - 1);
+        return m_powerUpSounds[ditribution(m_randomEngine)];
     }
 
     const sf::Font& getFont() const noexcept {
@@ -115,6 +112,8 @@ private:
     std::array<sf::SoundBuffer, 12> m_powerUpSounds;
 
     sf::Font m_font;
+
+    std::mt19937_64& m_randomEngine;
 };
 
 class AssetLoadError : public std::runtime_error {

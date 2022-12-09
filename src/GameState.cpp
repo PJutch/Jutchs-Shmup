@@ -30,8 +30,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <utility>
 
 GameState::GameState(sf::Vector2f screenSize) : 
-        m_landManager{*this},
         m_randomEngine{std::random_device{}()},
+        m_assetManager{m_randomEngine}, m_landManager{*this},
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
         m_score{0}, m_shouldResetAfter{sf::Time::Zero},
         m_shouldEnd{false}, m_guiManager{*this} {

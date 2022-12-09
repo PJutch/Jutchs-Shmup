@@ -139,6 +139,8 @@ public:
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 private:
+    std::mt19937_64 m_randomEngine;
+
     AssetManager m_assetManager;
 
     EntityManager m_entityManager;
@@ -153,8 +155,6 @@ private:
 
     sf::Clock m_tickClock;
     sf::Clock m_clock;
-
-    std::mt19937_64 m_randomEngine;
 
     Airplane::Airplane* m_player;
 

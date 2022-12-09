@@ -64,9 +64,8 @@ namespace Airplane {
     void BasicShootComponent::tryShoot() noexcept {
         if (m_shootCooldown <= Time::Zero) {
             shoot(m_owner.getPosition());
-            m_gameState.getSounds().addSound(m_gameState.getAssets()
-                .getRandomShotSound(m_gameState.getRandomEngine()));
-            m_shootCooldown = seconds(0.25f);
+            m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
+            m_shootCooldown = sf::seconds(0.25f);
         }
     }
 
@@ -79,10 +78,9 @@ namespace Airplane {
             shoot({position.x, position.y + height / 2});
             shoot({position.x, position.y - height / 2});
 
-            m_gameState.getSounds().addSound(
-                m_gameState.getAssets().getRandomShotSound(m_gameState.getRandomEngine()));
+            m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
 
-            m_shootCooldown = seconds(0.5f);
+            m_shootCooldown = sf::seconds(0.5f);
         }
     }
 
@@ -117,11 +115,10 @@ namespace Airplane {
 
             shoot(m_owner.getPosition());
 
-            m_gameState.getSounds().addSound(m_gameState.getAssets()
-                            .getRandomShotSound(m_gameState.getRandomEngine()));
+            m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
 
             m_shots += 2;
-            m_shootCooldown = seconds(0.1f);
+            m_shootCooldown = sf::seconds(0.1f);
         }
     }
 
@@ -129,8 +126,7 @@ namespace Airplane {
         ShootComponent::update(elapsedTime);
         if (m_shootCooldown <= sf::Time::Zero && m_shots > 0) {
             shoot(m_owner.getPosition());
-            m_gameState.getSounds().addSound(m_gameState.getAssets()
-                                    .getRandomShotSound(m_gameState.getRandomEngine()));
+            m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
             m_shootCooldown = sf::seconds(-- m_shots == 0 ? 0.5f : 0.1f);
         }
     }

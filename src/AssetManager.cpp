@@ -18,7 +18,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <format>
 
-AssetManager::AssetManager() {
+AssetManager::AssetManager(std::mt19937_64& randomEngine) : m_randomEngine{randomEngine} {
     if (!m_healthTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0026.png"))
         throw TextureLoadError{"Can't load health texture"};
     

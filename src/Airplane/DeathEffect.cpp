@@ -38,7 +38,6 @@ namespace Airplane {
         m_gameState.getEntities().addEntity(new AnimatedParticle{m_owner.getPosition(), 
                                                 m_gameState.getAssets().getExplosionAnimation(), 
                                                 sf::seconds(0.1f), m_gameState});
-        m_gameState.getSounds().addSound(m_gameState.getAssets()
-            .getRandomExplosionSound(m_gameState.getRandomEngine()));
+        m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomExplosionSound());
     }
 }

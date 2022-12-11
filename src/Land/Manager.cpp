@@ -152,7 +152,18 @@ namespace Land {
 
     void Manager::reset() {
         m_land.clear();
-        init();
+        generateSpawn();
+    }
+
+    void Manager::handleExplosion(sf::Vector2f position) {
+        auto tileSize = m_gameState.getAssets().getLandTextureSize();
+        sf::Vector2i landSize(std::ssize(m_land), std::ssize(m_land[0]));
+        sf::Vector2i landPosition(landSize.x - (m_endX - position.x) / tileSize.x, 
+                                  (m_gameState.getGameHeight() + position.y) / tileSize.y);
+        
+        Land::Type& land = m_land[landPosition.x][landPosition.y];
+        m_gameState.addScore(scoreIfDestroyed(land));
+        land = destroyed(land);
     }
 
     void Manager::draw(sf::RenderTarget& target, sf::RenderStates states) const {

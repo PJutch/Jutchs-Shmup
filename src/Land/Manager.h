@@ -28,6 +28,8 @@ namespace Land {
 
         void init();
 
+        void handleExplosion(sf::Vector2f position);
+
         void update();
 
         void reset();

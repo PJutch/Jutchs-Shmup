@@ -204,6 +204,24 @@ namespace Land {
 
     // true if it's valid to place the downLeft tile next to the upRight tile (in anti-diagonal manner)
     bool isCompatableAntiDiagonal(Type downLeft, Type upRight);
+
+    inline Type destroyed(Type type) noexcept {
+        if (test(type, Type::WATER) || test(type, Type::ROAD))
+            return type;
+        return Type::CRATER | type & Type::BADLAND;
+    }
+
+    inline int scoreIfDestroyed(Type type) {
+        using enum Type;
+
+        switch (type & ~MODIFIED & ~BADLAND) {
+        case HOUSE   : return -10;
+        case FIELD   : return -10;
+        case FLAG    : return 100;
+        case AIRDROME: return 100;
+        default      : return   0;
+        }
+    }
 }
 
 #endif

@@ -70,6 +70,14 @@ public:
         return m_entityManager;
     }
 
+    const Land::Manager& getLand() const noexcept {
+        return m_landManager;
+    }
+
+    Land::Manager& getLand() noexcept {
+        return m_landManager;
+    }
+
     const Airplane::Airplane& getPlayer() const noexcept {
         return *m_player;
     }

@@ -11,27 +11,31 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#include "Bullet.h"  
+#include "Bomb.h"
 
-#include "Airplane/Airplane.h"
-
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-
-Bullet::Bullet(bool playerSide, sf::Vector2f position, GameState& gameState) :
-        Sprite{gameState},
-        m_playerSide{playerSide}, m_alive{true} {
-    auto& texture = gameState.getAssets().getBulletTexture();
+Bomb::Bomb(sf::Vector2f position, GameState& gameState) :
+        Sprite{gameState}, m_launched{gameState.getCurrentTime()}, m_alive{true} {
+    auto& texture = gameState.getAssets().getBombTexture();
     setTexture(texture);
 
     auto size = texture.getSize();
     setOrigin(size.x / 2.f, size.y / 2.f);
 
     setPosition(position);
-    setRotation(m_playerSide ? 90.f : -90.f);
+    setRotation(90.f);
 }
 
-void Bullet::acceptCollide(Airplane::Airplane& other) noexcept {
-    if (other.isOnPlayerSide() != m_playerSide) 
+void Bomb::update(sf::Time elapsedTime) {
+    float t = (m_gameState.getCurrentTime() - m_launched).asSeconds();
+
+    float y = 10.f * t * t;
+    if (y > 1.f) {
         m_alive = false;
+        auto* particle = new AnimatedParticle{getPosition(), 
+            m_gameState.getAssets().getExplosionAnimation(), sf::seconds(0.1f), m_gameState};
+        particle->setScale(0.75f);
+        m_gameState.getEntities().addEntity(particle);
+        m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomExplosionSound());
+    }
+    setScale(1.f / (1.f + y));
 }

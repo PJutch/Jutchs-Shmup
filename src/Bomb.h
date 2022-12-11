@@ -11,37 +11,21 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef BULLET_H_
-#define BULLET_H_
+#ifndef BOMB_H_
+#define BOMB_H_
 
 #include "GameState.h"
 #include "Sprite.h"
+#include "AnimatedParticle.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-namespace Airplane {
-    class Airplane;
-}
-
-class Bullet : public Sprite<Bullet> {
+class Bomb : public Sprite<Bomb> {
 public:
-    Bullet(bool playerSide, sf::Vector2f position, GameState& gameState);
-    
-    static sf::Vector2f getSize(GameState& gameState) noexcept {
-        auto size = gameState.getAssets().getBulletTexture().getSize();
-        return sf::Vector2f(size.x, size.y);
-    }
+    Bomb(sf::Vector2f position, GameState& gameState);
 
-    static sf::Vector2f getSpeed() noexcept {
-        return {750.f, 0.f};
-    }
-
-    void update(sf::Time elapsedTime) noexcept override {
-        move((m_playerSide ? 1 : -1) * 750.f * elapsedTime.asSeconds(), 0);
-    }
-
-    void acceptCollide(Airplane::Airplane& other) noexcept override;
+    void update(sf::Time elapsedTime) override;
 
     bool shouldBeDeleted() const noexcept override {
         return !(m_alive && m_gameState.inActiveArea(getPosition().x));
@@ -50,12 +34,8 @@ public:
     bool isPassable() const noexcept override {
         return true;
     }
-
-    bool isOnPlayerSide() const noexcept {
-        return m_playerSide;
-    }
 private:
-    bool m_playerSide;
+    sf::Time m_launched;
     bool m_alive;
 };
 

@@ -117,6 +117,10 @@ public:
         m_shouldEnd = shouldEnd;
     }
 
+    sf::Time getCurrentTime() const noexcept {
+        return m_clock.getElapsedTime();
+    }
+
     int getScore() const noexcept {
         return m_score;
     }

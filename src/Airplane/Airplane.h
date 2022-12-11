@@ -17,12 +17,14 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "GameState.h"
 #include "Sprite.h"
 #include "Bullet.h"
+#include "Bomb.h"
 #include "Airplane/ShootComponent.h"
 #include "Airplane/ShootControlComponent.h"
 #include "Airplane/MoveComponent.h"
 #include "Airplane/DeathEffect.h"
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
 #include <SFML/System.hpp>
 
 #include <vector>
@@ -34,8 +36,14 @@ namespace Airplane {
     public:
         friend class Builder;
 
-        void handleEvent(sf::Event event) noexcept {
+        void handleEvent(sf::Event event) noexcept override {
             m_shootControlComponent->handleEvent(event);
+
+            if (test(m_flags, Flags::HAS_BOMBS) 
+             && event.type == sf::Event::MouseButtonPressed 
+             && event.mouseButton.button == sf::Mouse::Right) {
+                m_gameState.getEntities().addEntity(new Bomb{getPosition(), m_gameState});
+            }
         }
 
         void acceptCollide(Airplane& other) noexcept override {

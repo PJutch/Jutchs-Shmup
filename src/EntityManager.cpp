@@ -30,14 +30,16 @@ using std::unique_ptr;
 EntityManager::EntityManager() noexcept : m_entities{} {}
 
 void EntityManager::handleEvent(Event event) noexcept {
-    for (auto& entity : m_entities) {
-        if (entity->isActive()) entity->handleEvent(event);
+    for (int i = 0; i < ssize(m_entities); ++ i)  {
+        if (m_entities[i]->isActive()) 
+            m_entities[i]->handleEvent(event);
     }
 }
 
 void EntityManager::update(Time elapsedTime) noexcept {
     for (int i = 0; i < ssize(m_entities); ++ i) 
-        if (m_entities[i]->isActive()) m_entities[i]->update(elapsedTime);
+        if (m_entities[i]->isActive()) 
+            m_entities[i]->update(elapsedTime);
     
     for (int i = 0; i < ssize(m_entities); ++ i) 
         for (int j = i + 1; j < ssize(m_entities); ++ j) 
@@ -54,7 +56,8 @@ void EntityManager::update(Time elapsedTime) noexcept {
 
 void EntityManager::draw(RenderTarget& target, RenderStates states) const noexcept {
     for (const auto& entity : m_entities) {
-        if (entity->isActive()) target.draw(*entity, states);
+        if (entity->isActive()) 
+            target.draw(*entity, states);
     }
 }
 

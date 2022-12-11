@@ -23,6 +23,7 @@ namespace Airplane {
 }
 
 class Bullet;
+class Bomb;
 class Pickup;
 class AnimatedParticle;
 
@@ -32,7 +33,7 @@ class Entity : public sf::Drawable {
 public:
     virtual ~Entity() = default;
 
-    void handleEvent(sf::Event event) {}
+    virtual void handleEvent(sf::Event event) {}
 
     virtual void update(sf::Time elapsedTime) = 0;
 
@@ -45,6 +46,7 @@ public:
     virtual void startCollide(Entity& other) = 0;   
     virtual void acceptCollide(Airplane::Airplane& other) {}
     virtual void acceptCollide(Bullet& other) {}
+    virtual void acceptCollide(Bomb& other) {}
     virtual void acceptCollide(Pickup& other) {}
     virtual void acceptCollide(AnimatedParticle& other) {}
 

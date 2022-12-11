@@ -18,11 +18,11 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <format>
 
-AssetManager::AssetManager(std::mt19937_64& randomEngine) : m_randomEngine{randomEngine} {
-    if (!m_healthTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0026.png"))
-        throw TextureLoadError{"Can't load health texture"};
-    
+AssetManager::AssetManager(std::mt19937_64& randomEngine) : m_randomEngine{randomEngine} {    
     if (!m_bulletTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0000.png"))
+        throw TextureLoadError{"Can't load bullet texture"};
+
+    if (!m_bombTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0012.png"))
         throw TextureLoadError{"Can't load bullet texture"};
 
     if (!m_healthPickupTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0024.png")) 
@@ -51,6 +51,9 @@ AssetManager::AssetManager(std::mt19937_64& randomEngine) : m_randomEngine{rando
                           / getTextureFileName(type)).generic_string()))
             throw TextureLoadError{std::format("Can't load {} tile texture", getName(type))};
     });
+
+    if (!m_healthTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0026.png"))
+        throw TextureLoadError{"Can't load health texture"};
     
     if (!m_plusTexture.loadFromFile("resources/textures/plus.png"))
         throw TextureLoadError{"Can't load plus texture"};

@@ -49,6 +49,22 @@ public:
     void move(float x, float y) noexcept {
         move({x, y});
     }
+
+    void setRotation(float rotation) noexcept {
+        m_sprite.setRotation(rotation);
+    }
+
+    void setScale(sf::Vector2f factors) noexcept {
+        m_sprite.setScale(factors);
+    }
+
+    void setScale(float xFactor, float yFactor) noexcept {
+        setScale({xFactor, yFactor});
+    }
+
+    void setScale(float scale) noexcept {
+        setScale(scale, scale);
+    }
 protected:
     GameState& m_gameState;
 
@@ -62,10 +78,6 @@ protected:
 
     void setOrigin(float x, float y) noexcept {
         setOrigin({x, y});
-    }
-
-    void setRotation(float rotation) noexcept {
-        m_sprite.setRotation(rotation);
     }
 private:
     sf::Sprite m_sprite;

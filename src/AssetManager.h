@@ -30,12 +30,12 @@ class AssetManager {
 public:
     AssetManager(std::mt19937_64& randomEngine);
 
-    const sf::Texture& getHealthTexture() const noexcept {
-        return m_healthTexture;
-    }
-
     const sf::Texture& getBulletTexture() const noexcept {
         return m_bulletTexture;
+    }
+
+    const sf::Texture& getBombTexture() const noexcept {
+        return m_bombTexture;
     }
 
     const sf::Texture& getHealthPickupTexture() const noexcept {
@@ -61,6 +61,10 @@ public:
 
     sf::Vector2u getLandTextureSize() const noexcept {
         return m_landTextures[0].getSize();
+    }
+
+    const sf::Texture& getHealthTexture() const noexcept {
+        return m_healthTexture;
     }
 
     const sf::Texture& getPlusTexture() const noexcept {
@@ -94,8 +98,9 @@ public:
         return m_font;
     }
 private:
-    sf::Texture m_healthTexture;
     sf::Texture m_bulletTexture;
+    sf::Texture m_bombTexture;
+    
     sf::Texture m_healthPickupTexture;
     std::vector<sf::Texture> m_explosionAnimation;
 
@@ -103,6 +108,7 @@ private:
 
     std::array<sf::Texture, Land::TOTAL_VARIANTS> m_landTextures;
 
+    sf::Texture m_healthTexture;
     sf::Texture m_plusTexture;
     sf::Texture m_minusTexture;
     std::array<sf::Texture, 10> m_digitTextures;

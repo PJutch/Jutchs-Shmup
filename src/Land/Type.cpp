@@ -13,6 +13,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Land/Type.h"
 
+#include <format>
+
 namespace Land {
     bool isModifiable(Type type) noexcept {
         using enum Type;
@@ -116,6 +118,9 @@ namespace Land {
                     case PLAINS2  : fileName +=  "2"         ; break;
                     case TREES    : fileName +=  "_trees"    ; break;
                     case LOW_HOUSE: fileName +=  "_house_low"; break;
+                    case PLAINS: break;
+                    default: throw InvalidTypeError{
+                        std::format("No such feature {}", static_cast<int>(type))};
                 }
             
             fileName += ".png";

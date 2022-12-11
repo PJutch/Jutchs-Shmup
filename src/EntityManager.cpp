@@ -49,7 +49,7 @@ void EntityManager::update(Time elapsedTime) noexcept {
                 m_entities[j]->startCollide(*m_entities[i]);
     }
 
-    erase_if(m_entities, [this](const unique_ptr<Entity>& entity) -> bool {
+    erase_if(m_entities, [](const unique_ptr<Entity>& entity) -> bool {
         return entity->shouldBeDeleted();
     });
 }

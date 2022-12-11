@@ -23,7 +23,7 @@ AssetManager::AssetManager(std::mt19937_64& randomEngine) : m_randomEngine{rando
         throw TextureLoadError{"Can't load bullet texture"};
 
     if (!m_bombTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0012.png"))
-        throw TextureLoadError{"Can't load bullet texture"};
+        throw TextureLoadError{"Can't load bomb texture"};
 
     if (!m_healthPickupTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0024.png")) 
         throw TextureLoadError{"Can't load health pickup texture"};
@@ -51,6 +51,9 @@ AssetManager::AssetManager(std::mt19937_64& randomEngine) : m_randomEngine{rando
                           / getTextureFileName(type)).generic_string()))
             throw TextureLoadError{std::format("Can't load {} tile texture", getName(type))};
     });
+
+    if (!m_craterTexture.loadFromFile("resources/textures/crater.png"))
+        throw TextureLoadError{"Can't load crater texture"};
 
     if (!m_healthTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0026.png"))
         throw TextureLoadError{"Can't load health texture"};

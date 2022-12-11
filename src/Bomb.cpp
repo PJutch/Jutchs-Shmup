@@ -31,6 +31,9 @@ void Bomb::update(sf::Time elapsedTime) {
     float y = 10.f * t * t;
     if (y > 1.f) {
         m_alive = false;
+
+        m_gameState.getLand().handleExplosion(getPosition());
+
         auto* particle = new AnimatedParticle{getPosition(), 
             m_gameState.getAssets().getExplosionAnimation(), sf::seconds(0.1f), m_gameState};
         particle->setScale(0.75f);

@@ -17,9 +17,11 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <ranges>
 #include <iostream>
+#include <random>
 
 namespace Land {
-    Manager::Manager(GameState& gameState) noexcept : m_gameState{gameState} {}
+    Manager::Manager(GameState& gameState) noexcept : 
+        m_gameState{gameState}, m_randomEngine(gameState.getRandomEngine()) {}
 
     void Manager::init() {
         prepareChances();
@@ -50,7 +52,6 @@ namespace Land {
 
         using enum Type;
 
-        registerFeature(FEATURE | CRATER, 0.25);
         registerFeature(FEATURE | FIELD , 0.25);
         registerFeature(FEATURE | FLAG  , 0.25);
         registerFeature(FEATURE | BUSH  , 0.25);
@@ -73,20 +74,14 @@ namespace Land {
         m_land.emplace_back();
         m_endX = -m_gameState.getGameHeight();
 
-        float y = -m_gameState.getGameHeight();
-        m_land.back().push_back(ChanceTable::getRandom(m_chances, m_gameState.getRandomEngine()));
-        y += tileSize.y;
-
-        while (y < m_gameState.getGameHeight()) {
-            m_land.back().push_back(ChanceTable::getRandom(
-                    m_chances 
+        addTile(m_chances);
+        while (getLastY() < m_gameState.getGameHeight()) {
+            addTile(m_chances 
                         | std::views::filter(
                             [up = m_land.back().back()] 
                             (const auto& entry) -> bool {
                                 return isCompatableVertical(up, value(entry));
-                    })  | ChanceTable::views::normalize, 
-                m_gameState.getRandomEngine()));
-            y += tileSize.y;
+                    })  | ChanceTable::views::normalize);
         }
 
         while (m_endX < 5 * m_gameState.getGameHeight())
@@ -99,6 +94,15 @@ namespace Land {
             m_land.pop_front();
             addRow();
         }
+
+        std::erase_if(m_craters, [&gameState = m_gameState](sf::Vector2f crater) -> bool {
+            return !gameState.inActiveArea(crater.x);
+        });
+    }
+
+    float Manager::getLastY() const {
+        auto tileSize = m_gameState.getAssets().getLandTextureSize();
+        return (std::ssize(m_land.back()) - 1) * tileSize.y - m_gameState.getGameHeight();
     }
 
     void Manager::addRow() {
@@ -107,20 +111,16 @@ namespace Land {
         auto& row = m_land.back();
         row.reserve(std::ssize(prevRow));
 
-        row.push_back(ChanceTable::getRandom(
-                m_chances 
+        addTile(m_chances 
                     | std::views::filter(
                         [left     = prevRow[0],
                          downLeft = prevRow[1]] 
                         (const auto& entry) -> bool {
                         return isCompatableHorizontal(left, value(entry))
                             && isCompatableAntiDiagonal(downLeft, value(entry));
-                })  | ChanceTable::views::normalize, 
-            m_gameState.getRandomEngine()));
-
+                })  | ChanceTable::views::normalize);
         while (std::ssize(row) < std::ssize(prevRow) - 1)
-            row.push_back(ChanceTable::getRandom(
-                    m_chances 
+            addTile(m_chances 
                         | std::views::filter(
                         [up = row.back(), 
                          left     = prevRow[std::ssize(row)    ],
@@ -131,28 +131,42 @@ namespace Land {
                                 && isCompatableHorizontal  (left    , value(entry))
                                 && isCompatableDiagonal    (upLeft  , value(entry))
                                 && isCompatableAntiDiagonal(downLeft, value(entry));
-                    })  | ChanceTable::views::normalize, 
-                m_gameState.getRandomEngine()));
-
-        row.push_back(ChanceTable::getRandom(
-                m_chances 
+                    })  | ChanceTable::views::normalize);
+        addTile(m_chances 
                     | std::views::filter(
-                    [up   = row    .back(), 
-                        left = prevRow.back(),
-                        upLeft = prevRow[std::ssize(row) - 1]] 
+                        [up   = row    .back(), 
+                         left = prevRow.back(),
+                         upLeft = prevRow[std::ssize(row) - 1]] 
                         (const auto& entry) -> bool {
                             return isCompatableVertical  (up    , value(entry))
                                 && isCompatableHorizontal(left  , value(entry))
                                 && isCompatableDiagonal  (upLeft, value(entry));
-                })  | ChanceTable::views::normalize, 
-            m_gameState.getRandomEngine()));
+                })  | ChanceTable::views::normalize);
         
         m_endX += m_gameState.getAssets().getLandTextureSize().x;
     }
 
     void Manager::reset() {
         m_land.clear();
-        init();
+        generateSpawn();
+    }
+
+    void Manager::handleExplosion(sf::Vector2f position) {
+        auto tileSize = m_gameState.getAssets().getLandTextureSize();
+        sf::Vector2i landSize(std::ssize(m_land), std::ssize(m_land[0]));
+
+        sf::Vector2i landPosition((position.x - m_endX) / tileSize.x + landSize.x, 
+                                  (position.y + m_gameState.getGameHeight()) / tileSize.y);
+        
+        if (landPosition.x < 0 || landPosition.x > landSize.x) return;
+        
+        Land::Type& tile = m_land[landPosition.x][landPosition.y];
+        tile = destroyed(tile);
+        if (canHaveCrater(tile)) {
+            auto craterSize = m_gameState.getAssets().getCraterTexture().getSize();
+            m_craters.emplace_back(position.x - craterSize.x / 2.f, 
+                                   position.y - craterSize.y / 2.f);
+        }
     }
 
     void Manager::draw(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -169,6 +183,14 @@ namespace Land {
                     std::cout << static_cast<int>(m_land[ix][iy]) << std::endl;
                 sprite.setPosition(start.x + ix * textureSize.x, start.y + iy * textureSize.y);
                 target.draw(sprite, states);
+        }
+
+        for (auto crater : m_craters) {
+            auto& texture = m_gameState.getAssets().getCraterTexture();
+            sf::Sprite sprite{texture};
+
+            sprite.setPosition(crater);
+            target.draw(sprite, states);
         }
     }
 }

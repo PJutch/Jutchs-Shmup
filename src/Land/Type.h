@@ -20,6 +20,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <concepts>
 #include <compare>
 #include <bit>
+#include <stdexcept>
 #include <cstdint>
 
 namespace Land {
@@ -204,6 +205,23 @@ namespace Land {
 
     // true if it's valid to place the downLeft tile next to the upRight tile (in anti-diagonal manner)
     bool isCompatableAntiDiagonal(Type downLeft, Type upRight);
+
+    inline Type destroyed(Type type) {
+        if (test(type, Type::WATER) 
+         || test(type, Type::ROAD)) 
+            return type;
+        return Type::PLAINS | type & Type::BADLAND;
+    }
+
+    inline bool canHaveCrater(Type type) {
+        return test(type, Type::ROAD) 
+            || test(type, Type::WATER) && test(type, Type::DIR_MASK)
+            || (type & ~Type::MODIFIED & ~Type::BADLAND) == Type::PLAINS;
+    }
+
+    class InvalidTypeError : public std::logic_error {
+        using std::logic_error::logic_error;
+    };
 }
 
 #endif

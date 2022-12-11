@@ -156,16 +156,25 @@ namespace ChanceTable {
         using std::logic_error::logic_error;
     };
 
-    template <std::forward_iterator Iter, std::sentinel_for<Iter> Sentinel, 
-            std::uniform_random_bit_generator Engine> 
-        requires ConstEntry<std::iter_value_t<Iter>>
-    inline decltype(auto) getRandom(Iter first, Sentinel last, Engine& engine) {
-        return getRandom(std::ranges::subrange(first, last), engine);
-    }
+    template <typename T>
+    concept ConstRange = std::ranges::forward_range<T> 
+                      && ConstEntry<std::ranges::range_value_t<T>>;
+    
+    template <typename T>
+    concept Range = std::ranges::forward_range<T> 
+                 && Entry<std::ranges::range_value_t<T>>;
 
-    template <std::ranges::forward_range Range, std::uniform_random_bit_generator Engine> 
-        requires ConstEntry<std::ranges::range_value_t<Range>>
-    decltype(auto) getRandom(Range&& range, Engine& engine) {
+    template <typename T>
+    concept ConstIterator = std::forward_iterator<T> && ConstEntry<std::iter_value_t<T>>;
+    
+    template <typename T>
+    concept Iterator = std::forward_iterator<T> && Entry<std::iter_value_t<T>>;
+
+    template <ConstRange T>
+    using RangeValue_t = std::ranges::range_value_t<T>::value_type;
+
+    template <ConstRange R, std::uniform_random_bit_generator Engine>
+    decltype(auto) getRandom(R&& range, Engine& engine) {
         double seed = std::uniform_real_distribution{0.0, 1.0}(engine);
         for (const auto& entry : range) {
             if (seed < chance(entry)) {
@@ -178,15 +187,14 @@ namespace ChanceTable {
         throw Invalid("Sum of chances in the table must be >= 1.0");
     }
 
-    template <std::forward_iterator Iter, std::sentinel_for<Iter> Sentinel> 
-        requires Entry<std::iter_value_t<Iter>>
-    inline void normalize(Iter first, Sentinel last) {
-        normalize(std::ranges::subrange(first, last));
+    template <ConstIterator Iter, std::sentinel_for<Iter> Sentinel, 
+        std::uniform_random_bit_generator Engine>
+    inline decltype(auto) getRandom(Iter first, Sentinel last, Engine& engine) {
+        return getRandom(std::ranges::subrange(first, last), engine);
     }
 
-    template <std::ranges::forward_range Range> 
-        requires Entry<std::ranges::range_value_t<Range>>
-    void normalize(Range& range) {
+    template <Range R>
+    void normalize(R& range) {
         double sumChance = reduce(range, [](const auto& entry) {
             return chance(entry);
         });
@@ -195,13 +203,17 @@ namespace ChanceTable {
             entry.chance /= sumChance;
     }
 
+    template <Iterator Iter, std::sentinel_for<Iter> Sentinel>
+    inline void normalize(Iter first, Sentinel last) {
+        normalize(std::ranges::subrange(first, last));
+    }
+
     namespace views {
         namespace detail {
             struct NormalizeRangeAdaptor {
-                template <std::ranges::range Range> 
-                    requires ConstEntry<std::ranges::range_value_t<Range>>
-                decltype(auto) operator () (Range&& range) const noexcept {
-                    double sumChance = reduce(std::forward<Range>(range), [](const auto& entry) {
+                template <ConstRange R>
+                decltype(auto) operator () (R&& range) const noexcept {
+                    double sumChance = reduce(std::forward<R>(range), [](const auto& entry) {
                         return chance(entry);
                     });
 

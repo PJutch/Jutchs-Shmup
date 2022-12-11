@@ -19,6 +19,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <SFML/Graphics.hpp>
 
+#include <random>
+
 class GameState;
 
 namespace Land {
@@ -28,11 +30,14 @@ namespace Land {
 
         void init();
 
+        void handleExplosion(sf::Vector2f position);
+
         void update();
 
         void reset();
     private:
         std::deque<std::vector<Type>> m_land;
+        std::vector<sf::Vector2f> m_craters;
         float m_endX;
 
         std::vector<ChanceTable::BasicEntry<Type>> m_chances;
@@ -40,6 +45,9 @@ namespace Land {
         const static std::array<double, 5> s_waterChances; // index is activeDirCount
 
         GameState& m_gameState;
+        std::mt19937_64& m_randomEngine;
+
+        void prepareChances();
 
         void registerFeature(Type feature, double chance) {
             m_chances.emplace_back(feature, chance);
@@ -47,10 +55,22 @@ namespace Land {
                 m_chances.emplace_back(feature | Type::BADLAND, chance);
         }
 
-        void prepareChances();
         void generateSpawn();
-
         void addRow();
+
+        template <ChanceTable::ConstRange Chances>
+            requires std::convertible_to<ChanceTable::RangeValue_t<Chances>, Land::Type>
+        void addTile(Chances&& chances) {
+            Type type = ChanceTable::getRandom(chances, m_randomEngine);
+            m_land.back().push_back(type);
+            if (canHaveCrater(type)
+             && std::uniform_real_distribution{}(m_randomEngine) < 1.0) {
+                m_craters.emplace_back(m_endX, getLastY());
+            }
+        }
+
+        // get y of the last tile in the last row
+        float getLastY() const;
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const;
     };

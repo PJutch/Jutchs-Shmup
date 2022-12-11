@@ -63,6 +63,10 @@ public:
         return m_landTextures[0].getSize();
     }
 
+    const sf::Texture& getCraterTexture() const noexcept {
+        return m_craterTexture;
+    }
+
     const sf::Texture& getHealthTexture() const noexcept {
         return m_healthTexture;
     }
@@ -107,6 +111,7 @@ private:
     std::array<sf::Texture, Airplane::TEXTURE_VARIANTS> m_airplaneTextures;
 
     std::array<sf::Texture, Land::TOTAL_VARIANTS> m_landTextures;
+    sf::Texture m_craterTexture;
 
     sf::Texture m_healthTexture;
     sf::Texture m_plusTexture;

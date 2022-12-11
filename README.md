@@ -5,6 +5,8 @@ This is just a shoot'em up game.
 
 Currently work is in progress.
 
+(This branch contains buggy code that I want to explore some times a bit more).
+
 ## License
 Jutch's Shump is licensed under GNU General Public License 3
 

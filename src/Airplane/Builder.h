@@ -92,7 +92,7 @@ namespace Airplane {
         std::unique_ptr<Airplane> build() noexcept {
             m_build->m_moveComponent->setSpeed(m_speed);
 
-            setTexture(m_gameState.getAssets().getAirplaneTexture(m_build->m_flags));
+            m_build->updateTexture();
 
             return std::move(m_build);
         }
@@ -102,13 +102,6 @@ namespace Airplane {
         sf::Vector2f m_speed;
 
         GameState& m_gameState;
-
-        void setTexture(const sf::Texture& texture) noexcept {
-            m_build->setTexture(texture);
-
-            auto size = texture.getSize();
-            m_build->setOrigin(size.x / 2.f, size.y / 2.f);
-        }
     };
 
     template<typename... Args>

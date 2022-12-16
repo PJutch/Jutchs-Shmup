@@ -112,6 +112,8 @@ namespace Airplane {
             if (m_shootControlComponent->shouldShoot()) {
                 m_shootComponent->tryShoot();
             }
+
+            updateTexture();
         }
 
         bool isActive() const noexcept override {
@@ -162,6 +164,14 @@ namespace Airplane {
         Airplane(GameState& gameState) noexcept : 
             Sprite{gameState},
             m_health{0}, m_maxHealth{0}, m_damageCooldown{sf::seconds(0.f)} {}
+
+        void updateTexture() noexcept {
+            const auto& texture = m_gameState.getAssets().getAirplaneTexture(m_flags);
+            setTexture(texture);
+
+            auto size = texture.getSize();
+            setOrigin(size.x / 2.f, size.y / 2.f);
+        }
     };
 }
 

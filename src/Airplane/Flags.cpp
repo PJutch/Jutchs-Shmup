@@ -27,6 +27,7 @@ namespace Airplane {
         if (test(flags, HEAVY     )) path += "_heavy" ;
         if (test(flags, FAST      )) path += "_fast"  ;
         if (test(flags, HAS_WEAPON)) path += "_weapon";
+        if (test(flags, HAS_BOMB  )) path += "_bomb"  ;
 
         path += ".png";
         return path;
@@ -44,10 +45,17 @@ namespace Airplane {
 
         if (test(flags, HEAVY     )) name += " heavy" ;
         if (test(flags, FAST      )) name += " fast"  ;
+
         if (test(flags, HAS_WEAPON)) {
             name += "with weapon";
         } else {
             name += "without weapon";
+        }
+
+        if (test(flags, HAS_BOMB)) {
+            name += "with bomb";
+        } else {
+            name += "without bomb";
         }
 
         return name;

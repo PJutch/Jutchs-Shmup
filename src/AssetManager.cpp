@@ -22,8 +22,8 @@ AssetManager::AssetManager(std::mt19937_64& randomEngine) : m_randomEngine{rando
     if (!m_bulletTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0000.png"))
         throw TextureLoadError{"Can't load bullet texture"};
 
-    if (!m_bombTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0012.png"))
-        throw TextureLoadError{"Can't load bullet texture"};
+    if (!m_bombTexture.loadFromFile("resources/textures/bomb2.png"))
+        throw TextureLoadError{"Can't load bomb texture"};
 
     if (!m_healthPickupTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0024.png")) 
         throw TextureLoadError{"Can't load health pickup texture"};

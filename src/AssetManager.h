@@ -42,6 +42,10 @@ public:
         return m_healthPickupTexture;
     }
 
+    const sf::Texture& getBombPickupTexture() const noexcept {
+        return m_bombTexture;
+    }
+
     const std::vector<sf::Texture>& getExplosionAnimation() const noexcept {
         return m_explosionAnimation;
     }

@@ -35,8 +35,8 @@ namespace Airplane {
         DELETABLE   = 0b0010000,
         NO_PICKUPS  = 0b0000000,
         USE_PICKUPS = 0b0100000,
-        NO_BOMBS    = 0b0000000,
-        HAS_BOMBS   = 0b1000000,
+        NO_BOMB     = 0b0000000,
+        HAS_BOMB    = 0b1000000,
 
         TEXTURE     = 0b0001111, // flags used to determinate texture, must be continuous
         RUNTIME     = 0b1110001, // flags used to tweak runtime behaviour

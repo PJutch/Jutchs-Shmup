@@ -47,7 +47,7 @@ void GameState::initPlayer() {
 
     m_player = Airplane::Builder{*this}
         .position({0.f, 0.f}).maxHealth(3)
-        .flags(PLAYER_SIDE | HEAVY | SLOW | NO_WEAPON | UNIQUE | USE_PICKUPS | HAS_BOMBS)
+        .flags(PLAYER_SIDE | HEAVY | SLOW | NO_WEAPON | UNIQUE | USE_PICKUPS | NO_BOMB)
         .shootComponent<Airplane::BasicShootComponent>()
         .shootControlComponent<Airplane::PlayerShootControlComponent>()
         .moveComponent<Airplane::PlayerMoveComponent>().speed({250.f, 250.f})
@@ -145,7 +145,7 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
 
         Airplane::Builder builder{*this};
         builder.position(position).maxHealth(1)
-            .flags(ENEMY_SIDE | DELETABLE | NO_PICKUPS | NO_BOMBS);
+            .flags(ENEMY_SIDE | DELETABLE | NO_PICKUPS | NO_BOMB);
 
         int score = 10;
 

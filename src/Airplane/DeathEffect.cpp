@@ -28,8 +28,11 @@ namespace Airplane {
         DeathEffect(owner, gameState), m_score{score} {}
 
     void LootDeathEffect::handleDeath() noexcept {
-        if (m_gameState.genRandom(std::uniform_real_distribution{0.0, 1.0}) < 0.1) {
+        double seed = std::uniform_real_distribution{0.0, 1.0}(m_gameState.getRandomEngine());
+        if (seed < 0.1) {
             m_gameState.getEntities().addEntity(new HealthPickup{m_owner.getPosition(), m_gameState});
+        } else if (seed < 0.2) {
+            m_gameState.getEntities().addEntity(new BombPickup{m_owner.getPosition(), m_gameState});
         }
     }
 

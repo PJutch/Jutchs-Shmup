@@ -39,10 +39,11 @@ namespace Airplane {
         void handleEvent(sf::Event event) noexcept override {
             m_shootControlComponent->handleEvent(event);
 
-            if (test(m_flags, Flags::HAS_BOMBS) 
+            if (test(m_flags, Flags::HAS_BOMB) 
              && event.type == sf::Event::MouseButtonPressed 
              && event.mouseButton.button == sf::Mouse::Right) {
                 m_gameState.getEntities().addEntity(new Bomb{getPosition(), m_gameState});
+                m_flags &= ~Flags::HAS_BOMB;
             }
         }
 
@@ -64,8 +65,8 @@ namespace Airplane {
             }
         }
 
-        // return true if success
-        bool addHealth(int health) noexcept { 
+        // return true on success
+        bool tryAddHealth(int health) noexcept { 
             if (m_health >= m_maxHealth) return false;
             m_health = std::min(m_health + health, m_maxHealth);
             return true;
@@ -77,6 +78,14 @@ namespace Airplane {
 
         int getHealth() const noexcept {
             return m_health;
+        }
+
+        // add 1 bomb
+        // return true on success 
+        bool tryAddBomb() noexcept {
+            bool hadBomb = test(m_flags, Flags::HAS_BOMB);
+            m_flags |= Flags::HAS_BOMB;
+            return !hadBomb;
         }
 
         sf::Vector2f getMinSpeed() const noexcept {

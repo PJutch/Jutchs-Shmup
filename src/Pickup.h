@@ -64,7 +64,20 @@ public:
         Pickup{position, gameState.getAssets().getHealthPickupTexture(), gameState} {}
 
     void apply(Airplane::Airplane& airplane) noexcept override {
-        if (isActive() && airplane.addHealth(1)) {
+        if (isActive() && airplane.tryAddHealth(1)) {
+            m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomPowerUpSound());
+            die();
+        }
+    };
+};
+
+class BombPickup : public Pickup {
+public:
+    BombPickup(sf::Vector2f position, GameState& gameState) noexcept: 
+        Pickup{position, gameState.getAssets().getBombPickupTexture(), gameState} {}
+
+    void apply(Airplane::Airplane& airplane) noexcept override {
+        if (isActive() && airplane.tryAddBomb()) {
             m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomPowerUpSound());
             die();
         }

@@ -205,7 +205,7 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
         }
 
         bool hasBomb = false;
-        if (canonicalDistribution(getRandomEngine()) < 1.0) { // for tests
+        if (canonicalDistribution(getRandomEngine()) < 0.1) {
             builder.bomb();
             hasBomb = true;
             score *= 2;

@@ -144,8 +144,7 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
         using enum Airplane::Flags;
 
         Airplane::Builder builder{*this};
-        builder.position(position).maxHealth(1)
-            .flags(ENEMY_SIDE | DELETABLE | NO_PICKUPS | NO_BOMB);
+        builder.position(position).maxHealth(1).flags(ENEMY_SIDE | DELETABLE | NO_PICKUPS);
 
         int score = 10;
 
@@ -159,14 +158,15 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
         }
 
         double shootSeed = genRandom(canonicalDistribution);
+        bool advancedWeapon = false;
         if (shootSeed < 0.1) {
             builder.shootComponent<Airplane::TripleShootComponent>();
             builder.flags() |= HAS_WEAPON;
-            score *= 2;
+            advancedWeapon = true;
         } else if (shootSeed < 0.2) {
             builder.shootComponent<Airplane::VolleyShootComponent>();
             builder.flags() |= NO_WEAPON;
-            score *= 2;
+            advancedWeapon = true;
         } else {
             builder.shootComponent<Airplane::BasicShootComponent >();
             builder.flags() |= NO_WEAPON;
@@ -182,11 +182,14 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
                 <Airplane::NeverShootControlComponent>();
             builder.flags() &= ~HAS_WEAPON;
             builder.flags() |= NO_WEAPON;
+            advancedWeapon = false;
             score /= 2;
         } else {
             shootControl = builder.createShootControlComponent
                 <Airplane::AlwaysShootControlComponent>();
         }
+
+        if (advancedWeapon) score *= 2;
 
         builder.shootControlComponent<Airplane::AndShootControlComponent>(std::move(shootControl), 
             builder.createShootControlComponent<Airplane::CanHitPlayerShootControlComponent>());
@@ -207,6 +210,13 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
             builder.moveComponent<Airplane::FollowPlayerMoveComponent>();
         } else {
             builder.moveComponent<Airplane::BasicMoveComponent>();
+        }
+
+        if (canonicalDistribution(getRandomEngine()) < 1.0) { // for tests
+            builder.flags() |= HAS_BOMB;
+            score *= 2;
+        } else {
+            builder.flags() |= NO_BOMB;
         }
 
         builder.addDeathEffect<Airplane::ScoreDeathEffect>(score)

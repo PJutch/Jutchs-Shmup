@@ -39,7 +39,7 @@ namespace Airplane {
         void handleEvent(sf::Event event) noexcept override {
             m_shootControlComponent->handleEvent(event);
 
-            if (test(m_flags, Flags::HAS_BOMB) 
+            if (test(m_flags, Flags::HAS_BOMB) && test(m_flags, Flags::PLAYER_SIDE) 
              && event.type == sf::Event::MouseButtonPressed 
              && event.mouseButton.button == sf::Mouse::Right) {
                 m_gameState.getEntities().addEntity(new Bomb{getPosition(), m_gameState});
@@ -129,6 +129,7 @@ namespace Airplane {
             if (test(m_flags, Flags::DELETABLE)) return true;
 
             m_health = m_maxHealth;
+            m_flags &= ~Flags::HAS_BOMB;
             setPosition(0.f, 0.f);
             return false;
         }
@@ -146,7 +147,11 @@ namespace Airplane {
         }
 
         bool canUsePickups() const noexcept {
-            return static_cast<bool>(m_flags & Flags::USE_PICKUPS);
+            return test(m_flags, Flags::USE_PICKUPS);
+        }
+
+        bool hasBomb() const noexcept {
+            return test(m_flags, Flags::HAS_BOMB);
         }
     private:
         std::unique_ptr<ShootComponent> m_shootComponent;

@@ -19,6 +19,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/System.hpp>
 
 #include <tuple>
+#include <functional>
 
 namespace Airplane {
     class Airplane;
@@ -67,9 +68,10 @@ namespace Airplane {
         bool m_moveUp;
     };
 
-    class FollowPlayerMoveComponent : public MoveComponent {
+    class LineWithTargetMoveComponent : public MoveComponent {
     public:
-        using MoveComponent::MoveComponent;
+        LineWithTargetMoveComponent(Airplane& owner, GameState& gameState, 
+            std::function<sf::Vector2f()> getTarget) noexcept;
 
         void update(sf::Time elapsedTime) noexcept override;
 
@@ -77,6 +79,7 @@ namespace Airplane {
             return {-m_speed.x, 0};
         }
     private:
+        std::function<sf::Vector2f()> m_getTarget;
         bool m_moveUp;
     };
 

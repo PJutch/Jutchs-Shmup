@@ -208,7 +208,10 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
         if (moveSeed < 0.1) {
             builder.moveComponent<Airplane::PeriodicalMoveComponent>();
         } else if (moveSeed < 0.2) {
-            builder.moveComponent<Airplane::FollowPlayerMoveComponent>();
+            builder.moveComponent<Airplane::LineWithTargetMoveComponent>(
+                [&player = getPlayer()]() -> sf::Vector2f {
+                    return player.getPosition();
+                });
         } else {
             builder.moveComponent<Airplane::BasicMoveComponent>();
         }

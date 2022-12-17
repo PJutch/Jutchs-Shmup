@@ -86,16 +86,21 @@ namespace Airplane {
         m_owner.setPosition({m_owner.getPosition().x - moved.x, y});
     }
 
-    void FollowPlayerMoveComponent::update(Time elapsedTime) noexcept {
+    LineWithTargetMoveComponent::LineWithTargetMoveComponent(
+        Airplane& owner, GameState& gameState, std::function<sf::Vector2f()> getTarget) noexcept :
+            MoveComponent(owner, gameState), m_getTarget{std::move(getTarget)}, m_moveUp{true} {}
+
+    void LineWithTargetMoveComponent::update(Time elapsedTime) noexcept {
         auto moved = m_speed * elapsedTime.asSeconds();
+        auto target = m_getTarget();
 
         auto [minY, maxY] = getMinmaxY();  
-        float playerY = m_gameState.getPlayer().getPosition().y;
+        float targetY = target.y;
         float y = m_owner.getPosition().y;
-        if (abs(playerY - y) < moved.y) {
-            y = playerY;
+        if (abs(targetY - y) < moved.y) {
+            y = targetY;
         } else {
-            y = y + (playerY > y ? 1.f : -1.f) * moved.y;
+            y = y + (targetY > y ? 1.f : -1.f) * moved.y;
             if (y > maxY) {
                 y = maxY;
             } else if (y < minY) {

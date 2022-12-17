@@ -124,6 +124,7 @@ namespace Airplane {
             m_health = m_maxHealth;
             m_flags &= ~Flags::HAS_BOMB;
             setPosition(0.f, 0.f);
+            m_bombComponent->reset();
             return false;
         }
 

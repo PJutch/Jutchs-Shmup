@@ -40,8 +40,8 @@ namespace Airplane {
     tuple<float, float> MoveComponent::getMinmaxY() const noexcept {
         auto globalBounds = m_owner.getGlobalBounds();
 
-        float minTop = -m_gameState.getGameHeight();
-        float maxBottom =  m_gameState.getGameHeight();
+        float minTop = -m_gameState.getGameHeight() / 2;
+        float maxBottom =  m_gameState.getGameHeight() / 2;
         for (auto& entity : m_gameState.getEntities()) {
             if (entity->isPassable() || entity.get() == &m_owner) continue;
 
@@ -64,7 +64,7 @@ namespace Airplane {
 
     void BasicMoveComponent::update(Time elapsedTime) noexcept {
         auto moved = m_speed * elapsedTime.asSeconds();
-        m_owner.move({-moved.x, 0.f});
+        m_owner.move(-moved.x, 0.f);
     }
 
     PeriodicalMoveComponent::PeriodicalMoveComponent(Airplane& owner, GameState& gameState) noexcept :
@@ -83,11 +83,11 @@ namespace Airplane {
             m_moveUp = true;
         }
         
-        m_owner.setPosition({m_owner.getPosition().x - moved.x, y});
+        m_owner.setPosition(m_owner.getPosition().x - moved.x, y);
     }
 
     LineWithTargetMoveComponent::LineWithTargetMoveComponent(
-        Airplane& owner, GameState& gameState, std::function<sf::Vector2f(const Airplane&)> getTarget) noexcept :
+        Airplane& owner, GameState& gameState, TargetGetter getTarget) noexcept :
             MoveComponent(owner, gameState), m_getTarget{std::move(getTarget)}, m_moveUp{true} {}
 
     void LineWithTargetMoveComponent::update(Time elapsedTime) noexcept {
@@ -108,29 +108,29 @@ namespace Airplane {
             }
         }
         
-        m_owner.setPosition({m_owner.getPosition().x - moved.x, y});
+        m_owner.setPosition(m_owner.getPosition().x - moved.x, y);
     }
 
     void PlayerMoveComponent::update(Time elapsedTime) noexcept {
         if (Keyboard::isKeyPressed(Keyboard::W)) {
-            m_owner.move({0.f, -m_speed.y * elapsedTime.asSeconds()});
+            m_owner.move(0.f, -m_speed.y * elapsedTime.asSeconds());
 
             auto globalBounds = m_owner.getGlobalBounds();
             if (globalBounds.top < -m_gameState.getGameHeight() / 2)
-                m_owner.setPosition({m_owner.getPosition().x, 
-                                    -m_gameState.getGameHeight() / 2 + globalBounds.height / 2.f});
+                m_owner.setPosition(m_owner.getPosition().x, 
+                                    -m_gameState.getGameHeight() / 2 + globalBounds.height / 2.f);
         } else if (Keyboard::isKeyPressed(Keyboard::S)) {
-            m_owner.move({0.f, m_speed.y * elapsedTime.asSeconds()});
+            m_owner.move(0.f, m_speed.y * elapsedTime.asSeconds());
 
             auto globalBounds = m_owner.getGlobalBounds();
             if (globalBounds.top + globalBounds.width > m_gameState.getGameHeight() / 2)
-                m_owner.setPosition({m_owner.getPosition().x, 
-                                    m_gameState.getGameHeight() / 2 - globalBounds.height / 2.f});
+                m_owner.setPosition(m_owner.getPosition().x, 
+                                    m_gameState.getGameHeight() / 2 - globalBounds.height / 2.f);
         }
 
         float movedX = m_speed.x * elapsedTime.asSeconds();
         if (Keyboard::isKeyPressed(Keyboard::D)) movedX *= 2;
 
-        m_owner.move({movedX, 0.f});
+        m_owner.move(movedX, 0.f);
     }
 }

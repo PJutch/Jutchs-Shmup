@@ -70,8 +70,10 @@ namespace Airplane {
 
     class LineWithTargetMoveComponent : public MoveComponent {
     public:
+        using TargetGetter = std::function<sf::Vector2f(const Airplane&)>;
+
         LineWithTargetMoveComponent(Airplane& owner, GameState& gameState, 
-            std::function<sf::Vector2f(const Airplane&)> getTarget) noexcept;
+            TargetGetter getTarget) noexcept;
 
         void update(sf::Time elapsedTime) noexcept override;
 
@@ -79,7 +81,7 @@ namespace Airplane {
             return {-m_speed.x, 0};
         }
     private:
-        std::function<sf::Vector2f(const Airplane&)> m_getTarget;
+        TargetGetter m_getTarget;
         bool m_moveUp;
     };
 

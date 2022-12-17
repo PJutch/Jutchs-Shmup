@@ -17,12 +17,13 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 namespace Airplane {
     BombComponent::BombComponent(Airplane& owner, GameState& gameState) noexcept :
-        m_owner{owner}, m_gameState{gameState} {}
+        m_owner{owner}, m_gameState{gameState}, m_hasBomb{false} {}
 
     void BombComponent::tryBomb() {
-        if (m_owner.tryRemoveBomb())
+        if (m_hasBomb)
             m_gameState.getEntities().addEntity(
                 new Bomb{m_owner.isOnPlayerSide(), m_owner.getPosition(), m_gameState});
+        m_hasBomb = false;
     }
 
     void EnemyBombComponent::update(sf::Time elapsedTime) {

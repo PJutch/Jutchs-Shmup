@@ -72,6 +72,11 @@ namespace Airplane {
             return *this;
         }
 
+        Builder& bomb(bool hasBomb = true) noexcept {
+            m_hasBomb = hasBomb;
+            return *this;
+        }
+
         template<std::derived_from<DeathEffect> Component, typename... Args>
         Builder& addDeathEffect(Args&&... args) {
             m_build->m_deathEffects.emplace_back(
@@ -90,6 +95,7 @@ namespace Airplane {
 
         std::unique_ptr<Airplane> build() noexcept {
             m_build->m_moveComponent->setSpeed(m_speed);
+            m_build->m_bombComponent->setHasBomb(m_hasBomb);
 
             m_build->updateTexture();
 
@@ -99,6 +105,7 @@ namespace Airplane {
         std::unique_ptr<Airplane> m_build;
 
         sf::Vector2f m_speed;
+        bool m_hasBomb;
 
         GameState& m_gameState;
     };
@@ -106,7 +113,7 @@ namespace Airplane {
     template<typename... Args>
     Builder::Builder(GameState& gameState, Args&&... args) : 
         m_build{new Airplane{gameState, std::forward<Args>(args)...}}, m_gameState{gameState},         
-        m_speed{0.f, 0.f} {}
+        m_speed{0.f, 0.f}, m_hasBomb{false} {}
 }
 
 #endif

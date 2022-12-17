@@ -15,6 +15,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define AIRPLANE_BOMB_COMPONENT_H_
 
 #include "GameState.h"
+#include "Airplane/Flags.h"
 
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
@@ -29,11 +30,31 @@ namespace Airplane {
 
         virtual void handleEvent(sf::Event event) {}
         virtual void update(sf::Time elapsedTime) {}
+
+        bool hasBomb() const noexcept {
+            return m_hasBomb;
+        }
+
+        void setHasBomb(bool hasBomb) noexcept {
+            m_hasBomb = hasBomb;
+        }
+
+        bool tryAddBomb() noexcept {
+            if (m_hasBomb) return false;
+            m_hasBomb = true;
+            return true;
+        }
+
+        Flags getTextureFlags() const noexcept {
+            return m_hasBomb ? Flags::HAS_BOMB : Flags::NO_BOMB;
+        }
     protected:
         Airplane& m_owner;
         GameState& m_gameState;
         
         void tryBomb();
+    private:
+        bool m_hasBomb;
     };
 
     class EnemyBombComponent : public BombComponent {

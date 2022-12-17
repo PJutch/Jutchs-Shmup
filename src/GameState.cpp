@@ -214,10 +214,8 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
         }
 
         if (canonicalDistribution(getRandomEngine()) < 1.0) { // for tests
-            builder.flags() |= HAS_BOMB;
+            builder.bomb();
             score *= 2;
-        } else {
-            builder.flags() |= NO_BOMB;
         }
         builder.bombComponent<Airplane::EnemyBombComponent>();
 

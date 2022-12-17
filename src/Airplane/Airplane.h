@@ -76,20 +76,8 @@ namespace Airplane {
             return m_health;
         }
 
-        // add 1 bomb
-        // return true on success 
         bool tryAddBomb() noexcept {
-            bool hadBomb = test(m_flags, Flags::HAS_BOMB);
-            m_flags |= Flags::HAS_BOMB;
-            return !hadBomb;
-        }
-
-        // remove 1 bomb
-        // return true on success 
-        bool tryRemoveBomb() noexcept {
-            bool hadBomb = test(m_flags, Flags::HAS_BOMB);
-            m_flags &= ~Flags::HAS_BOMB;
-            return hadBomb;
+            return m_bombComponent->tryAddBomb();
         }
 
         sf::Vector2f getMinSpeed() const noexcept {
@@ -156,7 +144,7 @@ namespace Airplane {
         }
 
         bool hasBomb() const noexcept {
-            return test(m_flags, Flags::HAS_BOMB);
+            return m_bombComponent->hasBomb();
         }
     private:
         std::unique_ptr<ShootComponent> m_shootComponent;
@@ -177,7 +165,10 @@ namespace Airplane {
             m_health{0}, m_maxHealth{0}, m_damageCooldown{sf::seconds(0.f)} {}
 
         void updateTexture() noexcept {
-            const auto& texture = m_gameState.getAssets().getAirplaneTexture(m_flags);
+            Flags flags = m_flags;
+            flags |= m_bombComponent->getTextureFlags();
+
+            const auto& texture = m_gameState.getAssets().getAirplaneTexture(flags);
             setTexture(texture);
 
             auto size = texture.getSize();

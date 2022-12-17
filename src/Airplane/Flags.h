@@ -39,7 +39,7 @@ namespace Airplane {
         HAS_BOMB    = 0b0010000,
 
         TEXTURE     = 0b0011111, // flags used to determinate texture, must be continuous
-        RUNTIME     = 0b1110001, // flags used to tweak runtime behaviour
+        RUNTIME     = 0b1100001, // flags used to tweak runtime behaviour
     };
 
     const int TEXTURE_VARIANTS = static_cast<int>(Flags::TEXTURE) + 1;

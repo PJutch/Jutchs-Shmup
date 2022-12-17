@@ -211,17 +211,9 @@ namespace Land {
         return Type::CRATER | type & Type::BADLAND;
     }
 
-    inline int scoreIfDestroyed(Type type) {
-        using enum Type;
+    int scoreIfDestroyed(Type type);
 
-        switch (type & ~MODIFIED & ~BADLAND) {
-        case HOUSE   : return -10;
-        case FIELD   : return -10;
-        case FLAG    : return 100;
-        case AIRDROME: return 100;
-        default      : return   0;
-        }
-    }
+    bool isEnemyTarget(Type type);
 }
 
 #endif

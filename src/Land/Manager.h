@@ -33,6 +33,18 @@ namespace Land {
         void update();
 
         void reset();
+
+        Type& operator[] (sf::Vector2f position) noexcept {
+            auto [x, y] = toIndices(position);
+            return m_land[x][y];
+        }
+
+        const Type& operator[] (sf::Vector2f position) const noexcept {
+            auto [x, y] = toIndices(position);
+            return m_land[x][y];
+        }
+
+        bool isXValid(float x) const noexcept;
     private:
         std::deque<std::vector<Type>> m_land;
         float m_endX;
@@ -55,6 +67,8 @@ namespace Land {
         void addRow();
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const;
+
+        sf::Vector2i toIndices(sf::Vector2f position) const noexcept;
     };
 }
 

@@ -51,6 +51,7 @@ void GameState::initPlayer() {
         .shootComponent<Airplane::BasicShootComponent>()
         .shootControlComponent<Airplane::PlayerShootControlComponent>()
         .moveComponent<Airplane::PlayerMoveComponent>().speed({250.f, 250.f})
+        .bombComponent<Airplane::PlayerBombComponent>()
         .addDeathEffect<Airplane::LoseDeathEffect>()
         .addDeathEffect<Airplane::ExplosionDeathEffect>()
         .build().release();
@@ -218,9 +219,10 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
         } else {
             builder.flags() |= NO_BOMB;
         }
+        builder.bombComponent<Airplane::EnemyBombComponent>();
 
-        builder.addDeathEffect<Airplane::ScoreDeathEffect>(score)
-               .addDeathEffect<Airplane::LootDeathEffect>()
+        builder.addDeathEffect<Airplane::ScoreDeathEffect    >(score)
+               .addDeathEffect<Airplane::LootDeathEffect     >()
                .addDeathEffect<Airplane::ExplosionDeathEffect>();
 
         m_entityManager.addEntity(builder.build());

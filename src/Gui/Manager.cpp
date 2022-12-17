@@ -215,20 +215,20 @@ namespace Gui {
             m_menuOpen = !m_menuOpen;
     }
 
-    sf::Vector2f Manager::drawNumber(int n, sf::Vector2f position, float alpha,
+    sf::Vector2f Manager::drawUnsignedNumber(int n, sf::Vector2f position, float alpha,
                              sf::RenderTarget& target, sf::RenderStates states) const {
-        auto score = std::to_string(n);
+        auto string = std::to_string(n);
         const auto& digitTextures = m_gameState.getAssets().getDigitTextures();
         auto digitSize = digitTextures[0].getSize();
 
-        for (int i = 0; i < std::ssize(score); ++ i) {
-            sf::Sprite digitSprite{digitTextures[score[i] - '0']};
+        for (int i = 0; i < std::ssize(string); ++ i) {
+            sf::Sprite digitSprite{digitTextures[string[i] - '0']};
             digitSprite.setColor(sf::Color(255, 255, 255, alpha * 255));
             digitSprite.setPosition(i * digitSize.x + position.x, position.y);
             target.draw(digitSprite, states);
         }
 
-        return sf::Vector2f(std::ssize(score) * digitSize.x, digitSize.y);
+        return sf::Vector2f(std::ssize(string) * digitSize.x, digitSize.y);
     }
 
     sf::Vector2f Manager::drawHealth(sf::Vector2f position, 
@@ -250,10 +250,23 @@ namespace Gui {
 
     sf::Vector2f Manager::drawScore(sf::Vector2f position, 
             sf::RenderTarget& target, sf::RenderStates states) const {
-        auto maxWidth = drawNumber(m_gameState.getScore(), position, target, states).x;
+        float maxWidth = 0.f;
 
         const auto& assets = m_gameState.getAssets();
         auto digitSize = assets.getDigitTextures()[0].getSize();
+
+        int score = m_gameState.getScore();
+        if (score < 0) {
+            sf::Sprite minusSprite{assets.getMinusTexture()};
+            minusSprite.setPosition(position);
+            target.draw(minusSprite, states);
+            maxWidth = digitSize.x;
+
+            maxWidth += drawUnsignedNumber(-score, {position.x + maxWidth, position.y}, target, states).x;
+        } else {
+            maxWidth  = drawUnsignedNumber( score, {position.x + maxWidth, position.y}, target, states).x;
+        }
+
         const auto& scoreChanges = m_gameState.getScoreChanges();
 
         for (int i = std::ssize(scoreChanges) - 1; i >= 0; -- i) {
@@ -262,18 +275,21 @@ namespace Gui {
 
             float yPos = position.y + digitSize.y * (std::ssize(scoreChanges) - i);
 
+            int scoreChange = scoreChanges[i].value;
+
             sf::Sprite signSprite;
             signSprite.setColor(sf::Color(255, 255, 255, alpha * 255));
-            if (scoreChanges[i].value >= 0) {
+            if (scoreChange >= 0) {
                 signSprite.setTexture(assets.getPlusTexture());
             } else {
                 signSprite.setTexture(assets.getMinusTexture());
+                scoreChange = -scoreChange;
             }
             signSprite.setPosition(position.x, yPos);
             target.draw(signSprite, states);
 
             maxWidth = std::max(maxWidth,
-                drawNumber(scoreChanges[i].value, 
+                drawUnsignedNumber(scoreChange, 
                     sf::Vector2f(position.x + digitSize.x, yPos), 
                     alpha, target, states).x);
         }

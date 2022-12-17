@@ -252,4 +252,26 @@ namespace Land {
 
         return true;
     }
+
+    int scoreIfDestroyed(Type type) {
+        using enum Type;
+
+        switch (type & ~MODIFIED & ~BADLAND) {
+        case HOUSE   : return -10;
+        case FIELD   : return -10;
+        case FLAG    : return 100;
+        case AIRDROME: return 100;
+        default      : return   0;
+        }
+    }
+
+    bool isEnemyTarget(Type type) {
+        using enum Type;
+
+        switch (type & ~MODIFIED & ~BADLAND) {
+        case HOUSE : return true ;
+        case FIELD : return true ;
+        default    : return false;
+        }
+    }
 }

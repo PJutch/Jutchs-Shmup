@@ -15,15 +15,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define AIRPLANE_BUILDER_H_
 
 #include "GameState.h"
-#include "Entity.h"
-#include "Bullet.h"
-#include "Pickup.h"
 #include "Airplane/Airplane.h"
-#include "Airplane/ShootComponent.h"
-#include "Airplane/ShootControlComponent.h"
-#include "Airplane/MoveComponent.h"
-#include "Airplane/DeathEffect.h"
-#include "Airplane/Flags.h"
 
 namespace Airplane {
     class Builder {
@@ -69,6 +61,13 @@ namespace Airplane {
         template<std::derived_from<MoveComponent> Component, typename... Args>
         Builder& moveComponent(Args&&... args) {
             m_build->m_moveComponent = std::make_unique<Component>
+                (*m_build, m_gameState, std::forward<Args>(args)...);
+            return *this;
+        }
+
+        template<std::derived_from<BombComponent> Component, typename... Args>
+        Builder& bombComponent(Args&&... args) {
+            m_build->m_bombComponent = std::make_unique<Component>
                 (*m_build, m_gameState, std::forward<Args>(args)...);
             return *this;
         }

@@ -21,7 +21,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Airplane/ShootComponent.h"
 #include "Airplane/ShootControlComponent.h"
 #include "Airplane/MoveComponent.h"
+#include "Airplane/BombComponent.h"
 #include "Airplane/DeathEffect.h"
+#include "Airplane/Flags.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -38,13 +40,7 @@ namespace Airplane {
 
         void handleEvent(sf::Event event) noexcept override {
             m_shootControlComponent->handleEvent(event);
-
-            if (test(m_flags, Flags::HAS_BOMB) && test(m_flags, Flags::PLAYER_SIDE) 
-             && event.type == sf::Event::MouseButtonPressed 
-             && event.mouseButton.button == sf::Mouse::Right) {
-                m_gameState.getEntities().addEntity(new Bomb{getPosition(), m_gameState});
-                m_flags &= ~Flags::HAS_BOMB;
-            }
+            m_bombComponent->handleEvent(event);
         }
 
         void acceptCollide(Airplane& other) noexcept override {
@@ -88,6 +84,14 @@ namespace Airplane {
             return !hadBomb;
         }
 
+        // remove 1 bomb
+        // return true on success 
+        bool tryRemoveBomb() noexcept {
+            bool hadBomb = test(m_flags, Flags::HAS_BOMB);
+            m_flags &= ~Flags::HAS_BOMB;
+            return hadBomb;
+        }
+
         sf::Vector2f getMinSpeed() const noexcept {
             return m_moveComponent->getMinSpeed();
         }
@@ -108,6 +112,7 @@ namespace Airplane {
             m_shootComponent->update(elapsedTime);
             m_shootControlComponent->update(elapsedTime);
             m_moveComponent->update(elapsedTime);
+            m_bombComponent->update(elapsedTime);
 
             if (m_shootControlComponent->shouldShoot()) {
                 m_shootComponent->tryShoot();
@@ -157,6 +162,7 @@ namespace Airplane {
         std::unique_ptr<ShootComponent> m_shootComponent;
         std::unique_ptr<ShootControlComponent> m_shootControlComponent;
         std::unique_ptr<MoveComponent> m_moveComponent;
+        std::unique_ptr<BombComponent> m_bombComponent;
 
         std::vector<std::unique_ptr<DeathEffect>> m_deathEffects;
 

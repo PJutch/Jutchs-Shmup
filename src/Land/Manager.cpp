@@ -68,13 +68,13 @@ namespace Land {
         auto tileSize = m_gameState.getAssets().getLandTextureSize();
 
         m_land.emplace_back();
-        m_endX = -m_gameState.getGameHeight();
+        m_endX = -m_gameState.getGameHeight() / 2;
 
-        float y = -m_gameState.getGameHeight();
+        float y = -m_gameState.getGameHeight() / 2;
         addTile(ChanceTable::getRandom(m_chances, m_gameState.getRandomEngine()));
         y += tileSize.y;
 
-        while (y < m_gameState.getGameHeight()) {
+        while (y < m_gameState.getGameHeight() / 2) {
             addTile(ChanceTable::getRandom(
                     m_chances 
                         | std::views::filter(
@@ -167,7 +167,7 @@ namespace Land {
         auto tileSize = m_gameState.getAssets().getLandTextureSize();
         sf::Vector2i landSize(std::ssize(m_land), std::ssize(m_land[0]));
         return sf::Vector2i(landSize.x - (m_endX - position.x)        / tileSize.x, 
-                           (m_gameState.getGameHeight() + position.y) / tileSize.y);
+                           (m_gameState.getGameHeight() / 2 + position.y) / tileSize.y);
     }
 
     void Manager::handleExplosion(sf::Vector2f position) {  
@@ -183,9 +183,9 @@ namespace Land {
         float gameHeight = m_gameState.getGameHeight();
 
         sf::Vector2f start{playerPos.x - gameHeight - std::fmodf(playerPos.x, textureSize.x), 
-                           -gameHeight};
+                           -gameHeight / 2};
         for (int ix = 0; start.x + ix * textureSize.x < playerPos.x + 4 * gameHeight; ++ ix)
-            for (float iy = 0; start.y + iy * textureSize.y < gameHeight; ++ iy) {
+            for (float iy = 0; iy < std::ssize(m_land[ix]); ++ iy) {
                 sf::Sprite sprite{m_gameState.getAssets().getLandTexture(m_land[ix][iy])};
                 if (sprite.getTextureRect().width == 0)
                     std::cout << static_cast<int>(m_land[ix][iy]) << std::endl;
@@ -207,6 +207,11 @@ namespace Land {
 
         m_land.back().push_back(type);
         m_targets.emplace_back(m_endX + tileSize.x / 2, 
-            (std::ssize(m_land.back()) - 1) * tileSize.y - gameHeight + tileSize.y / 2);
+            (std::ssize(m_land.back()) - 1) * tileSize.y - gameHeight / 2 + tileSize.y / 2);
+    }
+
+    bool Manager::isPosValid(sf::Vector2f position) const noexcept {
+        float gameHeight = m_gameState.getGameHeight();
+        return isXValid(position.x) && position.y > -gameHeight / 2 && position.y < gameHeight / 2;
     }
 }

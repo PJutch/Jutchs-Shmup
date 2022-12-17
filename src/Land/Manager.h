@@ -45,6 +45,7 @@ namespace Land {
         }
 
         bool isXValid(float x) const noexcept;
+        bool isPosValid(sf::Vector2f position) const noexcept;
 
         sf::Vector2f getTargetFor(sf::Vector2f enemyPosition) noexcept;
     private:

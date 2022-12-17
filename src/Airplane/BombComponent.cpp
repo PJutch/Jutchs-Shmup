@@ -29,7 +29,7 @@ namespace Airplane {
     void EnemyBombComponent::update(sf::Time elapsedTime) {
         auto position = m_owner.getPosition();
         const auto& land = m_gameState.getLand();
-        if (land.isXValid(position.x) && isEnemyTarget(land[position]))
+        if (land.isPosValid(position) && isEnemyTarget(land[position]))
             tryBomb();
     }
 }

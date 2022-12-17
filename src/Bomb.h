@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class Bomb : public Sprite<Bomb> {
 public:
-    Bomb(sf::Vector2f position, GameState& gameState);
+    Bomb(bool playerSide, sf::Vector2f position, GameState& gameState);
 
     void update(sf::Time elapsedTime) override;
 

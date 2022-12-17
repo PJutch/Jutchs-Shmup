@@ -21,7 +21,8 @@ namespace Airplane {
 
     void BombComponent::tryBomb() {
         if (m_owner.tryRemoveBomb())
-            m_gameState.getEntities().addEntity(new Bomb{m_owner.getPosition(), m_gameState});
+            m_gameState.getEntities().addEntity(
+                new Bomb{m_owner.isOnPlayerSide(), m_owner.getPosition(), m_gameState});
     }
 
     void EnemyBombComponent::update(sf::Time elapsedTime) {

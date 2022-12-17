@@ -167,7 +167,8 @@ namespace Land {
                            (m_gameState.getGameHeight() + position.y) / tileSize.y);
     }
 
-    void Manager::handleExplosion(sf::Vector2f position) {       
+    void Manager::handleExplosion(sf::Vector2f position) {  
+        if (!isXValid(position.x)) return;     
         Land::Type& land = (*this)[position];
         m_gameState.addScore(scoreIfDestroyed(land));
         land = destroyed(land);

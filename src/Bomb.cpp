@@ -13,7 +13,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Bomb.h"
 
-Bomb::Bomb(sf::Vector2f position, GameState& gameState) :
+Bomb::Bomb(bool playerSide, sf::Vector2f position, GameState& gameState) :
         Sprite{gameState}, m_launched{gameState.getCurrentTime()}, m_alive{true} {
     auto& texture = gameState.getAssets().getBombTexture();
     setTexture(texture);
@@ -22,7 +22,7 @@ Bomb::Bomb(sf::Vector2f position, GameState& gameState) :
     setOrigin(size.x / 2.f, size.y / 2.f);
 
     setPosition(position);
-    setRotation(90.f);
+    setRotation(playerSide ? 90.f : -90.f);
 }
 
 void Bomb::update(sf::Time elapsedTime) {

@@ -35,31 +35,26 @@ namespace Land {
         m_chances.reserve(TOTAL_VARIANTS);
 
         forValidRoad(
-            [&chances = m_chances, 
-            &roadChances = s_roadChances] 
-            (Type type) {
+            [&chances = m_chances, &roadChances = s_roadChances](Type type) {
                 chances.emplace_back(type, roadChances[getActiveDirCount(type)]);
         });
-
         forValidWater(
-            [&chances = m_chances, 
-            &waterChances = s_waterChances] 
-            (Type type) {
+            [&chances = m_chances, &waterChances = s_waterChances](Type type) {
                 chances.emplace_back(type, waterChances[getActiveDirCount(type)]);
         });
-
         ChanceTable::normalize(m_chances);
 
         using enum Type;
 
-        registerFeature(FEATURE | CRATER, 0.25);
-        registerFeature(FEATURE | FIELD , 0.25);
-        registerFeature(FEATURE | FLAG  , 0.25);
-        registerFeature(FEATURE | BUSH  , 0.25);
-        registerFeature(FEATURE | HOUSE , 0.25);
+        registerFeature(CRATER     , 0.25);
+        registerFeature(FIELD      , 0.25);
+        registerFeature(PLAYER_FLAG, 0.25);
+        registerFeature(ENEMY_FLAG , 0.25);
+        registerFeature(BUSH       , 0.25);
+        registerFeature(HOUSE      , 0.25);
         // tree generation chance is bigger
-        registerFeature(FEATURE | TREE  , 0.25);
-        registerFeature(FEATURE | TREES , 0.25);
+        registerFeature(TREE       , 0.25);
+        registerFeature(TREES      , 0.25);
         ChanceTable::normalize(m_chances);
 
         registerFeature(PLAINS , 10.0);

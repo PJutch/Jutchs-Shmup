@@ -30,15 +30,16 @@ namespace Land {
         GRASS     = 0b00000000,
         BADLAND   = 0b10000000,
 
-        FEATURE   = 0b00000000, // tile has feature, use like FEATURE | AIRDROME or AIRDROME
-        PLAINS    = 0b00000000,
-        AIRDROME  = 0b00000001,
-        CRATER    = 0b00000010,
-        FIELD     = 0b00000011,
-        FLAG      = 0b00000100,
-        TREE      = 0b00000101,
-        BUSH      = 0b00000110,
-        HOUSE     = 0b00000111,
+        FEATURE     = 0b00000000, // tile has feature, use like FEATURE | AIRDROME or AIRDROME
+        PLAINS      = 0b00000000,
+        AIRDROME    = 0b00000001,
+        CRATER      = 0b00000010,
+        FIELD       = 0b00000011,
+        PLAYER_FLAG = 0b00000100,
+        ENEMY_FLAG  = 0b00001000,
+        TREE        = 0b00000101,
+        BUSH        = 0b00000110,
+        HOUSE       = 0b00000111,
 
         PLAINS2   = PLAINS | MODIFIED,
         TREES     = TREE   | MODIFIED,
@@ -68,7 +69,7 @@ namespace Land {
 
     // WARNING: some of counted variants are invalid
     constexpr const static size_t TOTAL_VARIANTS = 256; // with MODIFIED or BADLAND tiles
-    constexpr const static size_t FEATURE_VARIANTS = 8;  // withot MODIFIED or BADLAND tiles
+    constexpr const static size_t FEATURE_VARIANTS = 9;  // withot MODIFIED or BADLAND tiles
     constexpr const static size_t ROAD_VARIANTS    = 16; // withot MODIFIED or BADLAND tiles
     constexpr const static size_t WATER_VARIANTS   = 16; // withot MODIFIED or BADLAND tiles
 
@@ -213,7 +214,9 @@ namespace Land {
 
     int scoreIfDestroyed(Type type);
 
-    bool isEnemyTarget(Type type);
+    inline bool isEnemyTarget(Type type) {
+        return (type & ~Type::MODIFIED & ~Type::BADLAND) == Type::PLAYER_FLAG;
+    }
 }
 
 #endif

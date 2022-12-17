@@ -40,15 +40,14 @@ AssetManager::AssetManager(std::mt19937_64& randomEngine) : m_randomEngine{rando
 
     for (int i = 0; i < Airplane::TEXTURE_VARIANTS; ++ i) {
         auto flags = static_cast<Airplane::Flags>(i);
-        if (!m_airplaneTextures[i].loadFromFile(("resources/textures/Airplanes"
-                                                 / getTextureFileName(flags)).generic_string()))
+        if (!m_airplaneTextures[i]
+            .loadFromFile(("resources/textures/Airplanes" / getTextureFileName(flags)).generic_string()))
             throw TextureLoadError{std::format("Can't load {} airplane texture", getTextureName(flags))};
     }
 
     Land::forValid([&landTextures = m_landTextures](Land::Type type) {
         if (!landTextures[static_cast<std::underlying_type_t<Land::Type>>(type)]
-            .loadFromFile(("resources/textures/kenney_pixelshmup/Land/" 
-                          / getTextureFileName(type)).generic_string()))
+            .loadFromFile(("resources/textures/Land/" / getTextureFileName(type)).generic_string()))
             throw TextureLoadError{std::format("Can't load {} tile texture", getName(type))};
     });
 

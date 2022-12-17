@@ -106,16 +106,17 @@ namespace Land {
                         fileName += "small";
             } else
                 switch (type & ~BADLAND) {
-                    case AIRDROME : fileName +=  "_airdrome" ; break;
-                    case CRATER   : fileName +=  "_crater"   ; break;
-                    case FIELD    : fileName +=  "_field"    ; break;
-                    case FLAG     : fileName +=  "_flag"     ; break;
-                    case TREE     : fileName +=  "_tree"     ; break;
-                    case BUSH     : fileName +=  "_bush"     ; break;
-                    case HOUSE    : fileName +=  "_house"    ; break;
-                    case PLAINS2  : fileName +=  "2"         ; break;
-                    case TREES    : fileName +=  "_trees"    ; break;
-                    case LOW_HOUSE: fileName +=  "_house_low"; break;
+                    case AIRDROME    : fileName +=  "_airdrome"    ; break;
+                    case CRATER      : fileName +=  "_crater"      ; break;
+                    case FIELD       : fileName +=  "_field"       ; break;
+                    case PLAYER_FLAG : fileName +=  "_flag_player" ; break;
+                    case ENEMY_FLAG  : fileName +=  "_flag_enemy"  ; break;
+                    case TREE        : fileName +=  "_tree"        ; break;
+                    case BUSH        : fileName +=  "_bush"        ; break;
+                    case HOUSE       : fileName +=  "_house"       ; break;
+                    case PLAINS2     : fileName +=  "2"            ; break;
+                    case TREES       : fileName +=  "_trees"       ; break;
+                    case LOW_HOUSE   : fileName +=  "_house_low"   ; break;
                 }
             
             fileName += ".png";
@@ -152,18 +153,19 @@ namespace Land {
                     name += "shore";
                 }
             } else switch (type) {
-                case PLAINS   : name += "plains"   ; break;
-                case AIRDROME : name += "airdrome" ; break;
-                case CRATER   : name += "crater"   ; break;
-                case FIELD    : name += "field"    ; break;
-                case FLAG     : name += "flag"     ; break;
-                case TREE     : name += "tree"     ; break;
-                case BUSH     : name += "bush"     ; break;
-                case HOUSE    : name += "house"    ; break;
-                case PLAINS2  : name += "plains2"  ; break;
-                case TREES    : name += "trees"    ; break;
-                case LOW_HOUSE: name += "low house"; break;
-                default       : name += "invalid"  ; break;
+                case PLAINS      : name += "plains"     ; break;
+                case AIRDROME    : name += "airdrome"   ; break;
+                case CRATER      : name += "crater"     ; break;
+                case FIELD       : name += "field"      ; break;
+                case PLAYER_FLAG : name += "player flag"; break;
+                case ENEMY_FLAG  : name += "enemy flag" ; break;
+                case TREE        : name += "tree"       ; break;
+                case BUSH        : name += "bush"       ; break;
+                case HOUSE       : name += "house"      ; break;
+                case PLAINS2     : name += "plains2"    ; break;
+                case TREES       : name += "trees"      ; break;
+                case LOW_HOUSE   : name += "low house"  ; break;
+                default          : name += "invalid"    ; break;
             }
 
             if (test(type, BADLAND)) {
@@ -257,21 +259,12 @@ namespace Land {
         using enum Type;
 
         switch (type & ~MODIFIED & ~BADLAND) {
-        case HOUSE   : return -10;
-        case FIELD   : return -10;
-        case FLAG    : return 100;
-        case AIRDROME: return 100;
-        default      : return   0;
-        }
-    }
-
-    bool isEnemyTarget(Type type) {
-        using enum Type;
-
-        switch (type & ~MODIFIED & ~BADLAND) {
-        case HOUSE : return true ;
-        case FIELD : return true ;
-        default    : return false;
+        case HOUSE       : return -10;
+        case FIELD       : return -10;
+        case PLAYER_FLAG : return -30;
+        case ENEMY_FLAG  : return 100;
+        case AIRDROME    : return 100;
+        default          : return   0;
         }
     }
 }

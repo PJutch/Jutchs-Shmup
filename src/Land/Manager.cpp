@@ -15,8 +15,10 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "GameState.h"
 #include "Airplane/Airplane.h"
 
+#include <random>
 #include <ranges>
 #include <iostream>
+#include <algorithm>
 
 namespace Land {
     Manager::Manager(GameState& gameState) noexcept : m_gameState{gameState} {}
@@ -74,11 +76,11 @@ namespace Land {
         m_endX = -m_gameState.getGameHeight();
 
         float y = -m_gameState.getGameHeight();
-        m_land.back().push_back(ChanceTable::getRandom(m_chances, m_gameState.getRandomEngine()));
+        addTile(ChanceTable::getRandom(m_chances, m_gameState.getRandomEngine()));
         y += tileSize.y;
 
         while (y < m_gameState.getGameHeight()) {
-            m_land.back().push_back(ChanceTable::getRandom(
+            addTile(ChanceTable::getRandom(
                     m_chances 
                         | std::views::filter(
                             [up = m_land.back().back()] 
@@ -99,6 +101,12 @@ namespace Land {
             m_land.pop_front();
             addRow();
         }
+
+        auto tileSize = m_gameState.getAssets().getLandTextureSize();
+        std::erase_if(m_targets, 
+        [minX = m_endX - std::ssize(m_land) * tileSize.x](sf::Vector2f target) -> bool {
+            return target.x <= minX;
+        });
     }
 
     void Manager::addRow() {
@@ -107,7 +115,7 @@ namespace Land {
         auto& row = m_land.back();
         row.reserve(std::ssize(prevRow));
 
-        row.push_back(ChanceTable::getRandom(
+        addTile(ChanceTable::getRandom(
                 m_chances 
                     | std::views::filter(
                         [left     = prevRow[0],
@@ -119,7 +127,7 @@ namespace Land {
             m_gameState.getRandomEngine()));
 
         while (std::ssize(row) < std::ssize(prevRow) - 1)
-            row.push_back(ChanceTable::getRandom(
+            addTile(ChanceTable::getRandom(
                     m_chances 
                         | std::views::filter(
                         [up = row.back(), 
@@ -189,5 +197,21 @@ namespace Land {
                 sprite.setPosition(start.x + ix * textureSize.x, start.y + iy * textureSize.y);
                 target.draw(sprite, states);
         }
+    }
+
+    sf::Vector2f Manager::getTargetFor(sf::Vector2f enemyPosition) noexcept {
+        auto maxIter = std::ranges::upper_bound(m_targets, enemyPosition.x, {}, &sf::Vector2f::x);
+        int maxIndex = maxIter - m_targets.begin();
+        int index = std::uniform_int_distribution{0, maxIndex}(m_gameState.getRandomEngine());
+        return m_targets[index];
+    }
+
+    void Manager::addTile(Type type) {
+        auto tileSize = m_gameState.getAssets().getLandTextureSize();
+        float gameHeight = m_gameState.getGameHeight();
+
+        m_land.back().push_back(type);
+        m_targets.emplace_back(m_endX + tileSize.x / 2, 
+            (std::ssize(m_land.back()) - 1) * tileSize.y - gameHeight + tileSize.y / 2);
     }
 }

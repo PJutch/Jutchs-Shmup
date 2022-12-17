@@ -87,12 +87,12 @@ namespace Airplane {
     }
 
     LineWithTargetMoveComponent::LineWithTargetMoveComponent(
-        Airplane& owner, GameState& gameState, std::function<sf::Vector2f()> getTarget) noexcept :
+        Airplane& owner, GameState& gameState, std::function<sf::Vector2f(const Airplane&)> getTarget) noexcept :
             MoveComponent(owner, gameState), m_getTarget{std::move(getTarget)}, m_moveUp{true} {}
 
     void LineWithTargetMoveComponent::update(Time elapsedTime) noexcept {
         auto moved = m_speed * elapsedTime.asSeconds();
-        auto target = m_getTarget();
+        auto target = m_getTarget(m_owner);
 
         auto [minY, maxY] = getMinmaxY();  
         float targetY = target.y;

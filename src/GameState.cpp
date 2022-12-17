@@ -204,23 +204,36 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
             builder.flags() |= SLOW;
         }
 
-        double moveSeed = genRandom(canonicalDistribution);
-        if (moveSeed < 0.1) {
-            builder.moveComponent<Airplane::PeriodicalMoveComponent>();
-        } else if (moveSeed < 0.2) {
-            builder.moveComponent<Airplane::LineWithTargetMoveComponent>(
-                [&player = getPlayer()]() -> sf::Vector2f {
-                    return player.getPosition();
-                });
-        } else {
-            builder.moveComponent<Airplane::BasicMoveComponent>();
-        }
-
+        bool hasBomb = false;
         if (canonicalDistribution(getRandomEngine()) < 1.0) { // for tests
             builder.bomb();
+            hasBomb = true;
             score *= 2;
         }
         builder.bombComponent<Airplane::EnemyBombComponent>();
+
+        if (hasBomb && canonicalDistribution(getRandomEngine()) < 0.9) {
+            builder.moveComponent<Airplane::LineWithTargetMoveComponent>(
+                    [&land = getLand(), target = getLand().getTargetFor(position)] 
+                    (const Airplane::Airplane& owner) mutable -> sf::Vector2f {
+                        if (target.x > owner.getPosition().x && owner.hasBomb())
+                            target = land.getTargetFor(owner.getPosition());
+                        
+                        return target;
+                    });
+        } else {
+            double moveSeed = genRandom(canonicalDistribution);
+            if (moveSeed < 0.1) {
+                builder.moveComponent<Airplane::PeriodicalMoveComponent>();
+            } else if (moveSeed < 0.2) {
+                builder.moveComponent<Airplane::LineWithTargetMoveComponent>(
+                    [&player = getPlayer()](const Airplane::Airplane&) -> sf::Vector2f {
+                        return player.getPosition();
+                    });
+            } else {
+                builder.moveComponent<Airplane::BasicMoveComponent>();
+            }
+        }
 
         builder.addDeathEffect<Airplane::ScoreDeathEffect    >(score)
                .addDeathEffect<Airplane::LootDeathEffect     >()

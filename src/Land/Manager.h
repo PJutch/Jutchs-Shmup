@@ -45,9 +45,14 @@ namespace Land {
         }
 
         bool isXValid(float x) const noexcept;
+
+        sf::Vector2f getTargetFor(sf::Vector2f enemyPosition) noexcept;
     private:
         std::deque<std::vector<Type>> m_land;
         float m_endX;
+
+        // targets are sorted by X
+        std::vector<sf::Vector2f> m_targets;
 
         std::vector<ChanceTable::BasicEntry<Type>> m_chances;
         const static std::array<double, 5> s_roadChances ; // index is activeDirCount
@@ -63,6 +68,8 @@ namespace Land {
 
         void prepareChances();
         void generateSpawn();
+
+        void addTile(Type type);
 
         void addRow();
 

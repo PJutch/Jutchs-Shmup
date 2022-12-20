@@ -14,8 +14,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef AIRPLANE_DEATH_EFFECT_H_
 #define AIRPLANE_DEATH_EFFECT_H_
 
-#include "GameState.h"
-#include "AnimatedParticle.h"
+#include "../GameState.h"
 
 #include <SFML/System.hpp>
 

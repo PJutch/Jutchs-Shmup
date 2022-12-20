@@ -14,6 +14,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef GUI_TEXT_H_
 #define GUI_TEXT_H_
 
+#include "Element.h"
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 

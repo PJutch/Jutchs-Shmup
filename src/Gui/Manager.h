@@ -14,7 +14,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef GUI_MANAGER_
 #define GUI_MANAGER_
 
-#include "Gui/Panel.h"
+#include "Panel.h"
 
 #include <SFML/Graphics.hpp>
 

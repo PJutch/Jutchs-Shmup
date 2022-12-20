@@ -11,7 +11,7 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#include "Land/Type.h"
+#include "Type.h"
 
 namespace Land {
     bool isModifiable(Type type) noexcept {

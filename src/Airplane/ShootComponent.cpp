@@ -13,8 +13,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "ShootComponent.h"
 
-#include "Airplane/Airplane.h"
-#include "SoundEffect.h"
+#include "Airplane.h"
+
+#include "../SoundEffect.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>

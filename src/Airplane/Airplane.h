@@ -14,16 +14,17 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef AIRPLANE_AIRPLANE_H_
 #define AIRPLANE_AIRPLANE_H_
 
-#include "GameState.h"
-#include "Sprite.h"
-#include "Bullet.h"
-#include "Bomb.h"
-#include "Airplane/ShootComponent.h"
-#include "Airplane/ShootControlComponent.h"
-#include "Airplane/MoveComponent.h"
-#include "Airplane/BombComponent.h"
-#include "Airplane/DeathEffect.h"
-#include "Airplane/Flags.h"
+#include "ShootComponent.h"
+#include "ShootControlComponent.h"
+#include "MoveComponent.h"
+#include "BombComponent.h"
+#include "DeathEffect.h"
+#include "Flags.h"
+
+#include "../GameState.h"
+#include "../Sprite.h"
+#include "../Bullet.h"
+#include "../Bomb.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>

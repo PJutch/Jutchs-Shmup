@@ -11,16 +11,16 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#include "Gui/Manager.h"
-#include "Gui/Button.h"
-#include "Gui/ComboBox.h"
-#include "Gui/HorizontalSlider.h"
-#include "Gui/Panel.h"
-#include "Gui/Text.h"
+#include "Manager.h"
+#include "Button.h"
+#include "ComboBox.h"
+#include "HorizontalSlider.h"
+#include "Panel.h"
+#include "Text.h"
 
-#include "GameState.h"
-#include "LanguageManager.h"
-#include "Airplane/Airplane.h"
+#include "../GameState.h"
+#include "../LanguageManager.h"
+#include "../Airplane/Airplane.h"
 
 #include <algorithm>
 #include <exception>

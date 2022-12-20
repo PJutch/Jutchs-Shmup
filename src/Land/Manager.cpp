@@ -11,9 +11,10 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#include "Land/Manager.h"
-#include "GameState.h"
-#include "Airplane/Airplane.h"
+#include "Manager.h"
+
+#include "../GameState.h"
+#include "../Airplane/Airplane.h"
 
 #include <random>
 #include <ranges>

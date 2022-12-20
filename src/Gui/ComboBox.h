@@ -14,7 +14,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef GUI_COMBO_BOX_H_
 #define GUI_COMBO_BOX_H_
 
-#include "Gui/Element.h"
+#include "Element.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>

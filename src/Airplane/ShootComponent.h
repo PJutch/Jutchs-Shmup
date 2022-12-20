@@ -14,8 +14,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef AIRPLANE_SHOOT_COMPONENT_H_
 #define AIRPLANE_SHOOT_COMPONENT_H_
 
-#include "Entity.h"
-#include "Bullet.h"
+#include "../Entity.h"
+#include "../Bullet.h"
 
 #include <SFML/System.hpp>
 #include <SFML/Graphics.hpp>

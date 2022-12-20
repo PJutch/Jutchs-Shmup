@@ -15,7 +15,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define AIRPLANE_SHOOT_CONTROL_COMPONENT_H_
 
 #include "ShootComponent.h"
-#include "GameState.h"
+
+#include "../GameState.h"
 
 #include <SFML/System.hpp>
 

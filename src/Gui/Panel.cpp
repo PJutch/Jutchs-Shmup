@@ -11,9 +11,9 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#include "Gui/Panel.h"
+#include "Panel.h"
 
-#include "util.h"
+#include "../util.h"
 
 namespace Gui {
     bool Panel::handleEvent(const sf::Event& event) {

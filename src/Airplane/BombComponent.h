@@ -14,8 +14,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef AIRPLANE_BOMB_COMPONENT_H_
 #define AIRPLANE_BOMB_COMPONENT_H_
 
-#include "GameState.h"
-#include "Airplane/Flags.h"
+#include "Flags.h"
+
+#include "../GameState.h"
 
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>

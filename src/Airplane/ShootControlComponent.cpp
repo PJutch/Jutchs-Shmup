@@ -13,7 +13,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "ShootControlComponent.h"
 
-#include "Airplane/Airplane.h"
+#include "Airplane.h"
 
 #include "SFML/System.hpp"
 using sf::Time;

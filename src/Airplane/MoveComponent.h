@@ -14,7 +14,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef AIRPLANE_MOVE_COMPONENT_H_
 #define AIRPLANE_MOVE_COMPONENT_H_
 
-#include "GameState.h"
+#include "../GameState.h"
 
 #include <SFML/System.hpp>
 

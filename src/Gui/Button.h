@@ -14,8 +14,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef GUI_BUTTON_H_
 #define GUI_BUTTON_H_
 
-#include "Gui/Element.h"
-#include "util.h"
+#include "Element.h"
+
+#include "../util.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>

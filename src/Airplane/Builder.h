@@ -14,8 +14,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef AIRPLANE_BUILDER_H_
 #define AIRPLANE_BUILDER_H_
 
-#include "GameState.h"
-#include "Airplane/Airplane.h"
+#include "Airplane.h"
+
+#include "../GameState.h"
 
 namespace Airplane {
     class Builder {

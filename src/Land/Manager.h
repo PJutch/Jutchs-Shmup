@@ -14,8 +14,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef LAND_MANAGER_H_
 #define LAND_MANAGER_H_
 
-#include "Land/Type.h"
-#include "ChanceTable.h"
+#include "Type.h"
+
+#include "../ChanceTable.h"
 
 #include <SFML/Graphics.hpp>
 

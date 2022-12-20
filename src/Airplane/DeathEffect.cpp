@@ -13,10 +13,11 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "DeathEffect.h"
 
-#include "Airplane/Airplane.h"
-#include "Pickup.h"
-#include "SoundEffect.h"
-#include "AnimatedParticle.h"
+#include "Airplane.h"
+
+#include "../Pickup.h"
+#include "../SoundEffect.h"
+#include "../AnimatedParticle.h"
 
 #include <SFML/Audio.hpp>
 

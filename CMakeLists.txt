@@ -62,3 +62,10 @@ add_sfml_module(sfml-system)
 add_sfml_module(sfml-window)
 add_sfml_module(sfml-graphics)
 add_sfml_module(sfml-audio)
+
+# assume Debug is run with changed working directory
+if(NOT $<CONFIG:Debug>)
+    add_custom_command(TARGET Jutchs_Shmup POST_BUILD 
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources $<TARGET_FILE_DIR:Jutchs_Shmup>/resources)
+endif()

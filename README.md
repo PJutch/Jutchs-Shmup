@@ -26,5 +26,3 @@ You can build this project with CMake under Windows with MSVC.
 Under Linux or with MinGW, you need to download or build SFML and link against it.
 (It should work, but hasn't been tested)
 May be it will be fixed in the future.
-
-After build, copy the contents of extlibs/SFML/bin to the directory with executable.

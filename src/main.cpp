@@ -17,31 +17,40 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
 
+#include <iostream>
+#include <stdexcept>
+
 #include <utility>
 using std::swap;
 
 int main(int argc, char** argv) {
-    auto videoMode = sf::VideoMode::getDesktopMode();
-    sf::Vector2f screenSize(videoMode.width, videoMode.height);
+    try {
+        auto videoMode = sf::VideoMode::getDesktopMode();
+        sf::Vector2f screenSize(videoMode.width, videoMode.height);
 
-    sf::RenderWindow window{videoMode, "Jutchs Shmup", sf::Style::Fullscreen};
-    window.setVerticalSyncEnabled(true);
+        sf::RenderWindow window{videoMode, "Jutchs Shmup", sf::Style::Fullscreen};
+        window.setVerticalSyncEnabled(true);
 
-    GameState gameState{screenSize};
+        GameState gameState{screenSize};
 
-    while (window.isOpen()) {
-        sf::Event event;
-        while (window.pollEvent(event)) {
-            gameState.handleEvent(event);
+        while (window.isOpen()) {
+            sf::Event event;
+            while (window.pollEvent(event)) {
+                gameState.handleEvent(event);
+            }
+
+            if (gameState.shouldEnd()) window.close();
+
+            gameState.update();
+
+            window.clear(sf::Color::Red);
+            window.draw(gameState);
+            window.display();
         }
-
-        if (gameState.shouldEnd()) window.close();
-
-        gameState.update();
-
-        window.clear(sf::Color::Red);
-        window.draw(gameState);
-        window.display();
+    } catch (const std::exception& exception) {
+        std::cout << exception.what() << std::endl;
+        throw;
     }
+
     return EXIT_SUCCESS;
 }

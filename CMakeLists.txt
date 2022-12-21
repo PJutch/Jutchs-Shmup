@@ -8,28 +8,28 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(GCC_LIKE_CXX $<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>)
 set(MSVC_CXX $<COMPILE_LANG_AND_ID:CXX,MSVC>)
 
-add_executable(${PROJECT_NAME} src/main.cpp 
-                               src/Bullet.cpp
-                               src/Airplane/ShootComponent.cpp 
-                               src/GameState.cpp 
-                               src/Airplane/MoveComponent.cpp 
-                               src/Airplane/DeathEffect.cpp
-                               src/Airplane/ShootControlComponent.cpp 
-                               src/AnimatedParticle.cpp 
-                               src/AssetManager.cpp 
-                               src/EntityManager.cpp 
-                               src/Gui/Panel.cpp 
-                               src/util.cpp
-                               src/Gui/Button.cpp 
-                               src/Gui/HorizontalSlider.cpp 
-                               src/LanguageManager.cpp
-                               src/Gui/ComboBox.cpp
-                               src/Gui/Manager.cpp
-                               src/Land/Type.cpp
-                               src/Land/Manager.cpp
-                               src/Airplane/Flags.cpp
-                               src/Bomb.cpp
-                               src/Airplane/BombComponent.cpp)
+add_executable(${PROJECT_NAME} WIN32 src/main.cpp 
+                                     src/Bullet.cpp
+                                     src/Airplane/ShootComponent.cpp 
+                                     src/GameState.cpp 
+                                     src/Airplane/MoveComponent.cpp 
+                                     src/Airplane/ShootControlComponent.cpp 
+                                     src/AnimatedParticle.cpp 
+                                     src/AssetManager.cpp 
+                                     src/EntityManager.cpp 
+                                     src/Gui/Panel.cpp 
+                                     src/util.cpp
+                                     src/Gui/Button.cpp 
+                                     src/Gui/HorizontalSlider.cpp 
+                                     src/LanguageManager.cpp
+                                     src/Gui/ComboBox.cpp
+                                     src/Gui/Manager.cpp
+                                     src/Land/Type.cpp
+                                     src/Land/Manager.cpp
+                                     src/Airplane/Flags.cpp
+                                     src/Bomb.cpp
+                                     src/Airplane/BombComponent.cpp
+                                     src/Airplane/DeathEffect.cpp)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
 target_compile_options(${PROJECT_NAME} PRIVATE

@@ -41,27 +41,48 @@ set(SFML_PATH ${CMAKE_CURRENT_SOURCE_DIR}/extlibs/SFML)
 
 target_include_directories(Jutchs_Shmup PRIVATE ${SFML_PATH}/include)
 
-add_library(SFML_Main STATIC IMPORTED)
-set_property(TARGET SFML_Main PROPERTY IMPORTED_LOCATION       ${SFML_PATH}/lib/sfml-main.lib)
-set_property(TARGET SFML_Main PROPERTY IMPORTED_LOCATION_DEBUG ${SFML_PATH}/lib/sfml-main-d.lib)
-target_link_libraries(Jutchs_Shmup SFML_Main)
+if(CMAKE_HOST_WIN32)
+    add_library(SFML_Main STATIC IMPORTED)
+    set_property(TARGET SFML_Main PROPERTY IMPORTED_LOCATION       ${SFML_PATH}/windows/lib/sfml-main.lib)
+    set_property(TARGET SFML_Main PROPERTY IMPORTED_LOCATION_DEBUG ${SFML_PATH}/windows/lib/sfml-main-d.lib)
+    target_link_libraries(Jutchs_Shmup SFML_Main)
+endif()
 
-macro(add_sfml_module module_name)
-    add_library(${module_name} SHARED IMPORTED)
-    set_property(TARGET ${module_name} PROPERTY IMPORTED_LOCATION       ${SFML_PATH}/bin/${module_name}-2.dll)
-    set_property(TARGET ${module_name} PROPERTY IMPORTED_LOCATION_DEBUG ${SFML_PATH}/bin/${module_name}-d-2.dll)
-    set_property(TARGET ${module_name} PROPERTY IMPORTED_IMPLIB         ${SFML_PATH}/lib/${module_name}.lib)
-    set_property(TARGET ${module_name} PROPERTY IMPORTED_IMPLIB_DEBUG   ${SFML_PATH}/lib/${module_name}-d.lib)
-    target_link_libraries(Jutchs_Shmup ${module_name})
-    add_custom_command(TARGET Jutchs_Shmup POST_BUILD 
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-        ${SFML_PATH}/bin/${module_name}$<$<CONFIG:Debug>:-d>-2.dll $<TARGET_FILE_DIR:Jutchs_Shmup>)
+macro(add_sfml_module MODULE_NAME)
+    add_library(${MODULE_NAME} SHARED IMPORTED)
+
+    if(CMAKE_HOST_WIN32)
+        set_property(TARGET ${MODULE_NAME} PROPERTY IMPORTED_LOCATION       
+            ${SFML_PATH}/windows/bin/sfml-${MODULE_NAME}-2.dll)
+        set_property(TARGET ${MODULE_NAME} PROPERTY IMPORTED_LOCATION_DEBUG 
+            ${SFML_PATH}/windows/bin/sfml-${MODULE_NAME}-d-2.dll)
+        set_property(TARGET ${MODULE_NAME} PROPERTY IMPORTED_IMPLIB         
+            ${SFML_PATH}/windows/lib/sfml-${MODULE_NAME}.lib)
+        set_property(TARGET ${MODULE_NAME} PROPERTY IMPORTED_IMPLIB_DEBUG   
+            ${SFML_PATH}/windows/lib/sfml-${MODULE_NAME}-d.lib)
+    elseif(CMAKE_HOST_APPLE)
+        set_property(TARGET ${MODULE_NAME} PROPERTY IMPORTED_LOCATION 
+            ${SFML_PATH}/macos/lib/libsfml-${MODULE_NAME}.2.5.1.dylib)
+    elseif(CMAKE_HOST_UNIX)
+        set_property(TARGET ${MODULE_NAME} PROPERTY IMPORTED_LOCATION       
+            ${SFML_PATH}/linux/lib/libsfml-${MODULE_NAME}.so.2.5.1)
+    endif()
+
+
+    target_link_libraries(Jutchs_Shmup ${MODULE_NAME})
+    
+    if(CMAKE_HOST_WIN32)
+        add_custom_command(TARGET Jutchs_Shmup POST_BUILD 
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+            ${SFML_PATH}/windows/bin/sfml-${MODULE_NAME}$<$<CONFIG:Debug>:-d>-2.dll 
+            $<TARGET_FILE_DIR:Jutchs_Shmup>)
+    endif()
 endmacro()
 
-add_sfml_module(sfml-system)
-add_sfml_module(sfml-window)
-add_sfml_module(sfml-graphics)
-add_sfml_module(sfml-audio)
+add_sfml_module(system)
+add_sfml_module(window)
+add_sfml_module(graphics)
+add_sfml_module(audio)
 
 # assume Debug is run with changed working directory
 if(NOT $<CONFIG:Debug>)

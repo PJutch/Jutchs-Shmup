@@ -14,8 +14,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "GameState.h"
 
 #include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
 #include <SFML/Window.hpp>
+#include <SFML/System.hpp>
 
 #include <iostream>
 #include <stdexcept>
@@ -30,6 +30,14 @@ int main(int argc, char** argv) {
 
         sf::RenderWindow window{videoMode, "Jutchs Shmup", sf::Style::Fullscreen};
         window.setVerticalSyncEnabled(true);
+
+        sf::Image icon;
+        if (!icon.loadFromFile("resources/textures/icon.png")) {
+            throw TextureLoadError{"Can't load window icon"};
+        }
+
+        auto [x, y] = icon.getSize();
+        window.setIcon(x, y, icon.getPixelsPtr());
 
         GameState gameState{screenSize};
 

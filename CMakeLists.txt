@@ -33,7 +33,7 @@ target_sources(${PROJECT_NAME} PRIVATE src/Gui/Panel.cpp
                                        src/Gui/ComboBox.cpp
                                        src/Gui/Manager.cpp)
 
-target_sources(${PROJECT_NAME} PRIVATE src/Land/Type.cpp src/Land/Manager.cpp)     
+target_sources(${PROJECT_NAME} PRIVATE src/Land.cpp src/LandManager.cpp)     
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
 target_compile_options(${PROJECT_NAME} PRIVATE

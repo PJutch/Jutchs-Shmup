@@ -45,10 +45,10 @@ AssetManager::AssetManager(std::mt19937_64& randomEngine) : m_randomEngine{rando
             throw TextureLoadError{std::format("Can't load {} airplane texture", getTextureName(flags))};
     }
 
-    Land::forValid([&landTextures = m_landTextures](Land::Type type) {
-        if (!landTextures[static_cast<std::underlying_type_t<Land::Type>>(type)]
-            .loadFromFile(("resources/textures/Land/" / getTextureFileName(type)).generic_string()))
-            throw TextureLoadError{std::format("Can't load {} tile texture", getName(type))};
+    forValidLand([&landTextures = m_landTextures](Land land) {
+        if (!landTextures[static_cast<std::underlying_type_t<Land>>(land)]
+            .loadFromFile(("resources/textures/Land/" / getTextureFileName(land)).generic_string()))
+            throw TextureLoadError{std::format("Can't load {} tile texture", getName(land))};
     });
 
     if (!m_healthTexture.loadFromFile("resources/textures/kenney_pixelshmup/Tiles/tile_0026.png"))

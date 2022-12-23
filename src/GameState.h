@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "LanguageManager.h"
 #include "Gui/Manager.h"
 #include "SoundManager.h"
-#include "Land/Manager.h"
+#include "LandManager.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -70,11 +70,11 @@ public:
         return m_entityManager;
     }
 
-    const Land::Manager& getLand() const noexcept {
+    const LandManager& getLand() const noexcept {
         return m_landManager;
     }
 
-    Land::Manager& getLand() noexcept {
+    LandManager& getLand() noexcept {
         return m_landManager;
     }
 
@@ -158,7 +158,7 @@ private:
 
     EntityManager m_entityManager;
 
-    Land::Manager m_landManager;
+    LandManager m_landManager;
 
     SoundManager m_soundManager;
 

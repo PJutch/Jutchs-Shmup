@@ -173,7 +173,7 @@ sf::Vector2i LandManager::toIndices(sf::Vector2f position) const noexcept {
 void LandManager::handleExplosion(sf::Vector2f position) {  
     if (!isXValid(position.x)) return;     
     Land& land = (*this)[position];
-    m_gameState.addScore(scoreIfDestroyed(land));
+    m_gameState.getScoreManager().addScore(scoreIfDestroyed(land));
     land = destroyed(land);
 }
 

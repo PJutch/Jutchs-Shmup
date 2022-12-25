@@ -21,6 +21,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Gui/Manager.h"
 #include "SoundManager.h"
 #include "LandManager.h"
+#include "ScoreManager.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -86,11 +87,6 @@ public:
         return *m_player;
     }
 
-    void addScore(int score) noexcept {
-        m_score += score;
-        m_scoreChanges.emplace_back(score, m_clock.getElapsedTime());
-    }
-
     const LanguageManager& getLanguageManager() const noexcept {
         return m_languageManager;
     }
@@ -105,6 +101,14 @@ public:
 
     SoundManager& getSounds() noexcept {
         return m_soundManager;
+    }
+
+    const ScoreManager& getScoreManager() const noexcept {
+        return m_scoreManager;
+    }
+
+    ScoreManager& getScoreManager() noexcept {
+        return m_scoreManager;
     }
 
     sf::Vector2f getScreenSize() const noexcept {
@@ -127,23 +131,6 @@ public:
 
     sf::Time getCurrentTime() const noexcept {
         return m_clock.getElapsedTime();
-    }
-
-    int getScore() const noexcept {
-        return m_score;
-    }
-
-    struct ScoreChange {
-        int value;
-        sf::Time time;
-    };
-
-    const std::deque<ScoreChange>& getScoreChanges() const noexcept {
-        return m_scoreChanges;
-    }
-
-    float getScoreChangeAlpha(int index) const noexcept {
-        return 1.f - (m_clock.getElapsedTime() - m_scoreChanges[index].time) / sf::seconds(0.5f);
     }
 
     void handleEvent(const sf::Event& event);
@@ -171,9 +158,7 @@ private:
 
     Airplane::Airplane* m_player;
 
-    int m_score;
-    std::deque<ScoreChange> m_scoreChanges;
-    float m_scoredX;
+    ScoreManager m_scoreManager;
 
     sf::Time m_shouldResetAfter;
 
@@ -197,8 +182,6 @@ private:
     }
 
     void checkEnemySpawn();
-
-    void updateScore();
 
     void trySpawnEnemy(sf::Vector2f position);
 };

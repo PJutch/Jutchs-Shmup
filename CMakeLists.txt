@@ -18,7 +18,8 @@ target_sources(${PROJECT_NAME} PRIVATE src/main.cpp
                                        src/EntityManager.cpp 
                                        src/Bullet.cpp
                                        src/AnimatedParticle.cpp 
-                                       src/Bomb.cpp)
+                                       src/Bomb.cpp
+                                       src/ScoreManager.cpp)
 
 target_sources(${PROJECT_NAME} PRIVATE src/Airplane/ShootComponent.cpp 
                                        src/Airplane/MoveComponent.cpp 
@@ -31,7 +32,8 @@ target_sources(${PROJECT_NAME} PRIVATE src/Gui/Panel.cpp
                                        src/Gui/Button.cpp 
                                        src/Gui/HorizontalSlider.cpp 
                                        src/Gui/ComboBox.cpp
-                                       src/Gui/Manager.cpp)
+                                       src/Gui/Manager.cpp
+                                       src/Gui/drawNumber.cpp)
 
 target_sources(${PROJECT_NAME} PRIVATE src/Land.cpp src/LandManager.cpp)     
 

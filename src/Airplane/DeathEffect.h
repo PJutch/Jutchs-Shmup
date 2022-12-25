@@ -46,7 +46,7 @@ namespace Airplane {
         ScoreDeathEffect(Airplane& owner, GameState& gameState, int score) noexcept;
 
         void handleDeath() noexcept override {
-            m_gameState.addScore(m_score);
+            m_gameState.getScoreManager().addScore(m_score);
         }
     private:
         int m_score;

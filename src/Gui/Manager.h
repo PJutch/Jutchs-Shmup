@@ -48,22 +48,10 @@ namespace Gui {
         // return element size
         // element's origin at its bottom center point
         sf::Vector2f addMenuButtons(sf::Vector2f position);
-
-        // return element size
-        // element's origin at its top left corner
-        // alpha in [0.f, 1.f]
-        sf::Vector2f drawUnsignedNumber(int n, sf::Vector2f position, float alpha,
-                sf::RenderTarget& target, sf::RenderStates states) const;
-        sf::Vector2f drawUnsignedNumber(int n, sf::Vector2f position, 
-                sf::RenderTarget& target, sf::RenderStates states) const {
-            return drawUnsignedNumber(n, position, 1.f, target, states);
-        }
         
         // return element size
         // element's origin at its top left corner
         sf::Vector2f drawHealth(sf::Vector2f position, 
-            sf::RenderTarget& target, sf::RenderStates states) const;
-        sf::Vector2f drawScore(sf::Vector2f position, 
             sf::RenderTarget& target, sf::RenderStates states) const;
     };
 }

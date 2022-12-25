@@ -13,7 +13,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "ComboBox.h"
 
-#include "../util.h"
+#include "../event.h"
 
 namespace Gui {
     ComboBox::ComboBox(const std::function<int ()>& getCurrent, 

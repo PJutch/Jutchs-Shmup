@@ -11,7 +11,7 @@ set(MSVC_CXX $<COMPILE_LANG_AND_ID:CXX,MSVC>)
 add_executable(${PROJECT_NAME} WIN32)
 
 target_sources(${PROJECT_NAME} PRIVATE src/main.cpp 
-                                       src/util.cpp
+                                       src/event.cpp
                                        src/GameState.cpp 
                                        src/LanguageManager.cpp
                                        src/AssetManager.cpp 

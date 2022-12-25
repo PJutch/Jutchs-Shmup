@@ -13,7 +13,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Panel.h"
 
-#include "../util.h"
+#include "../event.h"
 
 namespace Gui {
     bool Panel::handleEvent(const sf::Event& event) {

@@ -16,8 +16,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Element.h"
 
-#include "../util.h"
-
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>

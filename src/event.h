@@ -11,8 +11,8 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef UTIL_H_
-#define UTIL_H_
+#ifndef EVENT_H_
+#define EVENT_H_
 
 #include <SFML/Window.hpp>
 

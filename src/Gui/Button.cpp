@@ -13,6 +13,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Button.h"
 
+#include "../event.h"
+
 namespace Gui {
     Button::Button(const std::function<void ()>& action, 
             sf::Color fillColor, sf::Color outlineColor, 

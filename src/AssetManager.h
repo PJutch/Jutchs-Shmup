@@ -110,7 +110,7 @@ private:
 
     std::array<sf::Texture, Airplane::TEXTURE_VARIANTS> m_airplaneTextures;
 
-    std::array<sf::Texture, LAND_TOTAL_VARIANTS> m_landTextures;
+    std::array<sf::Texture, LAND_VARIANTS> m_landTextures;
 
     sf::Texture m_healthTexture;
     sf::Texture m_plusTexture;

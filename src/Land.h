@@ -67,7 +67,7 @@ enum class Land : uint8_t {
 };
 
 // WARNING: some of counted variants are invalid
-constexpr const static size_t LAND_TOTAL_VARIANTS = 256;  // with MODIFIED or BADLAND tiles
+constexpr const static size_t LAND_VARIANTS = 256; // with MODIFIED or BADLAND tiles
 constexpr const static size_t LAND_FEATURE_VARIANTS = 9;  // withot MODIFIED or BADLAND tiles
 constexpr const static size_t LAND_ROAD_VARIANTS    = 16; // withot MODIFIED or BADLAND tiles
 constexpr const static size_t LAND_WATER_VARIANTS   = 16; // withot MODIFIED or BADLAND tiles

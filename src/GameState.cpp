@@ -33,7 +33,7 @@ GameState::GameState(sf::Vector2f screenSize) :
         m_randomEngine{std::random_device{}()},
         m_assetManager{m_randomEngine}, m_landManager{*this},
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
-        m_score{0}, m_shouldResetAfter{sf::Time::Zero},
+        m_score{0}, m_scoredX{0.f}, m_shouldResetAfter{sf::Time::Zero},
         m_shouldEnd{false}, m_guiManager{*this} {
     initPlayer();
     m_landManager.init();      
@@ -83,6 +83,11 @@ void GameState::update() {
 }
 
 void GameState::updateScore() {
+    while (m_player->getPosition().x > m_scoredX) {
+        m_scoredX += 32;
+        addScore(1);
+    }
+
     while (!m_scoreChanges.empty() && getScoreChangeAlpha(0) <= 0.f) {
         m_scoreChanges.pop_front();
     }
@@ -100,6 +105,7 @@ void GameState::reset() {
 
     m_score = 0;
     m_scoreChanges.clear();
+    m_scoredX = 0.f;
 
     m_clock.restart();
 }
@@ -135,7 +141,6 @@ void GameState::checkEnemySpawn() {
             trySpawnEnemy(sf::Vector2f{m_spawnX, y});
         }
         m_spawnX += enemySize.x;
-        addScore(1);
     }
 }
 

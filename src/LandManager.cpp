@@ -13,8 +13,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "LandManager.h"
 
-#include "../GameState.h"
-#include "../Airplane/Airplane.h"
+#include "GameState.h"
+#include "Airplane/Airplane.h"
 
 #include <random>
 #include <ranges>
@@ -32,7 +32,7 @@ const std::array<double, 5> LandManager::s_roadChances {0.0, 0.05, 1.0, 0.3, 0.3
 const std::array<double, 5> LandManager::s_waterChances{0.0, 1.0,  0.5, 0.0, 0.3};
 
 void LandManager::prepareChances() {
-    m_chances.reserve(TOTAL_VARIANTS);
+    m_chances.reserve(LAND_VARIANTS);
 
     forValidRoad(
         [&chances = m_chances, &roadChances = s_roadChances](Land land) {

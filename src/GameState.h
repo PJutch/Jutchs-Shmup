@@ -173,6 +173,7 @@ private:
 
     int m_score;
     std::deque<ScoreChange> m_scoreChanges;
+    float m_scoredX;
 
     sf::Time m_shouldResetAfter;
 

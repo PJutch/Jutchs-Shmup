@@ -32,7 +32,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 GameState::GameState(sf::Vector2f screenSize) : 
         m_randomEngine{std::random_device{}()},
         m_assetManager{m_randomEngine}, m_entityManager{*this}, m_landManager{*this},
-        m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
+        m_screenSize{screenSize}, m_gameHeight{512},
         m_scoreManager{*this}, m_shouldResetAfter{sf::Time::Zero},
         m_shouldEnd{false}, m_guiManager{*this} {
     getEntities().init();
@@ -62,15 +62,12 @@ void GameState::update() {
     m_landManager.update();
 
     checkReset(elapsedTime);
-    checkEnemySpawn();
     
     m_scoreManager.update();
 }
 
 void GameState::reset() {  
     m_entityManager.reset();
-
-    m_spawnX = m_gameHeight * 4;
 
     m_landManager.reset();
 
@@ -98,119 +95,4 @@ sf::View GameState::getView() const noexcept {
                      -getGameHeight() / 2.f, 
                      getGameHeight() * getScreenSize().x / getScreenSize().y, 
                      getGameHeight()}};
-}
-
-void GameState::checkEnemySpawn() {
-    while (getEntities().getPlayer().getPosition().x + 4 * m_gameHeight > m_spawnX) {
-        sf::Vector2u enemySize = getAssets().getAirplaneTextureSize();
-        for (float y = (enemySize.y - m_gameHeight) / 2; 
-                y < (m_gameHeight- enemySize.y) / 2; y += enemySize.y) {
-            trySpawnEnemy(sf::Vector2f{m_spawnX, y});
-        }
-        m_spawnX += enemySize.x;
-    }
-}
-
-void GameState::trySpawnEnemy(sf::Vector2f position) {
-    std::uniform_real_distribution canonicalDistribution{0.0, 1.0};
-    if (genRandom(canonicalDistribution) < 0.01) {
-        using enum Airplane::Flags;
-
-        Airplane::Builder builder{*this};
-        builder.position(position).maxHealth(1).flags(ENEMY_SIDE | DELETABLE | NO_PICKUPS);
-
-        int score = 10;
-
-        if (genRandom(canonicalDistribution) < 0.1) {
-            builder.maxHealth(3);
-            builder.flags() |= HEAVY;
-            score *= 2;
-        } else {
-            builder.maxHealth(1);
-            builder.flags() |= LIGHT;
-        }
-
-        double shootSeed = genRandom(canonicalDistribution);
-        bool advancedWeapon = false;
-        if (shootSeed < 0.1) {
-            builder.shootComponent<Airplane::TripleShootComponent>();
-            builder.flags() |= HAS_WEAPON;
-            advancedWeapon = true;
-        } else if (shootSeed < 0.2) {
-            builder.shootComponent<Airplane::VolleyShootComponent>();
-            builder.flags() |= NO_WEAPON;
-            advancedWeapon = true;
-        } else {
-            builder.shootComponent<Airplane::BasicShootComponent >();
-            builder.flags() |= NO_WEAPON;
-        }
-
-        double shootControlSeed = genRandom(canonicalDistribution);
-        std::unique_ptr<Airplane::ShootControlComponent> shootControl{nullptr};
-        if (shootControlSeed < 0.1) {
-            shootControl = builder.createShootControlComponent
-                <Airplane::TargetPlayerShootControlComponent>();
-        } else if (shootControlSeed < 0.2) {
-            shootControl = builder.createShootControlComponent
-                <Airplane::NeverShootControlComponent>();
-            builder.flags() &= ~HAS_WEAPON;
-            builder.flags() |= NO_WEAPON;
-            advancedWeapon = false;
-            score /= 2;
-        } else {
-            shootControl = builder.createShootControlComponent
-                <Airplane::AlwaysShootControlComponent>();
-        }
-
-        if (advancedWeapon) score *= 2;
-
-        builder.shootControlComponent<Airplane::AndShootControlComponent>(std::move(shootControl), 
-            builder.createShootControlComponent<Airplane::CanHitPlayerShootControlComponent>());
-
-        if (genRandom(canonicalDistribution) < 0.1) {
-            builder.speed({500.f, 250.f});
-            builder.flags() |= FAST;
-            score *= 2;
-        } else {
-            builder.speed({250.f, 250.f});
-            builder.flags() |= SLOW;
-        }
-
-        bool hasBomb = false;
-        if (canonicalDistribution(getRandomEngine()) < 0.1) {
-            builder.bomb();
-            hasBomb = true;
-            score *= 2;
-        }
-        builder.bombComponent<Airplane::EnemyBombComponent>();
-
-        if (hasBomb && canonicalDistribution(getRandomEngine()) < 0.9) {
-            builder.moveComponent<Airplane::LineWithTargetMoveComponent>(
-                    [&land = getLand(), target = getLand().getTargetFor(position)] 
-                    (const Airplane::Airplane& owner) mutable -> sf::Vector2f {
-                        if (target.x > owner.getPosition().x && owner.hasBomb())
-                            target = land.getTargetFor(owner.getPosition());
-                        
-                        return target;
-                    });
-        } else {
-            double moveSeed = genRandom(canonicalDistribution);
-            if (moveSeed < 0.1) {
-                builder.moveComponent<Airplane::PeriodicalMoveComponent>();
-            } else if (moveSeed < 0.2) {
-                builder.moveComponent<Airplane::LineWithTargetMoveComponent>(
-                    [&player = getEntities().getPlayer()](const Airplane::Airplane&) -> sf::Vector2f {
-                        return player.getPosition();
-                    });
-            } else {
-                builder.moveComponent<Airplane::BasicMoveComponent>();
-            }
-        }
-
-        builder.addDeathEffect<Airplane::ScoreDeathEffect    >(score)
-               .addDeathEffect<Airplane::LootDeathEffect     >()
-               .addDeathEffect<Airplane::ExplosionDeathEffect>();
-
-        m_entityManager.addEntity(builder.build());
-    }
 }

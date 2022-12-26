@@ -22,7 +22,7 @@ namespace Airplane {
     class Builder {
     public:
         template<typename... Args>
-        Builder(GameState& gameState, Args&&... args);
+        explicit Builder(GameState& gameState, Args&&... args);
 
         Builder& maxHealth(int maxHealth) noexcept {
             m_build->m_maxHealth = maxHealth;

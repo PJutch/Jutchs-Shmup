@@ -51,6 +51,8 @@ void EntityManager::init() {
         .addDeathEffect<Airplane::ExplosionDeathEffect>()
         .build().release();
     addEntity(m_player);
+
+    m_spawnX = 4 * m_gameState.getGameHeight();
 }
 
 void EntityManager::handleEvent(Event event) noexcept {
@@ -76,6 +78,8 @@ void EntityManager::update(Time elapsedTime) noexcept {
     erase_if(m_entities, [this](const unique_ptr<Entity>& entity) -> bool {
         return entity->shouldBeDeleted();
     });
+
+    checkEnemySpawn();
 }
 
 void EntityManager::draw(RenderTarget& target, RenderStates states) const noexcept {
@@ -92,4 +96,122 @@ void EntityManager::reset() noexcept {
 
     m_player->setPosition(PLAYER_START_POSITION);
     m_player->setHealth(PLAYER_MAX_HEALTH);
+
+    m_spawnX = m_gameState.getGameHeight() * 4;
+}
+
+void EntityManager::checkEnemySpawn() {
+    while (getPlayer().getPosition().x + 4 * m_gameState.getGameHeight() > m_spawnX) {
+        sf::Vector2u enemySize = m_gameState.getAssets().getAirplaneTextureSize();
+        for (float y = (enemySize.y - m_gameState.getGameHeight()) / 2; 
+                y < (m_gameState.getGameHeight() - enemySize.y) / 2; y += enemySize.y) {
+            if (std::uniform_real_distribution{0.0, 1.0}(m_gameState.getRandomEngine()) < 0.01)
+                spawnEnemy(sf::Vector2f{m_spawnX, y});
+        }
+        m_spawnX += enemySize.x;
+    }
+}
+
+void EntityManager::spawnEnemy(sf::Vector2f position) {
+    using enum Airplane::Flags;
+
+    std::uniform_real_distribution canonicalDistribution{0.0, 1.0};
+
+    Airplane::Builder builder{m_gameState};
+    builder.position(position).maxHealth(1).flags(ENEMY_SIDE | DELETABLE | NO_PICKUPS);
+
+    int score = 10;
+
+    if (canonicalDistribution(m_gameState.getRandomEngine()) < 0.1) {
+        builder.maxHealth(3);
+        builder.flags() |= HEAVY;
+        score *= 2;
+    } else {
+        builder.maxHealth(1);
+        builder.flags() |= LIGHT;
+    }
+
+    double shootSeed = canonicalDistribution(m_gameState.getRandomEngine());
+    bool advancedWeapon = false;
+    if (shootSeed < 0.1) {
+        builder.shootComponent<Airplane::TripleShootComponent>();
+        builder.flags() |= HAS_WEAPON;
+        advancedWeapon = true;
+    } else if (shootSeed < 0.2) {
+        builder.shootComponent<Airplane::VolleyShootComponent>();
+        builder.flags() |= NO_WEAPON;
+        advancedWeapon = true;
+    } else {
+        builder.shootComponent<Airplane::BasicShootComponent >();
+        builder.flags() |= NO_WEAPON;
+    }
+
+    double shootControlSeed = canonicalDistribution(m_gameState.getRandomEngine());
+    std::unique_ptr<Airplane::ShootControlComponent> shootControl{nullptr};
+    if (shootControlSeed < 0.1) {
+        shootControl = builder.createShootControlComponent
+            <Airplane::TargetPlayerShootControlComponent>();
+    } else if (shootControlSeed < 0.2) {
+        shootControl = builder.createShootControlComponent
+            <Airplane::NeverShootControlComponent>();
+        builder.flags() &= ~HAS_WEAPON;
+        builder.flags() |= NO_WEAPON;
+        advancedWeapon = false;
+        score /= 2;
+    } else {
+        shootControl = builder.createShootControlComponent
+            <Airplane::AlwaysShootControlComponent>();
+    }
+
+    if (advancedWeapon) score *= 2;
+
+    builder.shootControlComponent<Airplane::AndShootControlComponent>(std::move(shootControl), 
+        builder.createShootControlComponent<Airplane::CanHitPlayerShootControlComponent>());
+
+    if (canonicalDistribution(m_gameState.getRandomEngine()) < 0.1) {
+        builder.speed({500.f, 250.f});
+        builder.flags() |= FAST;
+        score *= 2;
+    } else {
+        builder.speed({250.f, 250.f});
+        builder.flags() |= SLOW;
+    }
+
+    bool hasBomb = false;
+    if (canonicalDistribution(m_gameState.getRandomEngine()) < 0.1) {
+        builder.bomb();
+        hasBomb = true;
+        score *= 2;
+    }
+    builder.bombComponent<Airplane::EnemyBombComponent>();
+
+    if (hasBomb && canonicalDistribution(m_gameState.getRandomEngine()) < 0.9) {
+        builder.moveComponent<Airplane::LineWithTargetMoveComponent>(
+            [&land = m_gameState.getLand(), 
+             target = m_gameState.getLand().getTargetFor(position)] 
+            (const Airplane::Airplane& owner) mutable -> sf::Vector2f {
+                if (target.x > owner.getPosition().x && owner.hasBomb())
+                    target = land.getTargetFor(owner.getPosition());
+                
+                return target;
+            });
+    } else {
+        double moveSeed = canonicalDistribution(m_gameState.getRandomEngine());
+        if (moveSeed < 0.1) {
+            builder.moveComponent<Airplane::PeriodicalMoveComponent>();
+        } else if (moveSeed < 0.2) {
+            builder.moveComponent<Airplane::LineWithTargetMoveComponent>(
+                [&player = getPlayer()](const Airplane::Airplane&) -> sf::Vector2f {
+                    return player.getPosition();
+                });
+        } else {
+            builder.moveComponent<Airplane::BasicMoveComponent>();
+        }
+    }
+
+    builder.addDeathEffect<Airplane::ScoreDeathEffect>(score)
+           .addDeathEffect<Airplane::LootDeathEffect>()
+           .addDeathEffect<Airplane::ExplosionDeathEffect>();
+
+    addEntity(builder.build());
 }

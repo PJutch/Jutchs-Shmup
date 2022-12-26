@@ -150,7 +150,6 @@ private:
 
     sf::Vector2f m_screenSize;
     float m_gameHeight;
-    float m_spawnX;
 
     bool m_shouldEnd;
 
@@ -164,10 +163,6 @@ private:
             if (m_shouldResetAfter <= sf::Time::Zero) reset();
         }
     }
-
-    void checkEnemySpawn();
-
-    void trySpawnEnemy(sf::Vector2f position);
 };
 
 #endif

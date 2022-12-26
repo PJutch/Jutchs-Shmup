@@ -83,7 +83,12 @@ private:
 
     Airplane::Airplane* m_player;
 
+    float m_spawnX;
+
     GameState& m_gameState;
+
+    void checkEnemySpawn();
+    void spawnEnemy(sf::Vector2f position);
 };
 
 #endif

@@ -34,7 +34,7 @@ void Bomb::update(sf::Time elapsedTime) {
 
         m_gameState.getLand().handleExplosion(getPosition());
 
-        auto particle = std::make_unique<AnimatedParticle>(m_gameState, getPosition(), 
+        auto particle = m_gameState.getEntities().createEntity<AnimatedParticle>(getPosition(), 
             m_gameState.getAssets().getExplosionAnimation(), sf::seconds(0.1f));
         particle->setScale(0.75f);
         m_gameState.getEntities().addEntity(std::move(particle));

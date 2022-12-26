@@ -121,8 +121,8 @@ namespace Airplane {
 
     template<typename... Args>
     Builder::Builder(GameState& gameState, Args&&... args) : 
-        m_build{new Airplane{gameState, std::forward<Args>(args)...}}, m_gameState{gameState},         
-        m_speed{0.f, 0.f}, m_hasBomb{false} {}
+        m_build{gameState.getEntities().createEntity<Airplane>(std::forward<Args>(args)...)}, 
+        m_gameState{gameState}, m_speed{0.f, 0.f}, m_hasBomb{false} {}
 }
 
 #endif

@@ -64,7 +64,12 @@ public:
 
     template <std::derived_from<Entity> EntityT, typename... Args>
     void addEntity(Args&&... args) {
-        m_entities.push_back(std::make_unique<EntityT>(m_gameState, std::forward<Args>(args)...));
+        m_entities.push_back(createEntity(std::forward<Args>(args)...));
+    }
+
+    template <std::derived_from<Entity> EntityT, typename... Args>
+    std::unique_ptr<EntityT> createEntity(Args&&... args) {
+        return std::make_unique<EntityT>(m_gameState, std::forward<Args>(args)...)
     }
 
     sf::Vector2f getPlayerPosition() const noexcept;

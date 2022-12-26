@@ -55,59 +55,95 @@ namespace Airplane {
         }
     };
 
-    class NotShootControlComponent : public ShootControlComponent {
-    public:
-        NotShootControlComponent(std::unique_ptr<ShootControlComponent>&& component) noexcept;
-        NotShootControlComponent(Airplane&, GameState&, 
-                                 std::unique_ptr<ShootControlComponent>&& component) noexcept : 
-            NotShootControlComponent{std::move(component)} {}
-        
-        bool shouldShoot() noexcept override {
-            return !m_component->shouldShoot();
-        }
-    private:
-        std::unique_ptr<ShootControlComponent> m_component;
-    };
+    namespace detail {
+        template <std::derived_from<ShootControlComponent> Component>
+        class NotShootControlComponent : public ShootControlComponent {
+        public:
+            explicit NotShootControlComponent(Component component) noexcept : 
+                m_component{std::move(component)} {}
+            
+            bool shouldShoot() noexcept override {
+                return !m_component.shouldShoot();
+            }
+        private:
+            Component m_component;
+        };
+    }
 
-    class BinaryShootControlComponent : public ShootControlComponent {
-    public:
-        BinaryShootControlComponent(std::unique_ptr<ShootControlComponent>&& component1, 
-                                    std::unique_ptr<ShootControlComponent>&& component2) noexcept :
-            m_component1{std::move(component1)}, m_component2{std::move(component2)} {}
-        BinaryShootControlComponent(Airplane&, GameState&, 
-                                    std::unique_ptr<ShootControlComponent>&& component1, 
-                                    std::unique_ptr<ShootControlComponent>&& component2) noexcept :
-            BinaryShootControlComponent{std::move(component1), std::move(component2)} {}
-    protected:
-        bool shouldShoot1() noexcept {
-            return m_component1->shouldShoot();
-        }
+    template <typename Component>
+        requires std::derived_from<std::remove_cvref_t<Component>, ShootControlComponent>
+    inline auto operator ! (Component&& component) noexcept {
+        using ResComponent = detail::NotShootControlComponent<std::remove_cvref_t<Component>>;
+        return ResComponent{std::forward<Component>(component)};
+    }
 
-        bool shouldShoot2() noexcept {
-            return m_component2->shouldShoot();
-        }
-    private:
-        std::unique_ptr<ShootControlComponent> m_component1;
-        std::unique_ptr<ShootControlComponent> m_component2;
-    };
+    namespace detail {
+        template <std::derived_from<ShootControlComponent> Component1, 
+                  std::derived_from<ShootControlComponent> Component2>
+        class BinaryShootControlComponent : public ShootControlComponent {
+        public:
+            BinaryShootControlComponent(Component1 component1, Component2 component2) noexcept :
+                m_component1{std::move(component1)}, m_component2{std::move(component2)} {}
+        protected:
+            bool shouldShoot1() noexcept {
+                return m_component1.shouldShoot();
+            }
 
-    class OrShootControlComponent : public BinaryShootControlComponent {
-    public:
-        using BinaryShootControlComponent::BinaryShootControlComponent;
-        
-        bool shouldShoot() noexcept override {
-            return shouldShoot1() || shouldShoot2();
-        }
-    };
+            bool shouldShoot2() noexcept {
+                return m_component2.shouldShoot();
+            }
+        private:
+            Component1 m_component1;
+            Component2 m_component2;
+        };
+    }
+    namespace detail {
+        template <std::derived_from<ShootControlComponent> Component1, 
+                  std::derived_from<ShootControlComponent> Component2>
+        class OrShootControlComponent : public BinaryShootControlComponent<Component1, Component2> {
+            using Base = BinaryShootControlComponent<Component1, Component2>;
+        public:
+            using Base::BinaryShootControlComponent;
+            
+            bool shouldShoot() noexcept override {
+                return Base::shouldShoot1() || Base::shouldShoot2();
+            }
+        };
+    }
 
-    class AndShootControlComponent : public BinaryShootControlComponent {
-    public:
-        using BinaryShootControlComponent::BinaryShootControlComponent;
-        
-        bool shouldShoot() noexcept override {
-            return shouldShoot1() && shouldShoot2();
-        }
-    };
+    template <typename Component1, typename Component2> 
+        requires std::derived_from<std::remove_cvref_t<Component1>, ShootControlComponent>
+              && std::derived_from<std::remove_cvref_t<Component2>, ShootControlComponent>
+    inline auto operator || (Component1&& component1, Component2&& component2) noexcept {
+        using ResComponent = detail::OrShootControlComponent<std::remove_cvref_t<Component1>, 
+                                                             std::remove_cvref_t<Component2>>;
+        return ResComponent{std::forward<Component1>(component1), 
+                            std::forward<Component2>(component2)};
+    }
+
+    namespace detail {
+        template <std::derived_from<ShootControlComponent> Component1, 
+                  std::derived_from<ShootControlComponent> Component2>
+        class AndShootControlComponent : public BinaryShootControlComponent<Component1, Component2> {
+            using Base = BinaryShootControlComponent<Component1, Component2>;
+        public:
+            using Base::BinaryShootControlComponent;
+            
+            bool shouldShoot() noexcept override {
+                return Base::shouldShoot1() && Base::shouldShoot2();
+            }
+        };
+    }
+
+    template <typename Component1, typename Component2> 
+        requires std::derived_from<std::remove_cvref_t<Component1>, ShootControlComponent>
+              && std::derived_from<std::remove_cvref_t<Component2>, ShootControlComponent>
+    inline auto operator && (Component1&& component1, Component2&& component2) noexcept {
+        using ResComponent = detail::AndShootControlComponent<std::remove_cvref_t<Component1>, 
+                                                              std::remove_cvref_t<Component2>>;
+        return ResComponent{std::forward<Component1>(component1), 
+                            std::forward<Component2>(component2)};
+    }
 
     class PlayerShootControlComponent : public ShootControlComponent {
     public:

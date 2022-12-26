@@ -55,15 +55,23 @@ namespace Airplane {
             return *this;
         }
 
-        template<std::derived_from<ShootControlComponent> Component, typename... Args>
-        std::unique_ptr<ShootControlComponent> createShootControlComponent(Args&&... args) {
-            return std::make_unique<Component>(*m_build, m_gameState, std::forward<Args>(args)...);
+        template <std::derived_from<ShootControlComponent> Component, typename... Args>
+        Component createShootControlComponent(Args&&... args) {
+            return Component(*m_build, m_gameState, std::forward<Args>(args)...);
         }
 
-        template<std::derived_from<ShootControlComponent> Component, typename... Args>
+        template <std::derived_from<ShootControlComponent> Component, typename... Args>
         Builder& shootControlComponent(Args&&... args) {
-            m_build->m_shootControlComponent
-                = createShootControlComponent<Component>(std::forward<Args>(args)...);
+            m_build->m_shootControlComponent 
+                = std::make_unique<Component>(*m_build, m_gameState, std::forward<Args>(args)...);
+            return *this;
+        }
+
+        template <typename Component>
+            requires std::derived_from<std::remove_cvref_t<Component>, ShootControlComponent>
+        Builder& shootControlComponent(Component&& component) {
+            m_build->m_shootControlComponent 
+                = std::make_unique<std::remove_cvref_t<Component>>(std::forward<Component>(component));
             return *this;
         }
 

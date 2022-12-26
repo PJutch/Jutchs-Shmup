@@ -161,26 +161,25 @@ void EntityManager::spawnEnemy(sf::Vector2f position) {
     }
 
     double shootControlSeed = canonicalDistribution(m_gameState.getRandomEngine());
-    std::unique_ptr<Airplane::ShootControlComponent> shootControl{nullptr};
     if (shootControlSeed < 0.1) {
-        shootControl = builder.createShootControlComponent
-            <Airplane::TargetPlayerShootControlComponent>();
+        auto targetPlayer 
+            = builder.createShootControlComponent<Airplane::TargetPlayerShootControlComponent>();
+        auto canHitPlayer 
+            = builder.createShootControlComponent<Airplane::CanHitPlayerShootControlComponent>();
+
+        builder.shootControlComponent(targetPlayer && canHitPlayer);
     } else if (shootControlSeed < 0.2) {
-        shootControl = builder.createShootControlComponent
-            <Airplane::NeverShootControlComponent>();
+        builder.shootControlComponent<Airplane::NeverShootControlComponent>();
+
         builder.flags() &= ~HAS_WEAPON;
         builder.flags() |= NO_WEAPON;
         advancedWeapon = false;
         score /= 2;
     } else {
-        shootControl = builder.createShootControlComponent
-            <Airplane::AlwaysShootControlComponent>();
+        builder.shootControlComponent<Airplane::CanHitPlayerShootControlComponent>();
     }
 
     if (advancedWeapon) score *= 2;
-
-    builder.shootControlComponent<Airplane::AndShootControlComponent>(std::move(shootControl), 
-        builder.createShootControlComponent<Airplane::CanHitPlayerShootControlComponent>());
 
     if (canonicalDistribution(m_gameState.getRandomEngine()) < 0.1) {
         builder.speed(500.f, 250.f);

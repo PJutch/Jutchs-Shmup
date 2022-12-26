@@ -68,9 +68,8 @@ void GameState::update() {
 
 void GameState::reset() {  
     m_entityManager.reset();
-
     m_landManager.reset();
-
+    m_scoreManager.reset();
     m_clock.restart();
 }
 

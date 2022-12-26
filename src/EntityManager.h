@@ -78,7 +78,8 @@ private:
     std::vector<std::unique_ptr<Entity>> m_entities;
 
     Airplane::Airplane* m_player;
-    sf::Vector2f m_playerPosition; // use when player destroyed
+    sf::Vector2f m_playerPosition;
+    sf::FloatRect m_playerGlobalBounds;
 
     float m_spawnX;
 

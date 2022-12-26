@@ -22,7 +22,9 @@ const int PLAYER_MAX_HEALTH = 3;
 const sf::Vector2f PLAYER_START_POSITION{0.f, 0.f};
 
 EntityManager::EntityManager(GameState& gameState) noexcept : 
-    m_playerPosition{PLAYER_START_POSITION}, m_gameState{gameState} {}
+    m_playerPosition{PLAYER_START_POSITION}, 
+    m_playerGlobalBounds{PLAYER_START_POSITION.x, PLAYER_START_POSITION.y, 0.f, 0.f},
+    m_gameState{gameState} {}
 
 void EntityManager::init() {
     spawnPlayer();
@@ -43,6 +45,9 @@ void EntityManager::spawnPlayer() {
         .addDeathEffect<Airplane::ExplosionDeathEffect>()
         .build().release();
     addEntity(m_player);
+
+    m_playerPosition = PLAYER_START_POSITION;
+    m_playerGlobalBounds = m_player->getGlobalBounds();
 }
 
 sf::Vector2f EntityManager::getPlayerPosition() const noexcept {
@@ -50,12 +55,7 @@ sf::Vector2f EntityManager::getPlayerPosition() const noexcept {
 }
 
 sf::FloatRect EntityManager::getPlayerGlobalBounds() const noexcept {
-    if (m_player) {
-        return m_player->getGlobalBounds();
-    } else {
-        auto [x, y] = getPlayerPosition();
-        return {x, y, 0.f, 0.f};
-    }
+    return m_playerGlobalBounds;
 }
 
 int EntityManager::getPlayerHealth() const noexcept {
@@ -74,7 +74,10 @@ void EntityManager::update(sf::Time elapsedTime) noexcept {
         if (m_entities[i]->isActive()) 
             m_entities[i]->update(elapsedTime);
 
-    if (m_player) m_playerPosition = m_player->getPosition();
+    if (m_player) {
+        m_playerPosition = m_player->getPosition();
+        m_playerGlobalBounds = m_player->getGlobalBounds();
+    }
     
     for (int i = 0; i < ssize(m_entities); ++ i) 
         for (int j = i + 1; j < ssize(m_entities); ++ j) 
@@ -84,7 +87,12 @@ void EntityManager::update(sf::Time elapsedTime) noexcept {
                 m_entities[j]->startCollide(*m_entities[i]);
     }
 
-    if (m_player && m_player->shouldBeDeleted()) m_player = nullptr;
+    if (m_player && m_player->shouldBeDeleted()) {
+        m_player = nullptr;
+
+        auto [x, y] = getPlayerPosition();
+        m_playerGlobalBounds = {x, y, 0.f, 0.f};
+    }
 
     erase_if(m_entities, [this](const std::unique_ptr<Entity>& entity) -> bool {
         return entity->shouldBeDeleted();

@@ -18,20 +18,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Airplane/Airplane.h"
 #include "Airplane/Builder.h"
 
-#include <SFML/Graphics.hpp>
-using sf::RenderTarget;
-using sf::RenderStates;
-
-#include <SFML/System.hpp>
-using sf::Event;
-using sf::Time;
-
-#include <vector>
-using std::erase_if;
-
-#include <memory>
-using std::unique_ptr;
-
 const int PLAYER_MAX_HEALTH = 3;
 const sf::Vector2f PLAYER_START_POSITION{.0f, 0.f};
 
@@ -55,14 +41,14 @@ void EntityManager::init() {
     m_spawnX = 4 * m_gameState.getGameHeight();
 }
 
-void EntityManager::handleEvent(Event event) noexcept {
+void EntityManager::handleEvent(sf::Event event) noexcept {
     for (int i = 0; i < ssize(m_entities); ++ i)  {
         if (m_entities[i]->isActive()) 
             m_entities[i]->handleEvent(event);
     }
 }
 
-void EntityManager::update(Time elapsedTime) noexcept {
+void EntityManager::update(sf::Time elapsedTime) noexcept {
     for (int i = 0; i < ssize(m_entities); ++ i) 
         if (m_entities[i]->isActive()) 
             m_entities[i]->update(elapsedTime);
@@ -75,14 +61,14 @@ void EntityManager::update(Time elapsedTime) noexcept {
                 m_entities[j]->startCollide(*m_entities[i]);
     }
 
-    erase_if(m_entities, [this](const unique_ptr<Entity>& entity) -> bool {
+    erase_if(m_entities, [this](const std::unique_ptr<Entity>& entity) -> bool {
         return entity->shouldBeDeleted();
     });
 
     checkEnemySpawn();
 }
 
-void EntityManager::draw(RenderTarget& target, RenderStates states) const noexcept {
+void EntityManager::draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept {
     for (const auto& entity : m_entities) {
         if (entity->isActive()) 
             target.draw(*entity, states);
@@ -90,7 +76,7 @@ void EntityManager::draw(RenderTarget& target, RenderStates states) const noexce
 }
 
 void EntityManager::reset() noexcept {
-    erase_if(m_entities, [](const unique_ptr<Entity>& entity) -> bool {
+    erase_if(m_entities, [](const std::unique_ptr<Entity>& entity) -> bool {
         return entity->reset();
     });
 

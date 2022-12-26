@@ -34,10 +34,10 @@ void Bomb::update(sf::Time elapsedTime) {
 
         m_gameState.getLand().handleExplosion(getPosition());
 
-        auto* particle = new AnimatedParticle{getPosition(), 
-            m_gameState.getAssets().getExplosionAnimation(), sf::seconds(0.1f), m_gameState};
+        auto particle = std::make_unique<AnimatedParticle>(getPosition(), 
+            m_gameState.getAssets().getExplosionAnimation(), sf::seconds(0.1f), m_gameState);
         particle->setScale(0.75f);
-        m_gameState.getEntities().addEntity(particle);
+        m_gameState.getEntities().addEntity(std::move(particle));
         m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomExplosionSound());
     }
     setScale(1.f / (1.f + y));

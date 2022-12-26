@@ -30,18 +30,17 @@ namespace Airplane {
 
     void LootDeathEffect::handleDeath() noexcept {
         if (m_owner.hasBomb()) {
-            m_gameState.getEntities().addEntity(new BombPickup{m_owner.getPosition(), m_gameState});
+            m_gameState.getEntities().addEntity<BombPickup>(m_owner.getPosition(), m_gameState);
         } else {
             if (std::uniform_real_distribution{0.0, 1.0}(m_gameState.getRandomEngine()) < 0.1) {
-                m_gameState.getEntities().addEntity(new HealthPickup{m_owner.getPosition(), m_gameState});
+                m_gameState.getEntities().addEntity<HealthPickup>(m_owner.getPosition(), m_gameState);
             }
         }
     }
 
     void ExplosionDeathEffect::handleDeath() noexcept {
-        m_gameState.getEntities().addEntity(new AnimatedParticle{m_owner.getPosition(), 
-                                                m_gameState.getAssets().getExplosionAnimation(), 
-                                                sf::seconds(0.1f), m_gameState});
+        m_gameState.getEntities().addEntity<AnimatedParticle>(m_owner.getPosition(), 
+            m_gameState.getAssets().getExplosionAnimation(), sf::seconds(0.1f), m_gameState);
         m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomExplosionSound());
     }
 }

@@ -18,6 +18,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <vector>
 #include <memory>
+#include <concepts>
 
 class GameState;
 
@@ -53,12 +54,17 @@ public:
         return cend();
     }
 
-    void addEntity(Entity* entity) noexcept {
+    void addEntity(Entity* entity) {
         m_entities.emplace_back(entity);
     }
 
-    void addEntity(std::unique_ptr<Entity>&& entity) noexcept {
+    void addEntity(std::unique_ptr<Entity>&& entity) {
         m_entities.push_back(std::move(entity));
+    }
+
+    template <std::derived_from<Entity> EntityT, typename... Args>
+    void addEntity(Args&&... args) {
+        m_entities.push_back(std::make_unique<EntityT>(std::forward<Args>(args)...));
     }
 
     sf::Vector2f getPlayerPosition() const noexcept;

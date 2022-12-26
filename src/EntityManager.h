@@ -68,11 +68,7 @@ public:
     const Airplane::Airplane& getPlayer() const noexcept {
         return *m_player;
     }
-
-    Airplane::Airplane& getPlayer() noexcept {
-        return *m_player;
-    }
-
+    
     void init();
 
     void handleEvent(sf::Event event) noexcept;

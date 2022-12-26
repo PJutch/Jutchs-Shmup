@@ -115,18 +115,7 @@ namespace Airplane {
         }
 
         bool shouldBeDeleted() const noexcept override {
-            return test(m_flags, Flags::DELETABLE)
-                && (m_health <= 0 || !m_gameState.inActiveArea(getPosition().x));
-        }
-
-        bool reset() noexcept override {
-            if (test(m_flags, Flags::DELETABLE)) return true;
-
-            m_health = m_maxHealth;
-            m_flags &= ~Flags::HAS_BOMB;
-            setPosition(0.f, 0.f);
-            m_bombComponent->reset();
-            return false;
+            return m_health <= 0 || !m_gameState.inActiveArea(getPosition().x);
         }
 
         bool isDead() const noexcept {

@@ -91,8 +91,8 @@ void LandManager::generateSpawn() {
 }
 
 void LandManager::update() {
-    auto playerPos = m_gameState.getEntities().getPlayer().getPosition();
-    while (playerPos.x + 5 * m_gameState.getGameHeight() >= m_endX) {
+    float playerX = m_gameState.getEntities().getPlayerPosition().x;
+    while (playerX + 5 * m_gameState.getGameHeight() >= m_endX) {
         m_land.pop_front();
         addRow();
     }
@@ -179,12 +179,12 @@ void LandManager::handleExplosion(sf::Vector2f position) {
 
 void LandManager::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     auto textureSize = m_gameState.getAssets().getLandTextureSize();
-    auto playerPos = m_gameState.getEntities().getPlayer().getPosition();
+    float playerX = m_gameState.getEntities().getPlayerPosition().x;
     float gameHeight = m_gameState.getGameHeight();
 
-    sf::Vector2f start{playerPos.x - gameHeight - std::fmodf(playerPos.x, textureSize.x), 
+    sf::Vector2f start{playerX - gameHeight - std::fmodf(playerX, textureSize.x), 
                         -gameHeight / 2};
-    for (int ix = 0; start.x + ix * textureSize.x < playerPos.x + 4 * gameHeight; ++ ix)
+    for (int ix = 0; start.x + ix * textureSize.x < playerX + 4 * gameHeight; ++ ix)
         for (float iy = 0; iy < std::ssize(m_land[ix]); ++ iy) {
             sf::Sprite sprite{m_gameState.getAssets().getLandTexture(m_land[ix][iy])};
             if (sprite.getTextureRect().width == 0)

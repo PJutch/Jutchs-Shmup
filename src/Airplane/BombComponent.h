@@ -49,10 +49,6 @@ namespace Airplane {
         Flags getTextureFlags() const noexcept {
             return m_hasBomb ? Flags::HAS_BOMB : Flags::NO_BOMB;
         }
-
-        void reset() {
-            m_hasBomb = false;
-        }
     protected:
         Airplane& m_owner;
         GameState& m_gameState;

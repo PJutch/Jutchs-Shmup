@@ -61,9 +61,9 @@ public:
         m_entities.push_back(std::move(entity));
     }
 
-    const Airplane::Airplane& getPlayer() const noexcept {
-        return *m_player;
-    }
+    sf::Vector2f getPlayerPosition() const noexcept;
+    sf::FloatRect getPlayerGlobalBounds() const noexcept;
+    int getPlayerHealth() const noexcept;
     
     void init();
 
@@ -78,10 +78,13 @@ private:
     std::vector<std::unique_ptr<Entity>> m_entities;
 
     Airplane::Airplane* m_player;
+    sf::Vector2f m_playerPosition; // use when player destroyed
 
     float m_spawnX;
 
     GameState& m_gameState;
+
+    void spawnPlayer();
 
     void checkEnemySpawn();
     void spawnEnemy(sf::Vector2f position);

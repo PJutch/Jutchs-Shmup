@@ -54,12 +54,6 @@ public:
     virtual bool isPassable() const noexcept = 0;
 
     virtual bool shouldBeDeleted() const noexcept = 0;
-
-    // reset state
-    // return true if should be deleted after this
-    virtual bool reset() noexcept { 
-        return true;
-    }
 };
 
 // CRTP

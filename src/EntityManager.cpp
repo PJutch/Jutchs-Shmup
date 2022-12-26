@@ -19,16 +19,22 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Airplane/Builder.h"
 
 const int PLAYER_MAX_HEALTH = 3;
-const sf::Vector2f PLAYER_START_POSITION{.0f, 0.f};
+const sf::Vector2f PLAYER_START_POSITION{0.f, 0.f};
 
-EntityManager::EntityManager(GameState& gameState) noexcept : m_gameState{gameState} {}
+EntityManager::EntityManager(GameState& gameState) noexcept : 
+    m_playerPosition{PLAYER_START_POSITION}, m_gameState{gameState} {}
 
 void EntityManager::init() {
+    spawnPlayer();
+    m_spawnX = 4 * m_gameState.getGameHeight();
+}
+
+void EntityManager::spawnPlayer() {
     using enum Airplane::Flags;
 
     m_player = Airplane::Builder{m_gameState}
         .position(PLAYER_START_POSITION).maxHealth(PLAYER_MAX_HEALTH)
-        .flags(PLAYER_SIDE | HEAVY | SLOW | NO_WEAPON | UNIQUE | USE_PICKUPS | NO_BOMB)
+        .flags(PLAYER_SIDE | HEAVY | SLOW | NO_WEAPON | USE_PICKUPS | NO_BOMB)
         .shootComponent<Airplane::BasicShootComponent>()
         .shootControlComponent<Airplane::PlayerShootControlComponent>()
         .moveComponent<Airplane::PlayerMoveComponent>().speed({250.f, 250.f})
@@ -37,8 +43,23 @@ void EntityManager::init() {
         .addDeathEffect<Airplane::ExplosionDeathEffect>()
         .build().release();
     addEntity(m_player);
+}
 
-    m_spawnX = 4 * m_gameState.getGameHeight();
+sf::Vector2f EntityManager::getPlayerPosition() const noexcept {
+    return m_playerPosition;
+}
+
+sf::FloatRect EntityManager::getPlayerGlobalBounds() const noexcept {
+    if (m_player) {
+        return m_player->getGlobalBounds();
+    } else {
+        auto [x, y] = getPlayerPosition();
+        return {x, y, 0.f, 0.f};
+    }
+}
+
+int EntityManager::getPlayerHealth() const noexcept {
+    return m_player ? m_player->getHealth() : 0;
 }
 
 void EntityManager::handleEvent(sf::Event event) noexcept {
@@ -52,6 +73,8 @@ void EntityManager::update(sf::Time elapsedTime) noexcept {
     for (int i = 0; i < ssize(m_entities); ++ i) 
         if (m_entities[i]->isActive()) 
             m_entities[i]->update(elapsedTime);
+
+    if (m_player) m_playerPosition = m_player->getPosition();
     
     for (int i = 0; i < ssize(m_entities); ++ i) 
         for (int j = i + 1; j < ssize(m_entities); ++ j) 
@@ -60,6 +83,8 @@ void EntityManager::update(sf::Time elapsedTime) noexcept {
                 m_entities[i]->startCollide(*m_entities[j]);
                 m_entities[j]->startCollide(*m_entities[i]);
     }
+
+    if (m_player && m_player->shouldBeDeleted()) m_player = nullptr;
 
     erase_if(m_entities, [this](const std::unique_ptr<Entity>& entity) -> bool {
         return entity->shouldBeDeleted();
@@ -76,18 +101,13 @@ void EntityManager::draw(sf::RenderTarget& target, sf::RenderStates states) cons
 }
 
 void EntityManager::reset() noexcept {
-    erase_if(m_entities, [](const std::unique_ptr<Entity>& entity) -> bool {
-        return entity->reset();
-    });
-
-    m_player->setPosition(PLAYER_START_POSITION);
-    m_player->setHealth(PLAYER_MAX_HEALTH);
-
-    m_spawnX = m_gameState.getGameHeight() * 4;
+    m_entities.clear();
+    spawnPlayer();
+    m_spawnX = 4 * m_gameState.getGameHeight();
 }
 
 void EntityManager::checkEnemySpawn() {
-    while (getPlayer().getPosition().x + 4 * m_gameState.getGameHeight() > m_spawnX) {
+    while (getPlayerPosition().x + 4 * m_gameState.getGameHeight() > m_spawnX) {
         sf::Vector2u enemySize = m_gameState.getAssets().getAirplaneTextureSize();
         for (float y = (enemySize.y - m_gameState.getGameHeight()) / 2; 
                 y < (m_gameState.getGameHeight() - enemySize.y) / 2; y += enemySize.y) {
@@ -104,7 +124,7 @@ void EntityManager::spawnEnemy(sf::Vector2f position) {
     std::uniform_real_distribution canonicalDistribution{0.0, 1.0};
 
     Airplane::Builder builder{m_gameState};
-    builder.position(position).maxHealth(1).flags(ENEMY_SIDE | DELETABLE | NO_PICKUPS);
+    builder.position(position).maxHealth(1).flags(ENEMY_SIDE | NO_PICKUPS);
 
     int score = 10;
 
@@ -187,8 +207,8 @@ void EntityManager::spawnEnemy(sf::Vector2f position) {
             builder.moveComponent<Airplane::PeriodicalMoveComponent>();
         } else if (moveSeed < 0.2) {
             builder.moveComponent<Airplane::LineWithTargetMoveComponent>(
-                [&player = getPlayer()](const Airplane::Airplane&) -> sf::Vector2f {
-                    return player.getPosition();
+                [this](const Airplane::Airplane&) -> sf::Vector2f {
+                    return getPlayerPosition();
                 });
         } else {
             builder.moveComponent<Airplane::BasicMoveComponent>();

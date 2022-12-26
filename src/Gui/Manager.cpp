@@ -217,7 +217,7 @@ namespace Gui {
 
     sf::Vector2f Manager::drawHealth(sf::Vector2f position, 
             sf::RenderTarget& target, sf::RenderStates states) const {
-        int health = m_gameState.getEntities().getPlayer().getHealth();
+        int health = m_gameState.getEntities().getPlayerHealth();
 
         const auto& assets = m_gameState.getAssets();
         auto healthSize = 2u * assets.getHealthTexture().getSize();

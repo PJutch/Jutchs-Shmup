@@ -75,8 +75,8 @@ void GameState::reset() {
 }
 
 bool GameState::inActiveArea(float x) const noexcept {
-    return x + 2 * getGameHeight() >= getEntities().getPlayer().getPosition().x 
-        && x - 5 * getGameHeight() <= getEntities().getPlayer().getPosition().x;
+    float playerX = getEntities().getPlayerPosition().x;
+    return x + 2 * getGameHeight() >= playerX && x - 5 * getGameHeight() <= playerX;
 }
 
 void GameState::draw(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -91,8 +91,8 @@ void GameState::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 sf::View GameState::getView() const noexcept {
-    return sf::View{{getEntities().getPlayer().getPosition().x - getGameHeight() / 2.f, 
-                     -getGameHeight() / 2.f, 
-                     getGameHeight() * getScreenSize().x / getScreenSize().y, 
-                     getGameHeight()}};
+    float playerX = getEntities().getPlayerPosition().x;
+    float aspectRatio = getScreenSize().x / getScreenSize().y;
+    return sf::View{{playerX - getGameHeight() / 2.f, -getGameHeight() / 2.f, 
+                     getGameHeight() * aspectRatio, getGameHeight()}};
 }

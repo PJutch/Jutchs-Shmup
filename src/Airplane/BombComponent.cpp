@@ -21,8 +21,7 @@ namespace Airplane {
 
     void BombComponent::tryBomb() {
         if (m_hasBomb)
-            m_gameState.getEntities().addEntity<Bomb>
-                (m_owner.isOnPlayerSide(), m_owner.getPosition(), m_gameState);
+            m_gameState.getEntities().addEntity<Bomb>(m_owner.isOnPlayerSide(), m_owner.getPosition());
         m_hasBomb = false;
     }
 

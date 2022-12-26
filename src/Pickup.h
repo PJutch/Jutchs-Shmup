@@ -23,7 +23,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class Pickup : public Sprite<Pickup> {
 public:
-    Pickup(sf::Vector2f position, const sf::Texture& texture, GameState& gameState) noexcept: 
+    Pickup(GameState& gameState, sf::Vector2f position, const sf::Texture& texture) noexcept: 
             Sprite{gameState}, m_alive{true} {
         setTexture(texture);
 
@@ -60,8 +60,8 @@ private:
 
 class HealthPickup : public Pickup {
 public:
-    HealthPickup(sf::Vector2f position, GameState& gameState) noexcept: 
-        Pickup{position, gameState.getAssets().getHealthPickupTexture(), gameState} {}
+    HealthPickup(GameState& gameState, sf::Vector2f position) noexcept: 
+        Pickup{gameState, position, gameState.getAssets().getHealthPickupTexture()} {}
 
     void apply(Airplane::Airplane& airplane) noexcept override {
         if (isActive() && airplane.tryAddHealth(1)) {
@@ -73,8 +73,8 @@ public:
 
 class BombPickup : public Pickup {
 public:
-    BombPickup(sf::Vector2f position, GameState& gameState) noexcept: 
-        Pickup{position, gameState.getAssets().getBombPickupTexture(), gameState} {}
+    BombPickup(GameState& gameState, sf::Vector2f position) noexcept: 
+        Pickup{gameState, position, gameState.getAssets().getBombPickupTexture()} {}
 
     void apply(Airplane::Airplane& airplane) noexcept override {
         if (isActive() && airplane.tryAddBomb()) {

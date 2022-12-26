@@ -152,8 +152,7 @@ namespace Airplane {
         Flags m_flags;
 
         Airplane(GameState& gameState) noexcept : 
-            Sprite{gameState},
-            m_health{0}, m_maxHealth{0}, m_damageCooldown{sf::seconds(0.f)} {}
+            Sprite{gameState}, m_health{0}, m_maxHealth{0}, m_damageCooldown{sf::seconds(0.f)} {}
 
         void updateTexture() noexcept {
             Flags flags = m_flags;

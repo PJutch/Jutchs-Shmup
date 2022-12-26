@@ -23,8 +23,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class AnimatedParticle : public Sprite<AnimatedParticle> {
 public:
-    AnimatedParticle(sf::Vector2f position, std::span<const sf::Texture> animation, 
-                     sf::Time delay, GameState& gameState) noexcept;
+    AnimatedParticle(GameState& gameState, sf::Vector2f position, std::span<const sf::Texture> animation, 
+                     sf::Time delay) noexcept;
 
     void update(sf::Time elapsedTime) noexcept override;
     

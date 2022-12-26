@@ -28,7 +28,7 @@ namespace Airplane {
             m_shootCooldown{sf::Time::Zero}, m_owner{owner}, m_gameState{gameState} {};
 
     void ShootComponent::shoot(sf::Vector2f position) noexcept {
-        m_gameState.getEntities().addEntity<Bullet>(m_owner.isOnPlayerSide(), position, m_gameState);
+        m_gameState.getEntities().addEntity<Bullet>(m_owner.isOnPlayerSide(), position);
     }
 
     sf::FloatRect ShootComponent::getAffectedArea() const noexcept {

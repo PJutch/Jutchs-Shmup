@@ -13,7 +13,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Bomb.h"
 
-Bomb::Bomb(bool playerSide, sf::Vector2f position, GameState& gameState) :
+Bomb::Bomb(GameState& gameState, bool playerSide, sf::Vector2f position) :
         Sprite{gameState}, m_launched{gameState.getCurrentTime()}, m_alive{true} {
     auto& texture = gameState.getAssets().getBombTexture();
     setTexture(texture);
@@ -34,8 +34,8 @@ void Bomb::update(sf::Time elapsedTime) {
 
         m_gameState.getLand().handleExplosion(getPosition());
 
-        auto particle = std::make_unique<AnimatedParticle>(getPosition(), 
-            m_gameState.getAssets().getExplosionAnimation(), sf::seconds(0.1f), m_gameState);
+        auto particle = std::make_unique<AnimatedParticle>(m_gameState, getPosition(), 
+            m_gameState.getAssets().getExplosionAnimation(), sf::seconds(0.1f));
         particle->setScale(0.75f);
         m_gameState.getEntities().addEntity(std::move(particle));
         m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomExplosionSound());

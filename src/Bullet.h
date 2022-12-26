@@ -26,7 +26,7 @@ namespace Airplane {
 
 class Bullet : public Sprite<Bullet> {
 public:
-    Bullet(bool playerSide, sf::Vector2f position, GameState& gameState);
+    Bullet(GameState& gameState, bool playerSide, sf::Vector2f position);
     
     static sf::Vector2f getSize(GameState& gameState) noexcept {
         auto size = gameState.getAssets().getBulletTexture().getSize();

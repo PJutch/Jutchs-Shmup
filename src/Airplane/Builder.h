@@ -35,9 +35,17 @@ namespace Airplane {
             return *this;
         }
 
+        Builder& position(float x, float y) noexcept {
+            return position({x, y});
+        }
+
         Builder& speed(sf::Vector2f speed) noexcept {
             m_speed = speed;
             return *this;
+        }
+
+        Builder& speed(float x, float y) noexcept {
+            return speed({x, y});
         }
 
         template<std::derived_from<ShootComponent> Component, typename... Args>

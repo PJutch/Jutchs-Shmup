@@ -39,7 +39,7 @@ void EntityManager::spawnPlayer() {
         .flags(PLAYER_SIDE | HEAVY | SLOW | NO_WEAPON | USE_PICKUPS | NO_BOMB)
         .shootComponent<Airplane::BasicShootComponent>()
         .shootControlComponent<Airplane::PlayerShootControlComponent>()
-        .moveComponent<Airplane::PlayerMoveComponent>().speed({250.f, 250.f})
+        .moveComponent<Airplane::PlayerMoveComponent>().speed(250.f, 250.f)
         .bombComponent<Airplane::PlayerBombComponent>()
         .addDeathEffect<Airplane::LoseDeathEffect>()
         .addDeathEffect<Airplane::ExplosionDeathEffect>()
@@ -183,11 +183,11 @@ void EntityManager::spawnEnemy(sf::Vector2f position) {
         builder.createShootControlComponent<Airplane::CanHitPlayerShootControlComponent>());
 
     if (canonicalDistribution(m_gameState.getRandomEngine()) < 0.1) {
-        builder.speed({500.f, 250.f});
+        builder.speed(500.f, 250.f);
         builder.flags() |= FAST;
         score *= 2;
     } else {
-        builder.speed({250.f, 250.f});
+        builder.speed(250.f, 250.f);
         builder.flags() |= SLOW;
     }
 

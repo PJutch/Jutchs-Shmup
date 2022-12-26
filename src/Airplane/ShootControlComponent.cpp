@@ -35,7 +35,7 @@ namespace Airplane {
         m_owner{owner}, m_gameState{gameState} {}
 
     bool TargetPlayerShootControlComponent::shouldShoot() noexcept {
-        return m_gameState.getPlayer().getGlobalBounds().intersects(
+        return m_gameState.getEntities().getPlayer().getGlobalBounds().intersects(
             m_owner.getShootComponent().getAffectedArea());
     }
 
@@ -71,7 +71,7 @@ namespace Airplane {
         m_component1{move(component1)}, m_component2{move(component2)} {}
 
     bool CanHitPlayerShootControlComponent::shouldShoot() noexcept {
-        auto playerBounds = m_gameState.getPlayer().getGlobalBounds();
+        auto playerBounds = m_gameState.getEntities().getPlayer().getGlobalBounds();
         float playerRight = playerBounds.left + playerBounds.width;    
 
         auto ownerBounds = m_owner.getGlobalBounds();

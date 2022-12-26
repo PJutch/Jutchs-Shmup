@@ -30,7 +30,7 @@ void ScoreManager::addScore(int score) noexcept {
 }
 
 void ScoreManager::update() {
-    while (m_gameState.getPlayer().getPosition().x > m_scoredX) {
+    while (m_gameState.getEntities().getPlayer().getPosition().x > m_scoredX) {
         m_scoredX += 32;
         addScore(1);
     }

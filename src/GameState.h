@@ -33,10 +33,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <memory>
 #include <deque>
 
-namespace Airplane {
-    class Airplane;
-}
-
 class GameState : public sf::Drawable {
 public:
     GameState(sf::Vector2f screenSize);
@@ -77,14 +73,6 @@ public:
 
     LandManager& getLand() noexcept {
         return m_landManager;
-    }
-
-    const Airplane::Airplane& getPlayer() const noexcept {
-        return *m_player;
-    }
-
-    Airplane::Airplane& getPlayer() noexcept {
-        return *m_player;
     }
 
     const LanguageManager& getLanguageManager() const noexcept {
@@ -156,8 +144,6 @@ private:
     sf::Clock m_tickClock;
     sf::Clock m_clock;
 
-    Airplane::Airplane* m_player;
-
     ScoreManager m_scoreManager;
 
     sf::Time m_shouldResetAfter;
@@ -167,8 +153,6 @@ private:
     float m_spawnX;
 
     bool m_shouldEnd;
-
-    void initPlayer();
 
     sf::View getView() const noexcept;
 

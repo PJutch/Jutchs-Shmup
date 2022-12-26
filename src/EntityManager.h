@@ -23,9 +23,15 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <memory>
 #include <deque>
 
+class GameState;
+
+namespace Airplane {
+    class Airplane;
+}
+
 class EntityManager : public sf::Drawable {
 public:
-    EntityManager() noexcept;
+    EntityManager(GameState& gameState) noexcept;
 
     auto cbegin() const noexcept {
         return m_entities.cbegin();
@@ -59,6 +65,16 @@ public:
         m_entities.push_back(std::move(entity));
     }
 
+    const Airplane::Airplane& getPlayer() const noexcept {
+        return *m_player;
+    }
+
+    Airplane::Airplane& getPlayer() noexcept {
+        return *m_player;
+    }
+
+    void init();
+
     void handleEvent(sf::Event event) noexcept;
 
     void update(sf::Time elapsedTime) noexcept;
@@ -68,6 +84,10 @@ public:
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override;
 private:
     std::vector<std::unique_ptr<Entity>> m_entities;
+
+    Airplane::Airplane* m_player;
+
+    GameState& m_gameState;
 };
 
 #endif

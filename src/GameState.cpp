@@ -31,31 +31,15 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 GameState::GameState(sf::Vector2f screenSize) : 
         m_randomEngine{std::random_device{}()},
-        m_assetManager{m_randomEngine}, m_landManager{*this},
+        m_assetManager{m_randomEngine}, m_entityManager{*this}, m_landManager{*this},
         m_screenSize{screenSize}, m_gameHeight{512}, m_spawnX{m_gameHeight * 4}, 
         m_scoreManager{*this}, m_shouldResetAfter{sf::Time::Zero},
         m_shouldEnd{false}, m_guiManager{*this} {
-    initPlayer();
+    getEntities().init();
     m_landManager.init();      
 
     m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);   
     m_guiManager.initGui();
-}
-
-void GameState::initPlayer() {
-    using enum Airplane::Flags;
-
-    m_player = Airplane::Builder{*this}
-        .position({0.f, 0.f}).maxHealth(3)
-        .flags(PLAYER_SIDE | HEAVY | SLOW | NO_WEAPON | UNIQUE | USE_PICKUPS | NO_BOMB)
-        .shootComponent<Airplane::BasicShootComponent>()
-        .shootControlComponent<Airplane::PlayerShootControlComponent>()
-        .moveComponent<Airplane::PlayerMoveComponent>().speed({250.f, 250.f})
-        .bombComponent<Airplane::PlayerBombComponent>()
-        .addDeathEffect<Airplane::LoseDeathEffect>()
-        .addDeathEffect<Airplane::ExplosionDeathEffect>()
-        .build().release();
-    m_entityManager.addEntity(m_player);
 }
 
 void GameState::handleEvent(const sf::Event& event) {
@@ -84,9 +68,6 @@ void GameState::update() {
 }
 
 void GameState::reset() {  
-    m_player->setPosition(0.f, 0.f);
-    m_player->setHealth(3);
-
     m_entityManager.reset();
 
     m_spawnX = m_gameHeight * 4;
@@ -97,8 +78,8 @@ void GameState::reset() {
 }
 
 bool GameState::inActiveArea(float x) const noexcept {
-    return x + 2 * getGameHeight() >= getPlayer().getPosition().x 
-        && x - 5 * getGameHeight() <= getPlayer().getPosition().x;
+    return x + 2 * getGameHeight() >= getEntities().getPlayer().getPosition().x 
+        && x - 5 * getGameHeight() <= getEntities().getPlayer().getPosition().x;
 }
 
 void GameState::draw(sf::RenderTarget& target, sf::RenderStates states) const {
@@ -113,14 +94,14 @@ void GameState::draw(sf::RenderTarget& target, sf::RenderStates states) const {
 }
 
 sf::View GameState::getView() const noexcept {
-    return sf::View{{getPlayer().getPosition().x - getGameHeight() / 2.f, 
+    return sf::View{{getEntities().getPlayer().getPosition().x - getGameHeight() / 2.f, 
                      -getGameHeight() / 2.f, 
                      getGameHeight() * getScreenSize().x / getScreenSize().y, 
                      getGameHeight()}};
 }
 
 void GameState::checkEnemySpawn() {
-    while (m_player->getPosition().x + 4 * m_gameHeight > m_spawnX) {
+    while (getEntities().getPlayer().getPosition().x + 4 * m_gameHeight > m_spawnX) {
         sf::Vector2u enemySize = getAssets().getAirplaneTextureSize();
         for (float y = (enemySize.y - m_gameHeight) / 2; 
                 y < (m_gameHeight- enemySize.y) / 2; y += enemySize.y) {
@@ -218,7 +199,7 @@ void GameState::trySpawnEnemy(sf::Vector2f position) {
                 builder.moveComponent<Airplane::PeriodicalMoveComponent>();
             } else if (moveSeed < 0.2) {
                 builder.moveComponent<Airplane::LineWithTargetMoveComponent>(
-                    [&player = getPlayer()](const Airplane::Airplane&) -> sf::Vector2f {
+                    [&player = getEntities().getPlayer()](const Airplane::Airplane&) -> sf::Vector2f {
                         return player.getPosition();
                     });
             } else {

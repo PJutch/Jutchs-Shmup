@@ -27,21 +27,18 @@ namespace Airplane {
 
     class ShootControlComponent {
     public:
-        ShootControlComponent(Airplane& owner, GameState& gameState) noexcept;
         virtual ~ShootControlComponent() = default;
 
         virtual void handleEvent(sf::Event event) noexcept {}
         virtual void update(sf::Time elapsedTime) noexcept {}
 
         virtual bool shouldShoot() noexcept = 0;
-    protected:
-        Airplane& m_owner;
-        GameState& m_gameState;
     };
 
     class AlwaysShootControlComponent : public ShootControlComponent {
     public:
-        using ShootControlComponent::ShootControlComponent;
+        AlwaysShootControlComponent() noexcept = default;
+        AlwaysShootControlComponent(Airplane&, GameState&) noexcept {}
 
         bool shouldShoot() noexcept override {
             return true;
@@ -50,7 +47,8 @@ namespace Airplane {
 
     class NeverShootControlComponent : public ShootControlComponent {
     public:
-        using ShootControlComponent::ShootControlComponent;
+        NeverShootControlComponent() noexcept = default;
+        NeverShootControlComponent(Airplane&, GameState&) noexcept {}
 
         bool shouldShoot() noexcept override {
             return false;
@@ -59,8 +57,10 @@ namespace Airplane {
 
     class NotShootControlComponent : public ShootControlComponent {
     public:
-        NotShootControlComponent(Airplane& owner, GameState& gameState, 
-                                std::unique_ptr<ShootControlComponent>&& component) noexcept;
+        NotShootControlComponent(std::unique_ptr<ShootControlComponent>&& component) noexcept;
+        NotShootControlComponent(Airplane&, GameState&, 
+                                 std::unique_ptr<ShootControlComponent>&& component) noexcept : 
+            NotShootControlComponent{std::move(component)} {}
         
         bool shouldShoot() noexcept override {
             return !m_component->shouldShoot();
@@ -69,56 +69,85 @@ namespace Airplane {
         std::unique_ptr<ShootControlComponent> m_component;
     };
 
-    class OrShootControlComponent : public ShootControlComponent {
+    class BinaryShootControlComponent : public ShootControlComponent {
     public:
-        OrShootControlComponent(Airplane& owner, GameState& gameState, 
-                                std::unique_ptr<ShootControlComponent>&& component1, 
-                                std::unique_ptr<ShootControlComponent>&& component2) noexcept;
-        
-        bool shouldShoot() noexcept override {
-            return m_component1->shouldShoot() || m_component2->shouldShoot();
+        BinaryShootControlComponent(std::unique_ptr<ShootControlComponent>&& component1, 
+                                    std::unique_ptr<ShootControlComponent>&& component2) noexcept :
+            m_component1{std::move(component1)}, m_component2{std::move(component2)} {}
+        BinaryShootControlComponent(Airplane&, GameState&, 
+                                    std::unique_ptr<ShootControlComponent>&& component1, 
+                                    std::unique_ptr<ShootControlComponent>&& component2) noexcept :
+            BinaryShootControlComponent{std::move(component1), std::move(component2)} {}
+    protected:
+        bool shouldShoot1() noexcept {
+            return m_component1->shouldShoot();
+        }
+
+        bool shouldShoot2() noexcept {
+            return m_component2->shouldShoot();
         }
     private:
         std::unique_ptr<ShootControlComponent> m_component1;
         std::unique_ptr<ShootControlComponent> m_component2;
     };
 
-    class AndShootControlComponent : public ShootControlComponent {
+    class OrShootControlComponent : public BinaryShootControlComponent {
     public:
-        AndShootControlComponent(Airplane& owner, GameState& gameState, 
-                                std::unique_ptr<ShootControlComponent>&& component1, 
-                                std::unique_ptr<ShootControlComponent>&& component2) noexcept;
+        using BinaryShootControlComponent::BinaryShootControlComponent;
         
         bool shouldShoot() noexcept override {
-            return m_component1->shouldShoot() && m_component2->shouldShoot();
+            return shouldShoot1() || shouldShoot2();
         }
-    private:
-        std::unique_ptr<ShootControlComponent> m_component1;
-        std::unique_ptr<ShootControlComponent> m_component2;
     };
 
-    class TargetPlayerShootControlComponent : public ShootControlComponent {
+    class AndShootControlComponent : public BinaryShootControlComponent {
     public:
-        using ShootControlComponent::ShootControlComponent;
-
-        bool shouldShoot() noexcept override;
-    };
-
-    class CanHitPlayerShootControlComponent : public ShootControlComponent {
-    public:
-        using ShootControlComponent::ShootControlComponent;
-
-        bool shouldShoot() noexcept override;
+        using BinaryShootControlComponent::BinaryShootControlComponent;
+        
+        bool shouldShoot() noexcept override {
+            return shouldShoot1() && shouldShoot2();
+        }
     };
 
     class PlayerShootControlComponent : public ShootControlComponent {
     public:
-        PlayerShootControlComponent(Airplane& owner, GameState& gameState) noexcept;
+        PlayerShootControlComponent() noexcept : m_shouldShoot{false} {}
+        PlayerShootControlComponent(Airplane&, GameState&) noexcept : PlayerShootControlComponent{} {}
 
-        void handleEvent(sf::Event event) noexcept override;
-        bool shouldShoot() noexcept override;
+        void handleEvent(sf::Event event) noexcept override{
+            if (event.type == sf::Event::MouseButtonPressed 
+                && event.mouseButton.button == sf::Mouse::Left) m_shouldShoot = true;
+        }
+
+        bool shouldShoot() noexcept override  {
+            bool shoot = sf::Mouse::isButtonPressed(sf::Mouse::Left) || m_shouldShoot;
+            m_shouldShoot = false;
+            return shoot;
+        }
     private:
         bool m_shouldShoot;
+    };
+
+    class TargetPlayerShootControlComponent : public ShootControlComponent {
+    public:        
+        TargetPlayerShootControlComponent(Airplane& owner, GameState& gameState) noexcept : 
+            m_owner{owner}, m_gameState{gameState} {}
+
+        bool shouldShoot() noexcept override;
+    private:
+        Airplane& m_owner;
+        GameState& m_gameState;
+    };
+
+    class CanHitPlayerShootControlComponent : public ShootControlComponent {
+    public:        
+        CanHitPlayerShootControlComponent(Airplane& owner, GameState& gameState) noexcept : 
+            m_owner{owner}, m_gameState{gameState} {}
+
+        bool shouldShoot() noexcept override;
+    private:
+        Airplane& m_owner;
+        GameState& m_gameState;
     };
 }
 

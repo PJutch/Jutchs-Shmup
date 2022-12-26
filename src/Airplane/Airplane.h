@@ -37,6 +37,10 @@ If not, see <https://www.gnu.org/licenses/>. */
 namespace Airplane {
     class Airplane : public Sprite<Airplane> {
     public:
+        // use Airplane::Builder instead
+        Airplane(GameState& gameState) noexcept : 
+            Sprite{gameState}, m_health{0}, m_maxHealth{0}, m_damageCooldown{sf::seconds(0.f)} {}
+
         friend class Builder;
 
         void handleEvent(sf::Event event) noexcept override {
@@ -150,9 +154,6 @@ namespace Airplane {
         sf::Time m_damageCooldown;
 
         Flags m_flags;
-
-        Airplane(GameState& gameState) noexcept : 
-            Sprite{gameState}, m_health{0}, m_maxHealth{0}, m_damageCooldown{sf::seconds(0.f)} {}
 
         void updateTexture() noexcept {
             Flags flags = m_flags;

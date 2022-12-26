@@ -31,44 +31,10 @@ using std::unique_ptr;
 using std::move;
 
 namespace Airplane {
-    ShootControlComponent::ShootControlComponent(Airplane& owner, GameState& gameState) noexcept : 
-        m_owner{owner}, m_gameState{gameState} {}
-
     bool TargetPlayerShootControlComponent::shouldShoot() noexcept {
         return m_gameState.getEntities().getPlayerGlobalBounds().intersects(
             m_owner.getShootComponent().getAffectedArea());
     }
-
-    PlayerShootControlComponent::PlayerShootControlComponent(
-            Airplane& owner, GameState& gameState) noexcept :
-        ShootControlComponent(owner, gameState), m_shouldShoot{false} {}
-
-    void PlayerShootControlComponent::handleEvent(Event event) noexcept {
-        if (event.type == Event::MouseButtonPressed 
-            && event.mouseButton.button == Mouse::Left) m_shouldShoot = true;
-    }
-
-    bool PlayerShootControlComponent::shouldShoot() noexcept {
-        bool shoot = Mouse::isButtonPressed(Mouse::Left) || m_shouldShoot;
-        m_shouldShoot = false;
-        return shoot;
-    }
-
-    NotShootControlComponent::NotShootControlComponent(Airplane& owner, GameState& gameState, 
-            unique_ptr<ShootControlComponent>&& component) noexcept :
-        ShootControlComponent(owner, gameState), m_component{move(component)} {}
-
-    OrShootControlComponent::OrShootControlComponent(Airplane& owner, GameState& gameState, 
-            unique_ptr<ShootControlComponent>&& component1, 
-            unique_ptr<ShootControlComponent>&& component2) noexcept : 
-        ShootControlComponent(owner, gameState), 
-        m_component1{move(component1)}, m_component2{move(component2)} {}
-
-    AndShootControlComponent::AndShootControlComponent(Airplane& owner, GameState& gameState, 
-            unique_ptr<ShootControlComponent>&& component1, 
-            unique_ptr<ShootControlComponent>&& component2) noexcept : 
-        ShootControlComponent(owner, gameState), 
-        m_component1{move(component1)}, m_component2{move(component2)} {}
 
     bool CanHitPlayerShootControlComponent::shouldShoot() noexcept {
         auto playerBounds = m_gameState.getEntities().getPlayerGlobalBounds();

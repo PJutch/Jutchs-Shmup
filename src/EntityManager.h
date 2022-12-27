@@ -16,6 +16,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Entity.h"
 
+#include <algorithm>
+#include <ranges>
 #include <vector>
 #include <memory>
 #include <concepts>
@@ -70,6 +72,16 @@ public:
     template <std::derived_from<Entity> EntityT, typename... Args>
     std::unique_ptr<EntityT> createEntity(Args&&... args) {
         return std::make_unique<EntityT>(m_gameState, std::forward<Args>(args)...);
+    }
+
+    // return global bounds of all entities that AI of entity must consider in pathfinding
+    auto getObstaclesFor(Entity& entity) noexcept {
+        return *this
+           | std::views::filter([&entity](const std::unique_ptr<Entity>& obstacle) {
+            return obstacle.get() != &entity && !obstacle->isPassable();
+        }) | std::views::transform([](const std::unique_ptr<Entity>& obstacle) {
+            return obstacle->getGlobalBounds();
+        });
     }
 
     sf::Vector2f getPlayerPosition() const noexcept;

@@ -32,18 +32,11 @@ namespace Airplane {
 
         if (right(playerBounds) >= left(ownerBounds)) return false;
 
-        return std::ranges::none_of(m_gameState.getEntities() 
-               | std::views::filter([this](const std::unique_ptr<Entity>& entity) {
-                return entity.get() != &m_owner;
-            }) | std::views::filter([](const std::unique_ptr<Entity>& entity) {
-                return !entity->isPassable();
-            }) | std::views::transform([](const std::unique_ptr<Entity>& entity) {
-                return entity->getGlobalBounds();
-            }) | std::views::filter([ownerBounds](sf::FloatRect globalBounds) {
+        return std::ranges::none_of(m_gameState.getEntities().getObstaclesFor(m_owner), 
+            [ownerBounds, playerBounds](sf::FloatRect globalBounds) {
                 return intersects(top(globalBounds), bottom(globalBounds),
-                                  top(ownerBounds),  bottom(ownerBounds));
-            }), [ownerBounds, playerBounds](sf::FloatRect globalBounds) {
-                return between(right(globalBounds), right(playerBounds), left(ownerBounds));
+                                  top(ownerBounds),  bottom(ownerBounds))
+                    && between(right(globalBounds), right(playerBounds), left(ownerBounds));
             });
     }
 }

@@ -28,31 +28,25 @@ namespace Airplane {
     std::tuple<float, float> MoveComponent::getMinmaxY() const noexcept {
         auto ownerBounds = m_owner.getGlobalBounds();
 
-        auto obstacles = m_gameState.getEntities() 
-           | std::views::filter([this](const std::unique_ptr<Entity>& entity) {
-            return entity.get() != &m_owner;
-        }) | std::views::filter([](const std::unique_ptr<Entity>& entity) {
-            return !entity->isPassable();
-        }) | std::views::transform([](const std::unique_ptr<Entity>& entity) {
-            return entity->getGlobalBounds();
-        }) | std::views::filter([ownerBounds](sf::FloatRect obstacleBounds) {
-            return intersects(left(ownerBounds),    right(ownerBounds), 
-                              left(obstacleBounds), right(obstacleBounds));
-        });
+        auto obstacles = m_gameState.getEntities().getObstaclesFor(m_owner) 
+            | std::views::filter([ownerBounds](sf::FloatRect obstacle) {
+                return intersects(left(ownerBounds), right(ownerBounds), 
+                                  left(obstacle),    right(obstacle));
+            });
 
         float minTop = max_value(obstacles 
-           | std::views::filter([ownerBounds](sf::FloatRect obstacleBounds) {
-            return bottom(obstacleBounds) < top(ownerBounds);
-        }), -m_gameState.getGameHeight() / 2, {}, [](sf::FloatRect obstacleBounds) {
-            return bottom(obstacleBounds);
-        });
+               | std::views::transform([](sf::FloatRect obstacle) {
+                return bottom(obstacle);
+            }) | std::views::filter([ownerBounds](float obstacleBottom) {
+                return obstacleBottom < top(ownerBounds);
+            }), -m_gameState.getGameHeight() / 2);
 
         float maxBottom = min_value(obstacles 
-           | std::views::filter([ownerBounds](sf::FloatRect obstacleBounds) {
-            return top(obstacleBounds) < bottom(ownerBounds);
-        }), m_gameState.getGameHeight() / 2, {}, [](sf::FloatRect obstacleBounds) {
-            return top(obstacleBounds);
-        });
+           | std::views::transform([](sf::FloatRect obstacle) {
+                return top(obstacle);
+        }) | std::views::filter([ownerBounds](float obstacleTop) {
+            return obstacleTop < bottom(ownerBounds);
+        }), m_gameState.getGameHeight() / 2);
 
         float posOffset = m_owner.getPosition().y - ownerBounds.top;
         return std::tuple<float, float>{minTop + posOffset, 
@@ -78,7 +72,6 @@ namespace Airplane {
         }
 
         float y = m_owner.getPosition().y + deltaY;
-
         if (y > maxY) {
             y = m_owner.getPosition().y - deltaY;
             m_moveUp = false;

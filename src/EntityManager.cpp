@@ -162,11 +162,8 @@ void EntityManager::spawnEnemy(sf::Vector2f position) {
 
     double shootControlSeed = canonicalDistribution(m_gameState.getRandomEngine());
     if (shootControlSeed < 0.1) {
-        auto targetPlayer 
-            = builder.createShootControlComponent<Airplane::TargetPlayerShootControlComponent>();
-        auto canHitPlayer 
-            = builder.createShootControlComponent<Airplane::CanHitPlayerShootControlComponent>();
-
+        auto targetPlayer = builder.createComponent<Airplane::TargetPlayerShootControlComponent>();
+        auto canHitPlayer = builder.createComponent<Airplane::CanHitPlayerShootControlComponent>();
         builder.shootControlComponent(targetPlayer && canHitPlayer);
     } else if (shootControlSeed < 0.2) {
         builder.shootControlComponent<Airplane::NeverShootControlComponent>();

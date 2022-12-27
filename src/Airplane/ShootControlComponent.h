@@ -14,13 +14,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef AIRPLANE_SHOOT_CONTROL_COMPONENT_H_
 #define AIRPLANE_SHOOT_CONTROL_COMPONENT_H_
 
-#include "ShootComponent.h"
-
 #include "../GameState.h"
 
 #include <SFML/System.hpp>
-
-#include <memory>
 
 namespace Airplane {
     class Airplane;

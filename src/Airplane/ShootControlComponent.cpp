@@ -15,21 +15,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Airplane.h"
 
-#include "SFML/System.hpp"
-using sf::Time;
-using sf::Event;
-using sf::Mouse;
-
-#include <algorithm>
-using std::max;
-using std::min;
-
-#include <memory>
-using std::unique_ptr;
-
-#include <utility>
-using std::move;
-
 namespace Airplane {
     bool TargetPlayerShootControlComponent::shouldShoot() noexcept {
         return m_gameState.getEntities().getPlayerGlobalBounds().intersects(

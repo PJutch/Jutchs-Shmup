@@ -16,12 +16,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Airplane.h"
 
 #include "../SoundEffect.h"
-
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-
-#include <vector>
-#include <memory>
+#include "../Bullet.h"
 
 namespace Airplane {
     ShootComponent::ShootComponent(Airplane& owner, GameState& gameState) noexcept : 

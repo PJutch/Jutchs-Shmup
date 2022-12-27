@@ -18,6 +18,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "../SoundEffect.h"
 #include "../Bullet.h"
 
+#include <cmath>
+
 namespace Airplane {
     ShootComponent::ShootComponent(Airplane& owner, GameState& gameState) noexcept : 
             m_shootCooldown{sf::Time::Zero}, m_owner{owner}, m_gameState{gameState} {};

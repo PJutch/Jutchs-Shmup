@@ -14,7 +14,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef CHANCE_TABLE_H_
 #define CHANCE_TABLE_H_
 
-#include "reduce.h"
+#include "algorithm.h"
 #include "RangeAdaptor.h"
 
 #include <random>

@@ -15,50 +15,35 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Airplane.h"
 
+#include "../geometry.h"
+
+#include <algorithm>
+#include <memory>
+
 namespace Airplane {
     bool TargetPlayerShootControlComponent::shouldShoot() noexcept {
-        return m_gameState.getEntities().getPlayerGlobalBounds().intersects(
-            m_owner.getShootComponent().getAffectedArea());
+        return intersects(m_gameState.getEntities().getPlayerGlobalBounds(),
+                          m_owner.getShootComponent().getAffectedArea());
     }
 
     bool CanHitPlayerShootControlComponent::shouldShoot() noexcept {
-        auto playerBounds = m_gameState.getEntities().getPlayerGlobalBounds();
-        float playerRight = playerBounds.left + playerBounds.width;    
+        sf::FloatRect playerBounds = m_gameState.getEntities().getPlayerGlobalBounds();
+        sf::FloatRect ownerBounds = m_owner.getGlobalBounds();
 
-        auto ownerBounds = m_owner.getGlobalBounds();
-        float ownerRight = ownerBounds.left + ownerBounds.width;
+        if (right(playerBounds) >= left(ownerBounds)) return false;
 
-        if (playerRight < ownerBounds.left) {
-            if (m_owner.isOnPlayerSide()) 
-                return false;
-
-            for (auto& entity : m_gameState.getEntities()) {
-                if (entity->isPassable()) continue;
-                
-                auto globalBounds = entity->getGlobalBounds();
-                float right = globalBounds.left + globalBounds.width;
-
-                if (    globalBounds.top < ownerBounds.top + ownerBounds.height 
-                    && globalBounds.top + globalBounds.height > ownerBounds.top
-                    && right < ownerBounds.left && right > playerRight)
-                    return false;
-            }
-        } else if (playerBounds.left > ownerRight) {
-            if (!m_owner.isOnPlayerSide()) 
-                return false;
-
-            float minLeft = playerBounds.left;
-            for (auto& entity : m_gameState.getEntities()) {
-                if (!entity->isActive() || entity->isPassable()) continue;
-                auto globalBounds = entity->getGlobalBounds();
-
-                if (    globalBounds.top < ownerBounds.top + ownerBounds.height 
-                    && globalBounds.top + globalBounds.height > ownerBounds.top
-                    && globalBounds.left > ownerRight && globalBounds.left < playerBounds.left)
-                    return false;
-            }    
-        }
-
-        return true;
+        return std::ranges::none_of(m_gameState.getEntities() 
+               | std::views::filter([this](const std::unique_ptr<Entity>& entity) {
+                return entity.get() != &m_owner;
+            }) | std::views::filter([](const std::unique_ptr<Entity>& entity) {
+                return !entity->isPassable();
+            }) | std::views::transform([](const std::unique_ptr<Entity>& entity) {
+                return entity->getGlobalBounds();
+            }) | std::views::filter([ownerBounds](sf::FloatRect globalBounds) {
+                return intersects(top(globalBounds), bottom(globalBounds),
+                                  top(ownerBounds),  bottom(ownerBounds));
+            }), [ownerBounds, playerBounds](sf::FloatRect globalBounds) {
+                return between(right(globalBounds), right(playerBounds), left(ownerBounds));
+            });
     }
 }

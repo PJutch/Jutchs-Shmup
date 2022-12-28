@@ -27,8 +27,7 @@ namespace Airplane {
         explicit Builder(GameState& gameState, Args&&... args);
 
         Builder& maxHealth(int maxHealth) noexcept {
-            m_build->m_maxHealth = maxHealth;
-            m_build->m_health = maxHealth;
+            m_build->m_healthComponent.setMaxHealth(maxHealth);
             return *this;
         }
 

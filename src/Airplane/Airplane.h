@@ -19,6 +19,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "MoveComponent.h"
 #include "BombComponent.h"
 #include "DeathEffect.h"
+#include "HealthComponent.h"
 #include "Flags.h"
 
 #include "../GameState.h"
@@ -38,10 +39,7 @@ namespace Airplane {
     class Airplane : public Sprite, public CollidableBase<Airplane> {
     public:
         // use Airplane::Builder instead
-        Airplane(GameState& gameState) noexcept : 
-            Sprite{gameState},  m_health{0}, m_maxHealth{0}, m_damageCooldown{sf::seconds(0.f)} {}
-
-        friend class Builder;
+        Airplane(GameState& gameState) noexcept : Sprite{gameState} {}
 
         void handleEvent(sf::Event event) noexcept override {
             m_shootControlComponent->handleEvent(event);
@@ -49,36 +47,21 @@ namespace Airplane {
         }
 
         void acceptCollide(Airplane& other) noexcept override {
-            handleDamaged();
+            damage();
         }
 
         void acceptCollide(Bullet& other) noexcept override {
             if (other.isOnPlayerSide() == isOnPlayerSide()) return;
-            handleDamaged();
-        }
-
-        void handleDamaged() noexcept {
-            if (m_damageCooldown <= sf::Time::Zero) {
-                m_damageCooldown = sf::seconds(0.1f);
-                if (-- m_health <= 0) 
-                    for (auto& deathEffect : m_deathEffects) 
-                        deathEffect->handleDeath();
-            }
+            damage();
         }
 
         // return true on success
-        bool tryAddHealth(int health) noexcept { 
-            if (m_health >= m_maxHealth) return false;
-            m_health = std::min(m_health + health, m_maxHealth);
-            return true;
-        }
-
-        void setHealth(int health) noexcept {
-            m_health = health;
+        bool tryHeal() noexcept { 
+            return m_healthComponent.tryHeal();
         }
 
         int getHealth() const noexcept {
-            return m_health;
+            return m_healthComponent.getHealth();
         }
 
         bool tryAddBomb() noexcept {
@@ -94,11 +77,10 @@ namespace Airplane {
         }
 
         void update(sf::Time elapsedTime) noexcept override {
-            m_damageCooldown -= elapsedTime;
-            
+            m_healthComponent.update(elapsedTime);
             m_shootComponent->update(elapsedTime);
-            m_moveComponent->update(elapsedTime);
-            m_bombComponent->update(elapsedTime);
+            m_moveComponent ->update(elapsedTime);
+            m_bombComponent ->update(elapsedTime);
 
             if (m_shootControlComponent->shouldShoot()) {
                 m_shootComponent->tryShoot();
@@ -108,11 +90,7 @@ namespace Airplane {
         }
 
         bool shouldBeDeleted() const noexcept override {
-            return m_health <= 0 || !m_gameState.inActiveArea(getPosition().x);
-        }
-
-        bool isDead() const noexcept {
-            return m_health <= 0;
+            return m_healthComponent.isDead() || !m_gameState.inActiveArea(getPosition().x);
         }
 
         bool isOnPlayerSide() const noexcept {
@@ -138,9 +116,7 @@ namespace Airplane {
 
         std::vector<std::unique_ptr<DeathEffect>> m_deathEffects;
 
-        int m_health;
-        int m_maxHealth;
-        sf::Time m_damageCooldown;
+        HealthComponent m_healthComponent;
 
         Flags m_flags;
 
@@ -154,6 +130,14 @@ namespace Airplane {
             auto size = texture.getSize();
             setOrigin(size.x / 2.f, size.y / 2.f);
         }
+
+        void damage() noexcept {
+            if (m_healthComponent.damage())
+                for (auto& deathEffect : m_deathEffects) 
+                    deathEffect->handleDeath();
+        }
+
+        friend class Builder;
     };
 }
 

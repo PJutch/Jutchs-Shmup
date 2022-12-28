@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 namespace Airplane {
     bool TargetPlayerShootControlComponent::shouldShoot() noexcept {
         return intersects(m_gameState.getEntities().getPlayerGlobalBounds(),
-                          m_owner.getShootComponent().getAffectedArea());
+                          m_owner.getShootComponent().getGlobalAffectedArea());
     }
 
     bool CanHitPlayerShootControlComponent::shouldShoot() noexcept {

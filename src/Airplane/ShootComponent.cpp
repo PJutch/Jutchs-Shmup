@@ -21,28 +21,23 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <cmath>
 
 namespace Airplane {
-    void ShootComponent::shoot(sf::Vector2f position) noexcept {
-        m_gameState.getEntities().addEntity<Bullet>(m_owner.isOnPlayerSide(), position);
+    void ShootComponent::spawnBullet(sf::Vector2f offset) noexcept {
+        m_gameState.getEntities().addEntity<Bullet>(m_owner.isOnPlayerSide(), 
+                                                    m_owner.getPosition() + offset);
     }
 
-    sf::FloatRect ShootComponent::getAffectedArea() const noexcept {
-        auto position = m_owner.getPosition();
+    sf::FloatRect ShootComponent::getLocalAffectedArea() const noexcept {
         auto size = Bullet::getSize(m_gameState);
-        if (m_owner.isOnPlayerSide()) {
-            return {position.x - size.x / 2.f, position.y - size.y / 2.f, INFINITY, size.y};
-        } else {
-            return {position.x + size.x / 2.f, position.y - size.y / 2.f, -INFINITY, size.y};
-        }
-    }   
+        return {-size.x / 2.f, -size.y / 2.f,  INFINITY, size.y};
+    }
 
-    sf::FloatRect ShootComponent::getStartShotBounds() const noexcept {
-        auto position = m_owner.getPosition();
-        auto size = Bullet::getSize(m_gameState);
-        return {position.x - size.x / 2.f, position.y - size.y / 2.f, size.x, size.y};
-    }   
+    sf::FloatRect ShootComponent::getGlobalAffectedArea() const noexcept {
+        auto [top, left, width, height] = getLocalAffectedArea();
+        auto [x, y] = m_owner.getPosition();
 
-    sf::Vector2f ShootComponent::getShotSpeed() const noexcept {
-        auto speed = Bullet::getSpeed();
-        return {(m_owner.isOnPlayerSide() ? 1 : -1) * speed.x, speed.y};
+        if (m_owner.isOnPlayerSide())
+            return {left + x, top + y,  width,  height};
+        else
+            return {left - x, top - y, -width, -height};
     }
 }

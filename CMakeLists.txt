@@ -22,7 +22,6 @@ target_sources(${PROJECT_NAME} PRIVATE src/main.cpp
                                        src/ScoreManager.cpp)
 
 target_sources(${PROJECT_NAME} PRIVATE src/Airplane/ShootComponent.cpp 
-                                       src/Airplane/ShootComponents.cpp 
                                        src/Airplane/MoveComponents.cpp 
                                        src/Airplane/ShootControlComponents.cpp 
                                        src/Airplane/Flags.cpp

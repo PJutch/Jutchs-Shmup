@@ -19,18 +19,17 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Airplane.h"
 
 #include "../GameState.h"
+#include "Bullet.h"
 
 namespace Airplane {
     class BasicShootComponent : public ShootComponent {
     public:
         using ShootComponent::ShootComponent;
 
-        void tryShoot() noexcept override {
-            if (m_shootCooldown <= sf::Time::Zero) {
-                shoot(m_owner.getPosition());
-                m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
-                m_shootCooldown = sf::seconds(0.25f);
-            }
+        void shoot() noexcept override {
+            spawnBullet();
+            m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
+            m_shootCooldown = sf::seconds(0.25f);
         }
     };
 
@@ -38,11 +37,23 @@ namespace Airplane {
     public:
         using ShootComponent::ShootComponent;
 
-        void tryShoot() noexcept override;
+        void shoot() noexcept override{
+            float height = m_owner.getGlobalBounds().height;
 
-        sf::FloatRect getAffectedArea() const noexcept override;
+            spawnBullet();
+            spawnBullet(0.f,  height / 2);
+            spawnBullet(0.f, -height / 2);
 
-        sf::FloatRect getStartShotBounds() const noexcept override;
+            m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
+            m_shootCooldown = sf::seconds(0.5f);
+        }
+
+        sf::FloatRect getLocalAffectedArea() const noexcept override {
+            auto size = Bullet::getSize(m_gameState);
+            
+            float areaHeight = m_owner.getGlobalBounds().height + size.y;
+            return {-size.x / 2.f, -areaHeight / 2.f, INFINITY, areaHeight};
+        }
     };
 
     class VolleyShootComponent : public ShootComponent {
@@ -53,21 +64,19 @@ namespace Airplane {
         void update(sf::Time elapsedTime) noexcept override {
             ShootComponent::update(elapsedTime);
             if (m_shootCooldown <= sf::Time::Zero && m_shots > 0) {
-                shoot(m_owner.getPosition());
+                spawnBullet();
                 m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
                 m_shootCooldown = sf::seconds(-- m_shots == 0 ? 0.5f : 0.1f);
             }
         }
 
-        void tryShoot() noexcept override {
-            if (m_shootCooldown <= sf::Time::Zero) {
-                shoot(m_owner.getPosition());
+        void shoot() noexcept override {
+            spawnBullet();
 
-                m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
+            m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
 
-                m_shots += 2;
-                m_shootCooldown = sf::seconds(0.1f);
-            }
+            m_shots += 2;
+            m_shootCooldown = sf::seconds(0.1f);
         }
     private:
         int m_shots;

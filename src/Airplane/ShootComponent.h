@@ -30,17 +30,31 @@ namespace Airplane {
             m_shootCooldown -= elapsedTime;
         }
 
-        virtual void tryShoot() noexcept = 0;
+        void tryShoot() noexcept {
+            if (m_shootCooldown <= sf::Time::Zero) {
+                shoot();
+            }
+        }
 
-        // width or height can be infintiy
-        // left or top can be negative
-        virtual sf::FloatRect getAffectedArea() const noexcept;
+        // width or height can be infinite and/or negative
+        sf::FloatRect getGlobalAffectedArea() const noexcept;
 
-        virtual sf::FloatRect getStartShotBounds() const noexcept;
-
-        sf::Vector2f getShotSpeed() const noexcept;
+        // in local coordinate space
+        // respect rotation (+x is move direction)
+        // width or height can be infinite and/or negative
+        virtual sf::FloatRect getLocalAffectedArea() const noexcept;
     protected:
-        void shoot(sf::Vector2f position) noexcept;
+        virtual void shoot() noexcept = 0;
+
+        void spawnBullet(sf::Vector2f offset) noexcept;
+
+        void spawnBullet(float x, float y) noexcept {
+            spawnBullet({x, y});
+        }
+
+        void spawnBullet() noexcept {
+            spawnBullet({0.f, 0.f});
+        }
 
         sf::Time m_shootCooldown;
 

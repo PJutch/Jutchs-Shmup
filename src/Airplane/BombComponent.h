@@ -16,10 +16,10 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Flags.h"
 
-#include "../GameState.h"
-
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
+
+class GameState;
 
 namespace Airplane {
     class Airplane;
@@ -56,25 +56,6 @@ namespace Airplane {
         void tryBomb();
     private:
         bool m_hasBomb;
-    };
-
-    class EnemyBombComponent : public BombComponent {
-    public:
-        using BombComponent::BombComponent;
-
-        void update(sf::Time elapsedTime) override;
-    };
-
-    class PlayerBombComponent : public BombComponent {
-    public:
-        using BombComponent::BombComponent;
-
-        void handleEvent(sf::Event event) override {
-            if (event.type == sf::Event::MouseButtonPressed 
-             && event.mouseButton.button == sf::Mouse::Right) {
-                tryBomb();
-            }
-        }
     };
 }
 

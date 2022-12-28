@@ -15,6 +15,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Airplane.h"
 
+#include "../GameState.h"
+
 namespace Airplane {
     BombComponent::BombComponent(Airplane& owner, GameState& gameState) noexcept :
         m_owner{owner}, m_gameState{gameState}, m_hasBomb{false} {}
@@ -23,12 +25,5 @@ namespace Airplane {
         if (m_hasBomb)
             m_gameState.getEntities().addEntity<Bomb>(m_owner.isOnPlayerSide(), m_owner.getPosition());
         m_hasBomb = false;
-    }
-
-    void EnemyBombComponent::update(sf::Time elapsedTime) {
-        auto position = m_owner.getPosition();
-        const auto& land = m_gameState.getLand();
-        if (land.isPosValid(position) && isEnemyTarget(land[position]))
-            tryBomb();
     }
 }

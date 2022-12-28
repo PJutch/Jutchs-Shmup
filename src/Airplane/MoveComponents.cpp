@@ -11,60 +11,50 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#include "MoveComponent.h"
+#include "MoveComponents.h"
 
-#include "Airplane.h"
+#include "../GameState.h"
 
 #include "../geometry.h"
 #include "../algorithm.h"
 
 #include <algorithm>
-#include <memory>
 
 namespace Airplane {
-    MoveComponent::MoveComponent(Airplane& owner, GameState& gameState) noexcept : 
-        m_owner{owner}, m_gameState{gameState}, m_speed{0.f, 0.f} {}
+    namespace {
+        std::tuple<float, float> getMinmaxYFor(Airplane& airplane, GameState& gameState) noexcept {
+            auto airplaneBounds = airplane.getGlobalBounds();
 
-    std::tuple<float, float> MoveComponent::getMinmaxY() const noexcept {
-        auto ownerBounds = m_owner.getGlobalBounds();
+            auto obstacles = gameState.getEntities().getObstaclesFor(airplane) 
+                | std::views::filter([airplaneBounds](sf::FloatRect obstacle) {
+                    return intersects(left(airplaneBounds), right(airplaneBounds), 
+                                      left(obstacle),       right(obstacle));
+                });
 
-        auto obstacles = m_gameState.getEntities().getObstaclesFor(m_owner) 
-            | std::views::filter([ownerBounds](sf::FloatRect obstacle) {
-                return intersects(left(ownerBounds), right(ownerBounds), 
-                                  left(obstacle),    right(obstacle));
-            });
+            float minTop = max_value(obstacles 
+                | std::views::transform([](sf::FloatRect obstacle) {
+                    return bottom(obstacle);
+                }) | std::views::filter([airplaneBounds](float obstacleBottom) {
+                    return obstacleBottom < top(airplaneBounds);
+                }), -gameState.getGameHeight() / 2);
 
-        float minTop = max_value(obstacles 
-               | std::views::transform([](sf::FloatRect obstacle) {
-                return bottom(obstacle);
-            }) | std::views::filter([ownerBounds](float obstacleBottom) {
-                return obstacleBottom < top(ownerBounds);
-            }), -m_gameState.getGameHeight() / 2);
+            float maxBottom = min_value(obstacles 
+            | std::views::transform([](sf::FloatRect obstacle) {
+                    return top(obstacle);
+            }) | std::views::filter([airplaneBounds](float obstacleTop) {
+                return obstacleTop < bottom(airplaneBounds);
+            }), gameState.getGameHeight() / 2);
 
-        float maxBottom = min_value(obstacles 
-           | std::views::transform([](sf::FloatRect obstacle) {
-                return top(obstacle);
-        }) | std::views::filter([ownerBounds](float obstacleTop) {
-            return obstacleTop < bottom(ownerBounds);
-        }), m_gameState.getGameHeight() / 2);
-
-        float posOffset = m_owner.getPosition().y - ownerBounds.top;
-        return std::tuple<float, float>{minTop + posOffset, 
-                                        maxBottom - ownerBounds.height + posOffset};
+            float posOffset = airplane.getPosition().y - airplaneBounds.top;
+            return std::tuple<float, float>{minTop + posOffset, 
+                                            maxBottom - airplaneBounds.height + posOffset};
+        }
     }
-
-    void BasicMoveComponent::update(sf::Time elapsedTime) noexcept {
-        auto moved = m_speed * elapsedTime.asSeconds();
-        m_owner.move(-moved.x, 0.f);
-    }
-
-    PeriodicalMoveComponent::PeriodicalMoveComponent(Airplane& owner, GameState& gameState) noexcept :
-        MoveComponent(owner, gameState), m_moveUp{true} {}
 
     void PeriodicalMoveComponent::update(sf::Time elapsedTime) noexcept {
         auto moved = m_speed * elapsedTime.asSeconds();
 
-        auto [minY, maxY] = getMinmaxY(); 
+        auto [minY, maxY] = getMinmaxYFor(m_owner, m_gameState); 
 
         float deltaY = m_moveUp ? moved.y : -moved.y;
         if (maxY - minY < 2 * m_owner.getGlobalBounds().height) {
@@ -83,15 +73,11 @@ namespace Airplane {
         m_owner.setPosition(m_owner.getPosition().x - moved.x, y);
     }
 
-    LineWithTargetMoveComponent::LineWithTargetMoveComponent(
-        Airplane& owner, GameState& gameState, TargetGetter getTarget) noexcept :
-            MoveComponent(owner, gameState), m_getTarget{std::move(getTarget)}, m_moveUp{true} {}
-
     void LineWithTargetMoveComponent::update(sf::Time elapsedTime) noexcept {
         auto moved = m_speed * elapsedTime.asSeconds();
         auto target = m_getTarget(m_owner);
 
-        auto [minY, maxY] = getMinmaxY();  
+        auto [minY, maxY] = getMinmaxYFor(m_owner, m_gameState);  
         float targetY = target.y;
         float y = m_owner.getPosition().y;
         if (std::abs(targetY - y) < moved.y) {

@@ -11,8 +11,8 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup.
 If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef BOMB_COMPONENTS_H_
-#define BOMB_COMPONENTS_H_
+#ifndef AIRPLANE_BOMB_COMPONENTS_H_
+#define AIRPLANE_BOMB_COMPONENTS_H_
 
 #include "BombComponent.h"
 

@@ -32,12 +32,28 @@ public:
         return m_sprite.getPosition();
     }
 
+    float getX() const noexcept {
+        return getPosition().x;
+    }
+
+    float getY() const noexcept {
+        return getPosition().y;
+    }
+
     void setPosition(sf::Vector2f position) noexcept {
         m_sprite.setPosition(position);
     }
 
     void setPosition(float x, float y) noexcept {
         setPosition({x, y});
+    }
+
+    void setX(float x) noexcept {
+        setPosition(x, getY());
+    }
+
+    void setY(float y) noexcept {
+        setPosition(getX(), y);
     }
 
     void move(sf::Vector2f offset) noexcept {

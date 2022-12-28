@@ -95,25 +95,23 @@ namespace Airplane {
     }
 
     void PlayerMoveComponent::update(sf::Time elapsedTime) noexcept {
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
-            m_owner.move(0.f, -m_speed.y * elapsedTime.asSeconds());
+        auto [movedX, movedY] = getMoved(elapsedTime);
 
-            auto globalBounds = m_owner.getGlobalBounds();
-            if (globalBounds.top < -m_gameState.getGameHeight() / 2)
-                m_owner.setPosition(m_owner.getPosition().x, 
-                                    -m_gameState.getGameHeight() / 2 + globalBounds.height / 2.f);
-        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
-            m_owner.move(0.f, m_speed.y * elapsedTime.asSeconds());
-
-            auto globalBounds = m_owner.getGlobalBounds();
-            if (globalBounds.top + globalBounds.width > m_gameState.getGameHeight() / 2)
-                m_owner.setPosition(m_owner.getPosition().x, 
-                                    m_gameState.getGameHeight() / 2 - globalBounds.height / 2.f);
-        }
-
-        float movedX = m_speed.x * elapsedTime.asSeconds();
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) movedX *= 2;
-
         m_owner.move(movedX, 0.f);
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) {
+            m_owner.move(0.f, -movedY);
+
+            auto globalBounds = m_owner.getGlobalBounds();
+            if (top(globalBounds)    < -m_gameState.getGameHeight() / 2)
+                m_owner.setY(-m_gameState.getGameHeight() / 2 + globalBounds.height / 2.f);
+        } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+            m_owner.move(0.f,  movedY);
+
+            auto globalBounds = m_owner.getGlobalBounds();
+            if (bottom(globalBounds) >  m_gameState.getGameHeight() / 2)
+                m_owner.setY( m_gameState.getGameHeight() / 2 - globalBounds.height / 2.f);
+        }
     }
 }

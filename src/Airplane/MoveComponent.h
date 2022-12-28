@@ -31,6 +31,10 @@ namespace Airplane {
         virtual sf::Vector2f getMinSpeed() const noexcept = 0;
     protected:
         sf::Vector2f m_speed;
+
+        sf::Vector2f getMoved(sf::Time elapsedTime) const noexcept {
+            return elapsedTime.asSeconds() * m_speed;
+        }
     };
 }
 

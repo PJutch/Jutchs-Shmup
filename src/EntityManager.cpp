@@ -17,6 +17,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Airplane/Airplane.h"
 #include "Airplane/Builder.h"
+#include "Airplane/ShootControlComponents.h"
+#include "Airplane/LogicShootControlComponents.h"
 
 const int PLAYER_MAX_HEALTH = 3;
 const sf::Vector2f PLAYER_START_POSITION{0.f, 0.f};

@@ -23,7 +23,7 @@ target_sources(${PROJECT_NAME} PRIVATE src/main.cpp
 
 target_sources(${PROJECT_NAME} PRIVATE src/Airplane/ShootComponent.cpp 
                                        src/Airplane/MoveComponent.cpp 
-                                       src/Airplane/ShootControlComponent.cpp 
+                                       src/Airplane/ShootControlComponents.cpp 
                                        src/Airplane/Flags.cpp
                                        src/Airplane/BombComponent.cpp
                                        src/Airplane/DeathEffect.cpp)

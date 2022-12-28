@@ -32,10 +32,6 @@ public:
 
     virtual sf::FloatRect getGlobalBounds() const noexcept = 0;
 
-    virtual bool isActive() const noexcept {
-        return !shouldBeDeleted();
-    }
-
     virtual void startCollide(Entity& other) = 0;   
     virtual void acceptCollide(Airplane::Airplane& other) {}
     virtual void acceptCollide(Bullet& other) {}

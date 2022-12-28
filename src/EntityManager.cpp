@@ -19,6 +19,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Airplane/Builder.h"
 #include "Airplane/Components.h"
 
+#include "geometry.h"
+
 const int PLAYER_MAX_HEALTH = 3;
 const sf::Vector2f PLAYER_START_POSITION{0.f, 0.f};
 
@@ -65,14 +67,14 @@ int EntityManager::getPlayerHealth() const noexcept {
 
 void EntityManager::handleEvent(sf::Event event) noexcept {
     for (int i = 0; i < ssize(m_entities); ++ i)  {
-        if (m_entities[i]->isActive()) 
+        if (!m_entities[i]->shouldBeDeleted()) 
             m_entities[i]->handleEvent(event);
     }
 }
 
 void EntityManager::update(sf::Time elapsedTime) noexcept {
     for (int i = 0; i < ssize(m_entities); ++ i) 
-        if (m_entities[i]->isActive()) 
+        if (!m_entities[i]->shouldBeDeleted()) 
             m_entities[i]->update(elapsedTime);
 
     if (m_player) {
@@ -82,8 +84,10 @@ void EntityManager::update(sf::Time elapsedTime) noexcept {
     
     for (int i = 0; i < ssize(m_entities); ++ i) 
         for (int j = i + 1; j < ssize(m_entities); ++ j) 
-            if (m_entities[i]->isActive() && m_entities[j]->isActive() && 
-                    m_entities[i]->getGlobalBounds().intersects(m_entities[j]->getGlobalBounds())) {
+            if (!m_entities[i]->shouldBeDeleted() 
+             && !m_entities[j]->shouldBeDeleted() 
+             && intersects(m_entities[i]->getGlobalBounds(), 
+                           m_entities[j]->getGlobalBounds())) {
                 m_entities[i]->startCollide(*m_entities[j]);
                 m_entities[j]->startCollide(*m_entities[i]);
     }
@@ -104,7 +108,7 @@ void EntityManager::update(sf::Time elapsedTime) noexcept {
 
 void EntityManager::draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept {
     for (const auto& entity : m_entities) {
-        if (entity->isActive()) 
+        if (!entity->shouldBeDeleted()) 
             target.draw(*entity, states);
     }
 }

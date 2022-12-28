@@ -74,7 +74,9 @@ public:
     auto getObstaclesFor(Entity& entity) noexcept {
         return *this
            | std::views::filter([&entity](const std::unique_ptr<Entity>& obstacle) {
-            return obstacle.get() != &entity && !obstacle->isPassable();
+            return  obstacle.get() != &entity 
+                && !obstacle->isPassable() 
+                && !obstacle->shouldBeDeleted();
         }) | std::views::transform([](const std::unique_ptr<Entity>& obstacle) {
             return obstacle->getGlobalBounds();
         });

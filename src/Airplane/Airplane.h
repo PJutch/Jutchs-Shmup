@@ -107,10 +107,6 @@ namespace Airplane {
             updateTexture();
         }
 
-        bool isActive() const noexcept override {
-            return !shouldBeDeleted();
-        }
-
         bool shouldBeDeleted() const noexcept override {
             return m_health <= 0 || !m_gameState.inActiveArea(getPosition().x);
         }
@@ -124,7 +120,7 @@ namespace Airplane {
         }
 
         bool isPassable() const noexcept override {
-            return !isActive();
+            return false;
         }
 
         bool canUsePickups() const noexcept {

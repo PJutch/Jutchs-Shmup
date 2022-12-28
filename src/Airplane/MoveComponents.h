@@ -17,10 +17,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "MoveComponent.h"
 
 #include "Airplane.h"
+#include "../GameState.h"
 
 #include <functional>
-
-class GameState;
 
 namespace Airplane {
     class BasicMoveComponent : public MoveComponent {

@@ -16,11 +16,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "ShootControlComponent.h"
 
-class GameState;
+#include "../declarations.h"
 
 namespace Airplane {
-    class Airplane;
-
     class AlwaysShootControlComponent : public ShootControlComponent {
     public:
         AlwaysShootControlComponent() noexcept = default;

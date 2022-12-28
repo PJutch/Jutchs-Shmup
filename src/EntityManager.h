@@ -16,17 +16,13 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Entity.h"
 
+#include "declarations.h"
+
 #include <algorithm>
 #include <ranges>
 #include <vector>
 #include <memory>
 #include <concepts>
-
-class GameState;
-
-namespace Airplane {
-    class Airplane;
-}
 
 class EntityManager : public sf::Drawable {
 public:

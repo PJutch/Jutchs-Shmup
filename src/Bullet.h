@@ -20,10 +20,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-namespace Airplane {
-    class Airplane;
-}
-
 class Bullet : public Sprite<Bullet> {
 public:
     Bullet(GameState& gameState, bool playerSide, sf::Vector2f position);

@@ -15,19 +15,10 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef ENTITY_H_
 #define ENTITY_H_
 
+#include "declarations.h"
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
-
-namespace Airplane {
-    class Airplane;
-}
-
-class Bullet;
-class Bomb;
-class Pickup;
-class AnimatedParticle;
-
-class GameState;
 
 class Entity : public sf::Drawable {
 public:

@@ -16,13 +16,13 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Land.h"
 
+#include "declarations.h"
+
 #include "ChanceTableEntry.h"
 
 #include <SFML/Graphics.hpp>
 
 #include <deque>
-
-class GameState;
 
 class LandManager : public sf::Drawable {
 public:

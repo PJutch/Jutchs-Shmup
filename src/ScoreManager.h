@@ -14,12 +14,12 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef SCORE_MANAGER_H_
 #define SCORE_MANAGER_H_
 
+#include "declarations.h"
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
 #include <deque>
-
-class GameState;
 
 class ScoreManager {
 public:

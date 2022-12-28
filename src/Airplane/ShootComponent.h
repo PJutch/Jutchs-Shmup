@@ -14,14 +14,12 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef AIRPLANE_SHOOT_COMPONENT_H_
 #define AIRPLANE_SHOOT_COMPONENT_H_
 
+#include "../declarations.h"
+
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-class GameState;
-
 namespace Airplane {
-    class Airplane;
-
     class ShootComponent {
     public:
         ShootComponent(Airplane& owner, GameState& gameState) noexcept :

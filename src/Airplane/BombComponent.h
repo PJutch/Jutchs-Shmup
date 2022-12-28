@@ -16,14 +16,12 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Flags.h"
 
+#include "../declarations.h"
+
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
 
-class GameState;
-
 namespace Airplane {
-    class Airplane;
-
     class BombComponent {
     public:
         BombComponent(Airplane& owner, GameState& gameState) noexcept;

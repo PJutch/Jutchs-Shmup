@@ -21,11 +21,11 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "../GameState.h"
 #include "../Pickup.h"
 
+#include "../declarations.h"
+
 #include <SFML/System.hpp>
 
 namespace Airplane {
-    class Airplane;
-
     class LoseDeathEffect : public DeathEffect {
     public:
         LoseDeathEffect(GameState& gameState) noexcept : m_gameState{gameState} {}

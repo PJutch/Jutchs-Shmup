@@ -89,17 +89,11 @@ namespace Airplane {
             return m_moveComponent->getMinSpeed();
         }
 
-        const ShootComponent& getShootComponent() const noexcept {
-            return *m_shootComponent;
-        }
-
-        ShootComponent& getShootComponent() noexcept {
-            return *m_shootComponent;
+        sf::FloatRect getShootGlobalAffectedArea() const noexcept {
+            return m_shootComponent->getGlobalAffectedArea();
         }
 
         void update(sf::Time elapsedTime) noexcept override {
-            if (isDead() || shouldBeDeleted()) return;
-
             m_damageCooldown -= elapsedTime;
             
             m_shootComponent->update(elapsedTime);
@@ -114,7 +108,7 @@ namespace Airplane {
         }
 
         bool isActive() const noexcept override {
-            return !isDead() && !shouldBeDeleted();
+            return !shouldBeDeleted();
         }
 
         bool shouldBeDeleted() const noexcept override {

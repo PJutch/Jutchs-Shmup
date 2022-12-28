@@ -14,6 +14,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef ALGORITHM_H_
 #define ALGORITHM_H_
 
+#include "RangeAdaptor.h"
+
 #include <numeric>
 #include <execution>
 #include <ranges>
@@ -24,56 +26,84 @@ If not, see <https://www.gnu.org/licenses/>. */
 template <typename T>
 concept ExecutionPolicy = std::is_execution_policy_v<std::remove_cvref_t<T>>;
 
+template <typename T>
+using asIter_t = std::conditional_t<std::ranges::range<T>, 
+                                    std::ranges::iterator_t<T>, 
+                                    T>;
+
+template <typename Proj, typename T>
+concept ProjectionFor = std::indirectly_regular_unary_invocable<Proj, asIter_t<T>>;
+
+template <typename T, ProjectionFor<T> Proj>
+using projected_t = std::projected<asIter_t<T>, Proj>;
+
+template <typename T, ProjectionFor<T> Proj>
+using projectedValue_t = std::iter_value_t<projected_t<T, Proj>>;
+
+template <typename Comp, typename T, typename Proj>
+concept ComparatorFor = std::indirect_strict_weak_order<Comp, projected_t<T, Proj>>;
+
+template <std::ranges::range Range>
+auto to_common_range(Range&& range) noexcept {
+    return std::forward<Range>(range) | std::views::common;
+}
+
+namespace views {
+    namespace detail {
+        class CommonAdaptor {
+        public:
+            template <std::ranges::range Range>
+            decltype(auto) operator () (Range&& range) const noexcept {
+                if constexpr (std::ranges::common_range<Range>) {
+                    return std::forward<Range>(range) | std::views::common;
+                } else {
+                    return std::forward<Range>(range);
+                }
+            }
+        };
+    }
+
+    inline const constexpr detail::CommonAdaptor common;
+}
+
+template <>
+struct isRangeAdaptor<views::detail::CommonAdaptor> {
+    inline static const constexpr bool value = true;
+};
+
 template <std::ranges::input_range Range, 
-    std::indirectly_regular_unary_invocable<std::ranges::iterator_t<Range>> Proj = std::identity, 
-    typename T = std::iter_value_t<std::projected<std::ranges::iterator_t<Range>, Proj>>, 
+    ProjectionFor<Range> Proj = std::identity, 
+    typename T = projectedValue_t<Range, Proj>, 
     typename BinaryOp = std::plus<>>
 inline constexpr T reduce(Range&& range, Proj proj = {}, T init = {}, BinaryOp op = {}) {
-    auto transformed = range | std::views::transform(proj);
-
-    using Iter = std::ranges::iterator_t<decltype(transformed)>;
-    using Sentinel = std::ranges::sentinel_t<decltype(transformed)>;
-
-    if constexpr (std::same_as<Iter, Sentinel>) {
-        return std::reduce(transformed.begin(), transformed.end(), init, op);
-    } else {
-        using CommonIter = std::common_iterator<Iter, Sentinel>;
-        return std::reduce(CommonIter{transformed.begin()}, CommonIter{transformed.end()}, init, op);
-    }
+    auto transformed = range | std::views::transform(proj) | views::common;
+    return std::reduce(transformed.begin(), transformed.end(), std::move(init), std::move(op));
 }
 
 template <std::input_iterator Iter, std::sentinel_for<Iter> Sentinel, 
-    std::indirectly_regular_unary_invocable<Iter> Proj = std::identity, 
-    typename T = std::iter_value_t<std::projected<Iter, Proj>>, 
+    ProjectionFor<Iter> Proj = std::identity, 
+    typename T = projectedValue_t<Iter, Proj>, 
     typename BinaryOp = std::plus<>>
 inline constexpr T reduce(Iter first, Sentinel last, 
                           Proj proj = {}, T init = {}, BinaryOp op = {}) {
-    return reduce(std::ranges::subrange(first, last), proj, init, op);
+    return reduce(std::ranges::subrange(first, last), 
+                  std::move(proj), std::move(init), std::move(op));
 }
 
 template <ExecutionPolicy Policy, std::ranges::input_range Range, 
-    std::indirectly_regular_unary_invocable<std::ranges::iterator_t<Range>> Proj = std::identity, 
-    typename T = std::iter_value_t<std::projected<std::ranges::iterator_t<Range>, Proj>>, 
+    ProjectionFor<Range> Proj = std::identity, 
+    typename T = projectedValue_t<Range, Proj>, 
     typename BinaryOp = std::plus<>>
 inline T reduce(Policy&& policy, Range&& range, 
                 Proj proj = {}, T init = {}, BinaryOp op = {}) {
-    auto transformed = range | std::views::transform(proj);
-
-    using Iter = std::ranges::iterator_t<decltype(transformed)>;
-    using Sentinel = std::ranges::sentinel_t<decltype(transformed)>;
-
-    if constexpr (std::same_as<Iter, Sentinel>) {
-        return std::reduce(std::forward<Policy>(policy), transformed.begin(), transformed.end(), init, op);
-    } else {
-        using CommonIter = std::common_iterator<Iter, Sentinel>;
-        return std::reduce(std::forward<Policy>(policy), 
-            CommonIter{transformed.begin()}, CommonIter{transformed.end()}, init, op);
-    }
+    auto transformed = range | std::views::transform(proj) | views::common;
+    return std::reduce(std::forward<Policy>(policy), 
+        transformed.begin(), transformed.end(), std::move(init), std::move(op));
 }
 
 template <ExecutionPolicy Policy, std::input_iterator Iter, std::sentinel_for<Iter> Sentinel, 
-    std::indirectly_regular_unary_invocable<Iter> Proj = std::identity, 
-    typename T = std::iter_value_t<std::projected<Iter, Proj>>, 
+    ProjectionFor<Iter> Proj = std::identity, 
+    typename T = projectedValue_t<Iter, Proj>, 
     typename BinaryOp = std::plus<>>
 inline T reduce(Policy&& policy, Iter first, Sentinel last, 
                 Proj proj = {}, T init = {}, BinaryOp op = {}) {
@@ -81,19 +111,18 @@ inline T reduce(Policy&& policy, Iter first, Sentinel last,
 }
 
 template<std::ranges::forward_range Range, 
-    std::indirectly_regular_unary_invocable<std::ranges::iterator_t<Range>> Proj = std::identity, 
-    typename T = std::iter_value_t<std::projected<std::ranges::iterator_t<Range>, Proj>>, 
-    std::indirect_strict_weak_order<std::projected<std::ranges::iterator_t<Range>, Proj>> 
-        Comp = std::ranges::less>
+    ProjectionFor<Range> Proj = std::identity, 
+    typename T = projectedValue_t<Range, Proj>, 
+    ComparatorFor<Range, Proj> Comp = std::ranges::less>
 constexpr T min_value(Range&& range, T default_value = {}, Comp comp = {}, Proj proj = {}) {
     auto smallest = std::ranges::min_element(range, std::move(comp), std::move(proj));
     return (smallest == range.end()) ? default_value : std::invoke(proj, *smallest);
 }
 
 template<std::forward_iterator Iter, std::sentinel_for<Iter> Sentinel, 
-    std::indirectly_regular_unary_invocable<Iter> Proj = std::identity,
-    typename T = std::iter_value_t<std::projected<Iter, Proj>>, 
-    std::indirect_strict_weak_order<std::projected<Iter, Proj>> Comp = std::ranges::less>
+    ProjectionFor<Iter> Proj = std::identity,
+    typename T = projectedValue_t<Iter, Proj>, 
+    ComparatorFor<Iter, Proj> Comp = std::ranges::less>
 constexpr T min_value(Iter first, Sentinel last, T default_value = {}, 
                               Comp comp = {}, Proj proj = {}) {
     return min_value(std::ranges::subrange(first, last), 
@@ -101,19 +130,18 @@ constexpr T min_value(Iter first, Sentinel last, T default_value = {},
 }
 
 template<std::ranges::forward_range Range, 
-    std::indirectly_regular_unary_invocable<std::ranges::iterator_t<Range>> Proj = std::identity,
-    typename T = std::iter_value_t<std::projected<std::ranges::iterator_t<Range>, Proj>>, 
-    std::indirect_strict_weak_order<std::projected<std::ranges::iterator_t<Range>, Proj>> 
-        Comp = std::ranges::less>
+    ProjectionFor<Range> Proj = std::identity,
+    typename T = projectedValue_t<Range, Proj>, 
+    ComparatorFor<Range, Proj> Comp = std::ranges::less>
 constexpr T max_value(Range&& range, T default_value = {}, Comp comp = {}, Proj proj = {}) {
     auto largest = std::ranges::max_element(range, comp, proj);
     return (largest == range.end()) ? default_value : std::invoke(proj, *largest);
 }
 
 template<std::forward_iterator Iter, std::sentinel_for<Iter> Sentinel, 
-    std::indirectly_regular_unary_invocable<Iter> Proj = std::identity,
-    typename T = std::iter_value_t<std::projected<Iter, Proj>>, 
-    std::indirect_strict_weak_order<std::projected<Iter, Proj>> Comp = std::ranges::less>
+    ProjectionFor<Iter> Proj = std::identity,
+    typename T = projectedValue_t<Iter, Proj>, 
+    ComparatorFor<Iter, Proj> Comp = std::ranges::less>
 constexpr T max_value(Iter first, Sentinel last, T default_value = {}, 
                               Comp comp = {}, Proj proj = {}) {
     return max_value(std::ranges::subrange(first, last), 

@@ -67,11 +67,16 @@ namespace ChanceTable {
         { chance(t) } -> std::convertible_to<double&>;
     };
 
-    // derive from this to make custom type EntryAdaptor
-    struct EntryAdaptorBase {};
+    template <typename T>
+    struct isEntryAdaptor {
+        inline static const constexpr bool value = false;
+    };
 
     template <typename T>
-    concept EntryAdaptor = std::derived_from<T, EntryAdaptorBase>;
+    inline constexpr bool isEntryAdaptor_v = isEntryAdaptor<std::remove_cvref_t<T>>::value;
+
+    template <typename T>
+    concept EntryAdaptor = isEntryAdaptor_v<T>;
 
     template <ConstEntry Base, EntryAdaptor Adaptor>
     decltype(auto) operator | (const Base& entry, Adaptor&& adaptor) noexcept {
@@ -80,16 +85,10 @@ namespace ChanceTable {
 
     namespace detail {
         template <EntryAdaptor Adaptor1, EntryAdaptor Adaptor2>
-        class CombinedAdaptor : public EntryAdaptorBase {
+        class CombinedAdaptor {
         public:
-            CombinedAdaptor(      Adaptor1&& adaptor1,       Adaptor2&& adaptor2) noexcept : 
+            CombinedAdaptor(Adaptor1 adaptor1, Adaptor2 adaptor2) noexcept : 
                 m_adaptor1{std::move(adaptor1)}, m_adaptor2{std::move(adaptor2)} {}
-            CombinedAdaptor(      Adaptor1&& adaptor1, const Adaptor2&  adaptor2) noexcept : 
-                m_adaptor1{std::move(adaptor1)}, m_adaptor2{          adaptor2 } {}
-            CombinedAdaptor(const Adaptor1&  adaptor1,       Adaptor2&& adaptor2) noexcept : 
-                m_adaptor1{          adaptor1 }, m_adaptor2{std::move(adaptor2)} {}
-            CombinedAdaptor(const Adaptor1&  adaptor1, const Adaptor2&  adaptor2) noexcept : 
-                m_adaptor1{          adaptor1 }, m_adaptor2{          adaptor2 } {}
 
             template <ConstEntry Base>
             decltype(auto) operator () (const Base& entry) noexcept {
@@ -102,6 +101,11 @@ namespace ChanceTable {
     }
 
     template <EntryAdaptor Adaptor1, EntryAdaptor Adaptor2>
+    struct isEntryAdaptor<detail::CombinedAdaptor<Adaptor1, Adaptor2>> {
+        inline static const constexpr bool value = true;
+    };
+
+    template <EntryAdaptor Adaptor1, EntryAdaptor Adaptor2>
     inline detail::CombinedAdaptor<Adaptor1, Adaptor2> operator | 
             (Adaptor1&& adaptor1, Adaptor2&& adaptor2) noexcept {
         return {std::forward<Adaptor1>(adaptor1), std::forward<Adaptor2>(adaptor2)};
@@ -111,47 +115,59 @@ namespace ChanceTable {
         namespace detail {
             template <ConstEntry Base, std::regular_invocable<double> Proj = std::identity>
                 requires std::convertible_to<std::invoke_result_t<Proj, double>, double>
-            class TransformChanceEntryView  {
+            class TransformChanceView  {
             public:
                 using value_type = Base::value_type;
 
-                TransformChanceEntryView(const Base& base,       Proj&& proj) noexcept :
+                TransformChanceView(const Base& base, Proj proj) noexcept :
                     m_base{base}, m_proj{std::move(proj)} {}
-                
-                TransformChanceEntryView(const Base& base, const Proj&  proj) noexcept :
-                    m_base{base}, m_proj{          proj } {}
 
-                template <ConstEntry Base>
-                friend inline const value_type& value(
-                        const TransformChanceEntryView<Base, Proj>& entry) noexcept {
+                friend const value_type& value(const TransformChanceView<Base, Proj>& entry) noexcept {
                     return value(entry.m_base);
                 }
                 
-                friend inline double chance(const TransformChanceEntryView<Base, Proj>& entry) {
+                friend double chance(const TransformChanceView<Base, Proj>& entry) {
                     return entry.m_proj(chance(entry.m_base));
                 }   
             private:
                 const Base& m_base;
                 Proj m_proj;
             };
-        };
+            template <std::regular_invocable<double> Proj = std::identity>
+                requires std::convertible_to<std::invoke_result_t<Proj, double>, double>
+            class TransformChanceAdaptor {
+            public:
+                explicit TransformChanceAdaptor(Proj proj) noexcept : m_proj{std::move(proj)} {}
 
-        template <std::regular_invocable<double> Proj = std::identity>
-            requires std::convertible_to<std::invoke_result_t<Proj, double>, double>
-        class transformChance : public EntryAdaptorBase {
-        public:
-            transformChance(      Proj&& proj) noexcept : m_proj{std::move(proj)} {}
-            transformChance(const Proj&  proj) noexcept : m_proj{          proj } {}
-
-            template <ConstEntry Base>
-            detail::TransformChanceEntryView<Base, Proj> operator () (const Base& entry) const noexcept {
-                return {entry, m_proj};
-            }
-        private:
-            Proj m_proj;
-        };
+                template <ConstEntry Base>
+                auto operator () (const Base& entry) const noexcept {
+                    return detail::TransformChanceView<Base, Proj>{entry, m_proj};
+                }
+            private:
+                Proj m_proj;
+            };
+        }
     }
 
+    template <std::regular_invocable<double> Proj>
+    struct isEntryAdaptor<views::detail::TransformChanceAdaptor<Proj>> {
+        inline static const constexpr bool value = true;
+    };
+
+    namespace views {
+        template <std::regular_invocable<double> Proj = std::identity>
+                requires std::convertible_to<std::invoke_result_t<Proj, double>, double>
+        auto transformChance(Proj&& proj) noexcept {
+            return detail::TransformChanceAdaptor{std::forward<Proj>(proj)};
+        }
+
+        template <ConstEntry Base, std::regular_invocable<double> Proj = std::identity>
+                requires std::convertible_to<std::invoke_result_t<Proj, double>, double>
+        auto transformChance(const Base& entry, Proj&& proj) noexcept {
+            return entry | detail::TransformChanceAdaptor{std::forward<Proj>(proj)};
+        }
+    }
+    
     class Invalid : public std::logic_error {
         using std::logic_error::logic_error;
     };
@@ -205,15 +221,17 @@ namespace ChanceTable {
                         return chance(entry);
                     });
 
-                    return std::views::transform(range, [sumChance](const auto& entry){
-                        return views::transformChance([sumChance](double chance) -> double {
-                                                        return chance / sumChance;
-                                                    })(entry);
-                    });
+                    return range
+                        | std::views::transform([sumChance](const auto& entry) {
+                            return entry 
+                                | views::transformChance([sumChance](double chance) -> double {
+                                    return chance / sumChance;
+                                });
+                        });
                 }
             };
 
-            using ::operator | ;
+            using ::operator | ; // to use operator | for RangeAdaptor
         } 
 
         inline constexpr detail::NormalizeRangeAdaptor normalize;
@@ -224,7 +242,5 @@ template <>
 struct isRangeAdaptor<ChanceTable::views::detail::NormalizeRangeAdaptor> {
     inline static const constexpr bool value = true;
 };
-
-static_assert(RangeAdaptor<decltype(ChanceTable::views::normalize)>);
 
 #endif

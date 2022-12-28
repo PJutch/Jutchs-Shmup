@@ -38,18 +38,17 @@ namespace detail {
     template <typename Adaptor1, typename Adaptor2>
     class CombinedAdaptor {
     public:
-        CombinedAdaptor(      Adaptor1&& adaptor1,       Adaptor2&& adaptor2) noexcept : 
+        CombinedAdaptor(Adaptor1 adaptor1, Adaptor2 adaptor2) noexcept : 
             m_adaptor1{std::move(adaptor1)}, m_adaptor2{std::move(adaptor2)} {}
-        CombinedAdaptor(      Adaptor1&& adaptor1, const Adaptor2&  adaptor2) noexcept : 
-            m_adaptor1{std::move(adaptor1)}, m_adaptor2{          adaptor2 } {}
-        CombinedAdaptor(const Adaptor1&  adaptor1,       Adaptor2&& adaptor2) noexcept : 
-            m_adaptor1{          adaptor1 }, m_adaptor2{std::move(adaptor2)} {}
-        CombinedAdaptor(const Adaptor1&  adaptor1, const Adaptor2&  adaptor2) noexcept : 
-            m_adaptor1{          adaptor1 }, m_adaptor2{          adaptor2 } {}
 
         template <std::ranges::range Range>
         decltype(auto) operator () (Range&& range) noexcept {
-            return m_fn2(m_fn1(std::forward<Range>(range)));
+            return m_adaptor2(m_adaptor1(std::forward<Range>(range)));
+        }
+
+        template <std::ranges::range Range>
+        decltype(auto) operator () (Range&& range) const noexcept {
+            return m_adaptor2(m_adaptor1(std::forward<Range>(range)));
         }
     private:
         Adaptor1 m_adaptor1;

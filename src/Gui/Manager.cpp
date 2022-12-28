@@ -12,11 +12,7 @@ You should have received a copy of the GNU General Public License along with Jut
 If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Manager.h"
-#include "Button.h"
-#include "ComboBox.h"
-#include "HorizontalSlider.h"
-#include "Panel.h"
-#include "Text.h"
+#include "Elements.h"
 
 #include "../GameState.h"
 #include "../LanguageManager.h"

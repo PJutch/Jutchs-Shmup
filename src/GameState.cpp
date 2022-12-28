@@ -13,20 +13,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "GameState.h"
 
-#include "Airplane/Airplane.h"
-#include "Airplane/Builder.h"
-#include "Gui/Text.h"
-#include "Gui/Button.h"
-#include "Gui/HorizontalSlider.h"
-#include "Gui/ComboBox.h"
-
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-
-#include <iostream>
 #include <ranges>
 #include <algorithm>
-#include <memory>
 #include <utility>
 
 GameState::GameState(sf::Vector2f screenSize) : 

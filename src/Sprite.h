@@ -20,9 +20,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-// CRTP
-template <typename Child>
-class Sprite : public EntityBase<Child> {
+class Sprite : public Entity {
 public:
     Sprite(GameState& gameState) noexcept : m_gameState{gameState} {}
 

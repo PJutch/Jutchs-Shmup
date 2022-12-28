@@ -20,6 +20,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+#include <concepts>
+
 class Entity : public sf::Drawable {
 public:
     virtual ~Entity() = default;
@@ -48,12 +50,19 @@ public:
 };
 
 // CRTP
-template <typename Child>
-class EntityBase : public Entity {
+template <typename Child, std::derived_from<Entity> BaseT = Entity>
+class CollidableBase : public BaseT {
 public:
+    using Base = CollidableBase<Child, BaseT>;
+    
     void startCollide(Entity& other) noexcept override final {
         other.acceptCollide(static_cast<Child&>(*this));
     }
+private:
+    template <typename... Args>
+    CollidableBase(Args&&... args) : BaseT(std::forward<Args>(args)...) {}
+
+    friend Child;
 };
 
 #endif

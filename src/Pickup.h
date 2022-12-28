@@ -21,10 +21,10 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-class Pickup : public Sprite<Pickup> {
+class Pickup : public CollidableBase<Pickup, Sprite> {
 public:
     Pickup(GameState& gameState, sf::Vector2f position, const sf::Texture& texture) noexcept: 
-            Sprite{gameState}, m_alive{true} {
+            Base{gameState}, m_alive{true} {
         setTexture(texture);
 
         auto size = texture.getSize();

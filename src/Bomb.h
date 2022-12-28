@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-class Bomb : public Sprite<Bomb> {
+class Bomb : public CollidableBase<Bomb, Sprite> {
 public:
     Bomb(GameState& gameState, bool playerSide, sf::Vector2f position);
 

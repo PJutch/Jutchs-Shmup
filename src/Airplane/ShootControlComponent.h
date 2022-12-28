@@ -26,7 +26,6 @@ namespace Airplane {
         virtual ~ShootControlComponent() = default;
 
         virtual void handleEvent(sf::Event event) noexcept {}
-        virtual void update(sf::Time elapsedTime) noexcept {}
 
         virtual bool shouldShoot() noexcept = 0;
     };

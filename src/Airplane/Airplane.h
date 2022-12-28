@@ -103,7 +103,6 @@ namespace Airplane {
             m_damageCooldown -= elapsedTime;
             
             m_shootComponent->update(elapsedTime);
-            m_shootControlComponent->update(elapsedTime);
             m_moveComponent->update(elapsedTime);
             m_bombComponent->update(elapsedTime);
 

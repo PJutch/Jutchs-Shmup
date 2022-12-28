@@ -22,7 +22,6 @@ namespace Airplane {
     class AlwaysShootControlComponent : public ShootControlComponent {
     public:
         AlwaysShootControlComponent() noexcept = default;
-        AlwaysShootControlComponent(Airplane&, GameState&) noexcept {}
 
         bool shouldShoot() noexcept override {
             return true;
@@ -32,7 +31,6 @@ namespace Airplane {
     class NeverShootControlComponent : public ShootControlComponent {
     public:
         NeverShootControlComponent() noexcept = default;
-        NeverShootControlComponent(Airplane&, GameState&) noexcept {}
 
         bool shouldShoot() noexcept override {
             return false;

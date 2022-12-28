@@ -29,7 +29,6 @@ namespace Airplane {
     class LoseDeathEffect : public DeathEffect {
     public:
         LoseDeathEffect(GameState& gameState) noexcept : m_gameState{gameState} {}
-        LoseDeathEffect(Airplane&, GameState& gameState) noexcept : LoseDeathEffect(gameState) {}
 
         void handleDeath() noexcept override {
             m_gameState.setShouldResetAfter(sf::seconds(1.0f));
@@ -42,8 +41,6 @@ namespace Airplane {
     public:
         ScoreDeathEffect(GameState& gameState, int score) noexcept : 
             m_gameState{gameState}, m_score{score} {}
-        ScoreDeathEffect(Airplane&, GameState& gameState, int score) noexcept : 
-            ScoreDeathEffect(gameState, score) {}
 
         void handleDeath() noexcept override {
             m_gameState.getScoreManager().addScore(m_score);

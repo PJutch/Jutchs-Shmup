@@ -23,7 +23,6 @@ namespace Airplane {
     class PlayerShootControlComponent : public ShootControlComponent {
     public:
         PlayerShootControlComponent() noexcept : m_shouldShoot{false} {}
-        PlayerShootControlComponent(Airplane&, GameState&) noexcept : PlayerShootControlComponent{} {}
 
         void handleEvent(sf::Event event) noexcept override{
             if (event.type == sf::Event::MouseButtonPressed 

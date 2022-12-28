@@ -25,7 +25,6 @@ namespace Airplane {
     class BasicMoveComponent : public MoveComponent {
     public:
         BasicMoveComponent(Airplane& owner) : m_owner{owner} {}
-        BasicMoveComponent(Airplane& owner, GameState&) : BasicMoveComponent{owner} {}
 
         void update(sf::Time elapsedTime) noexcept override {
             auto moved = m_speed * elapsedTime.asSeconds();

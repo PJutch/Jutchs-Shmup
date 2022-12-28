@@ -25,8 +25,7 @@ target_sources(${PROJECT_NAME} PRIVATE src/Airplane/ShootComponent.cpp
                                        src/Airplane/MoveComponent.cpp 
                                        src/Airplane/ShootControlComponents.cpp 
                                        src/Airplane/Flags.cpp
-                                       src/Airplane/BombComponent.cpp
-                                       src/Airplane/DeathEffect.cpp)
+                                       src/Airplane/BombComponent.cpp)
 
 target_sources(${PROJECT_NAME} PRIVATE src/Gui/Panel.cpp 
                                        src/Gui/Button.cpp 

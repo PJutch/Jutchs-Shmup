@@ -39,7 +39,8 @@ namespace Airplane {
     class Airplane : public Sprite, public CollidableBase<Airplane> {
     public:
         // use Airplane::Builder instead
-        Airplane(GameState& gameState) noexcept : Sprite{gameState} {}
+        Airplane(GameState& gameState) noexcept : 
+            Sprite{gameState}, m_shootComponent{*this, gameState} {}
 
         void handleEvent(sf::Event event) noexcept override {
             m_shootControlComponent->handleEvent(event);
@@ -73,17 +74,17 @@ namespace Airplane {
         }
 
         sf::FloatRect getShootGlobalAffectedArea() const noexcept {
-            return m_shootComponent->getGlobalAffectedArea();
+            return m_shootComponent.getGlobalAffectedArea();
         }
 
         void update(sf::Time elapsedTime) noexcept override {
             m_healthComponent.update(elapsedTime);
-            m_shootComponent->update(elapsedTime);
+            m_shootComponent.update(elapsedTime);
             m_moveComponent ->update(elapsedTime);
             m_bombComponent ->update(elapsedTime);
 
             if (m_shootControlComponent->shouldShoot()) {
-                m_shootComponent->tryShoot();
+                m_shootComponent.trySetShouldShoot();
             }
 
             updateTexture();
@@ -109,7 +110,8 @@ namespace Airplane {
             return m_bombComponent->hasBomb();
         }
     private:
-        std::unique_ptr<ShootComponent> m_shootComponent;
+        ShootComponent m_shootComponent;
+
         std::unique_ptr<ShootControlComponent> m_shootControlComponent;
         std::unique_ptr<MoveComponent> m_moveComponent;
         std::unique_ptr<BombComponent> m_bombComponent;

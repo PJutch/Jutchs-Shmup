@@ -18,21 +18,62 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "../SoundEffect.h"
 #include "../Bullet.h"
 
+#include "../algorithm.h"
+#include "../geometry.h"
+
+#include <algorithm>
+#include <ranges>
 #include <cmath>
 
 namespace Airplane {
-    void ShootComponent::spawnBullet(sf::Vector2f offset) noexcept {
+    void ShootComponent::setPattern(Pattern pattern) {
+        m_pattern = pattern;
+        m_currentElement = std::ssize(pattern);
+
+        if (m_pattern.empty()) {
+            m_localAffectedArea = {0.f, 0.f, 0.f, 0.f};
+            return;
+        }
+
+        sf::Vector2f bulletSize = Bullet::getSize(m_gameState);
+
+        auto offsets = pattern | std::views::transform(&PatternElement::offset);
+        float minX = min_value(offsets | std::views::transform(&sf::Vector2f::x));
+        float minY = min_value(offsets | std::views::transform(&sf::Vector2f::y));
+        float maxY = max_value(offsets | std::views::transform(&sf::Vector2f::y));
+
+        m_localAffectedArea = {minX - bulletSize.x / 2.f, minY - bulletSize.x / 2.f, 
+                               INFINITY, maxY - minY + bulletSize.x};
+    }
+
+    void ShootComponent::update(sf::Time elapsedTime) {
+        m_shootCooldown -= elapsedTime;
+        
+        bool shot = false;
+        while (m_shootCooldown <= sf::Time::Zero 
+            && m_currentElement < std::ssize(m_pattern)) {
+            spawnBullet(m_pattern[m_currentElement].offset);
+
+            m_shootCooldown += m_pattern[m_currentElement].delay;
+            ++ m_currentElement;
+
+            shot = true;
+        }
+
+        if (shot) shotSound();
+    }
+
+    void ShootComponent::spawnBullet(sf::Vector2f offset) const {
         m_gameState.getEntities().addEntity<Bullet>(m_owner.isOnPlayerSide(), 
                                                     m_owner.getPosition() + offset);
     }
 
-    sf::FloatRect ShootComponent::getLocalAffectedArea() const noexcept {
-        auto size = Bullet::getSize(m_gameState);
-        return {-size.x / 2.f, -size.y / 2.f,  INFINITY, size.y};
+    void ShootComponent::shotSound() const {
+        m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
     }
 
     sf::FloatRect ShootComponent::getGlobalAffectedArea() const noexcept {
-        auto [top, left, width, height] = getLocalAffectedArea();
+        auto [top, left, width, height] = m_localAffectedArea;
         auto [x, y] = m_owner.getPosition();
 
         if (m_owner.isOnPlayerSide())

@@ -49,6 +49,11 @@ namespace Airplane {
             return speed({x, y});
         }
 
+        Builder& shootPattern(ShootComponent::Pattern pattern) {
+            m_build->m_shootComponent.setPattern(pattern);
+            return *this;
+        }
+
         template <typename Component, typename... Args> 
             requires std::constructible_from<Component, Airplane::Airplane&, GameState&, Args...>
         Component createComponent(Args&&... args) {
@@ -71,21 +76,6 @@ namespace Airplane {
             requires std::constructible_from<Component, Args...>
         Component createComponent(Args&&... args) {
             return Component(std::forward<Args>(args)...);
-        }
-
-        template<std::derived_from<ShootComponent> Component, typename... Args>
-        Builder& shootComponent(Args&&... args) {
-            m_build->m_shootComponent = newComponent<Component>(std::forward<Args>(args)...);
-            return *this;
-        }
-
-        template <typename Component>
-            requires std::derived_from<std::remove_cvref_t<Component>, ShootComponent>
-        Builder& shootComponent(Component&& component) {
-            using ComponentVal = std::remove_cvref_t<Component>;
-            m_build->m_shootComponent 
-                = std::make_unique<ComponentVal>(std::forward<Component>(component));
-            return *this;
         }
 
         template <std::derived_from<ShootControlComponent> Component, typename... Args>

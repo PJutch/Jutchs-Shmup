@@ -14,15 +14,14 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef AIRPLANE_COMPONENTS_H_
 #define AIRPLANE_COMPONENTS_H_
 
-/// include all conrete components of Airplane
+// include all conrete components of Airplane
+// components without hierarcy are'nt included
 
 #include "BombComponents.h"
 
 #include "DeathEffects.h"
 
 #include "MoveComponents.h"
-
-#include "ShootComponents.h"
 
 #include "ShootControlComponents.h"
 #include "LogicShootControlComponents.h"

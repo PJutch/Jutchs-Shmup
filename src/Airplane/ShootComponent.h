@@ -19,47 +19,54 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+#include <span>
+
 namespace Airplane {
     class ShootComponent {
     public:
+        struct PatternElement {
+            sf::Vector2f offset;
+            sf::Time delay;
+        };
+        using Pattern = std::span<PatternElement>;
+
         ShootComponent(Airplane& owner, GameState& gameState) noexcept :
-            m_shootCooldown{sf::Time::Zero}, m_owner{owner}, m_gameState{gameState} {}
-        virtual ~ShootComponent() = default;
+            m_shootCooldown{sf::Time::Zero}, m_currentElement{0}, 
+            m_owner{owner}, m_gameState{gameState} {}
 
-        virtual void update(sf::Time elapsedTime) noexcept {
-            m_shootCooldown -= elapsedTime;
-        }
+        void update(sf::Time elapsedTime);
 
-        void tryShoot() noexcept {
-            if (m_shootCooldown <= sf::Time::Zero) {
-                shoot();
+        void trySetShouldShoot() noexcept {
+            if (m_shootCooldown <= sf::Time::Zero 
+             && m_currentElement == std::ssize(m_pattern)) {
+                m_currentElement = 0;
+                m_shootCooldown = sf::Time::Zero;
             }
         }
 
-        // width or height can be infinite and/or negative
+        // width  can be infinite
+        // height can be infinite and/or negative
         sf::FloatRect getGlobalAffectedArea() const noexcept;
+    protected:
+        sf::Time m_shootCooldown;
+
+        Pattern m_pattern;
+        int m_currentElement;
 
         // in local coordinate space
         // respect rotation (+x is move direction)
-        // width or height can be infinite and/or negative
-        virtual sf::FloatRect getLocalAffectedArea() const noexcept;
-    protected:
-        virtual void shoot() noexcept = 0;
-
-        void spawnBullet(sf::Vector2f offset) noexcept;
-
-        void spawnBullet(float x, float y) noexcept {
-            spawnBullet({x, y});
-        }
-
-        void spawnBullet() noexcept {
-            spawnBullet({0.f, 0.f});
-        }
-
-        sf::Time m_shootCooldown;
+        // width can be infinite
+        sf::FloatRect m_localAffectedArea;
 
         Airplane& m_owner;
         GameState& m_gameState;
+
+        void spawnBullet(sf::Vector2f offset) const;
+        void shotSound() const;
+
+        void setPattern(Pattern pattern);
+
+        friend class Builder;
     };
 }
 

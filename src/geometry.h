@@ -18,6 +18,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/System.hpp>
 
 #include <optional>
+#include <algorithm>
 
 // WARNING: always return false if min >= max
 template <typename T>
@@ -62,28 +63,68 @@ inline std::optional<sf::Rect<T>> intersection(sf::Rect<T> lhs, sf::Rect<T> rhs)
     }
 }
 
-// WARNING: actually right if width < 0
+// WARNING: actually right if rect.width < 0
 template <typename T>
 T left(sf::Rect<T> rect) noexcept {
     return rect.left;
 }
 
-// WARNING: actually left if width < 0
+// WARNING: actually left if rect.width < 0
 template <typename T>
 T right(sf::Rect<T> rect) noexcept {
     return rect.left + rect.width;
 }
 
-// WARNING: actually bottom if height < 0
+// WARNING: actually bottom if rect.height < 0
 template <typename T>
 T top(sf::Rect<T> rect) noexcept {
     return rect.top;
 }
 
-// WARNING: actually top if height < 0
+// WARNING: actually top if rect.height < 0
 template <typename T>
 T bottom(sf::Rect<T> rect) noexcept {
     return rect.top + rect.height;
+}
+
+// WARNING: doesn't work if rect.width < 0
+template <typename T>
+sf::Rect<T> extendLeft(sf::Rect<T> rect, T left) noexcept {
+    if (rect.left > left) {
+        rect.width += rect.left - left;
+        rect.left = left;
+    }
+    return rect;
+}
+
+// WARNING: doesn't work if rect.width < 0
+template <typename T>
+sf::Rect<T> extendRight(sf::Rect<T> rect, T right) noexcept {
+    if (rect.right < right) {
+        rect.width += right - rect.right;
+        rect.right = right;
+    }
+    return rect;
+}
+
+// WARNING: doesn't work if rect.height < 0
+template <typename T>
+sf::Rect<T> extendTop(sf::Rect<T> rect, T top) noexcept {
+    if (rect.top > top) {
+        rect.height += rect.top - top;
+        rect.top = top;
+    }
+    return rect;
+}
+
+// WARNING: doesn't work if rect.height < 0
+template <typename T>
+sf::Rect<T> extendBottom(sf::Rect<T> rect, T bottom) noexcept {
+    if (rect.bottom < bottom) {
+        rect.height += bottom - rect.bottom;
+        rect.bottom = bottom;
+    }
+    return rect;
 }
 
 #endif

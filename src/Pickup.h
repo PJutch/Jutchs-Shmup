@@ -64,7 +64,7 @@ public:
         Pickup{gameState, position, gameState.getAssets().getHealthPickupTexture()} {}
 
     void apply(Airplane::Airplane& airplane) noexcept override {
-        if (airplane.heal()) {
+        if (airplane.tryHeal()) {
             m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomPowerUpSound());
             die();
         }

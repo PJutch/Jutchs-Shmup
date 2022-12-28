@@ -21,6 +21,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "geometry.h"
 
+#include <array>
+
 const int PLAYER_MAX_HEALTH = 3;
 const sf::Vector2f PLAYER_START_POSITION{0.f, 0.f};
 
@@ -34,13 +36,31 @@ void EntityManager::init() {
     m_spawnX = 4 * m_gameState.getGameHeight();
 }
 
+namespace {
+    std::array<Airplane::ShootComponent::PatternElement, 1> basicPattern {
+        Airplane::ShootComponent::PatternElement{{0.f, 0.f}, sf::seconds(0.25f)}
+    };
+
+    std::array<Airplane::ShootComponent::PatternElement, 3> triplePattern {
+        Airplane::ShootComponent::PatternElement{{0.f,   0.f}, sf::seconds(0.0f)},
+        Airplane::ShootComponent::PatternElement{{0.f,  32.f}, sf::seconds(0.0f)},
+        Airplane::ShootComponent::PatternElement{{0.f, -32.f}, sf::seconds(0.5f)}
+    };
+
+    std::array<Airplane::ShootComponent::PatternElement, 3> volleyPattern {
+        Airplane::ShootComponent::PatternElement{{0.f, 0.f}, sf::seconds(0.1f)},
+        Airplane::ShootComponent::PatternElement{{0.f, 0.f}, sf::seconds(0.1f)},
+        Airplane::ShootComponent::PatternElement{{0.f, 0.f}, sf::seconds(0.5f)}
+    };
+}
+
 void EntityManager::spawnPlayer() {
     using enum Airplane::Flags;
 
     m_player = Airplane::Builder{m_gameState}
         .position(PLAYER_START_POSITION).maxHealth(PLAYER_MAX_HEALTH)
         .flags(PLAYER_SIDE | HEAVY | SLOW | NO_WEAPON | USE_PICKUPS | NO_BOMB)
-        .shootComponent<Airplane::BasicShootComponent>()
+        .shootPattern(basicPattern)
         .shootControlComponent<Airplane::PlayerShootControlComponent>()
         .moveComponent<Airplane::PlayerMoveComponent>().speed(250.f, 250.f)
         .bombComponent<Airplane::PlayerBombComponent>()
@@ -153,15 +173,15 @@ void EntityManager::spawnEnemy(sf::Vector2f position) {
     double shootSeed = canonicalDistribution(m_gameState.getRandomEngine());
     bool advancedWeapon = false;
     if (shootSeed < 0.1) {
-        builder.shootComponent<Airplane::TripleShootComponent>();
+        builder.shootPattern(triplePattern);
         builder.flags() |= HAS_WEAPON;
         advancedWeapon = true;
     } else if (shootSeed < 0.2) {
-        builder.shootComponent<Airplane::VolleyShootComponent>();
+        builder.shootPattern(volleyPattern);
         builder.flags() |= NO_WEAPON;
         advancedWeapon = true;
     } else {
-        builder.shootComponent<Airplane::BasicShootComponent >();
+        builder.shootPattern(basicPattern);
         builder.flags() |= NO_WEAPON;
     }
 

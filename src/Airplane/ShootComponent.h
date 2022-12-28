@@ -14,16 +14,18 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef AIRPLANE_SHOOT_COMPONENT_H_
 #define AIRPLANE_SHOOT_COMPONENT_H_
 
-#include "../GameState.h"
-
+#include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
+
+class GameState;
 
 namespace Airplane {
     class Airplane;
 
     class ShootComponent {
     public:
-        ShootComponent(Airplane& owner, GameState& gameState) noexcept;
+        ShootComponent(Airplane& owner, GameState& gameState) noexcept :
+            m_shootCooldown{sf::Time::Zero}, m_owner{owner}, m_gameState{gameState} {}
         virtual ~ShootComponent() = default;
 
         virtual void update(sf::Time elapsedTime) noexcept {
@@ -46,35 +48,6 @@ namespace Airplane {
 
         Airplane& m_owner;
         GameState& m_gameState;
-    };
-
-    class BasicShootComponent : public ShootComponent {
-    public:
-        using ShootComponent::ShootComponent;
-
-        void tryShoot() noexcept override;
-    };
-
-    class TripleShootComponent : public ShootComponent {
-    public:
-        using ShootComponent::ShootComponent;
-
-        void tryShoot() noexcept override;
-
-        sf::FloatRect getAffectedArea() const noexcept override;
-
-        sf::FloatRect getStartShotBounds() const noexcept override;
-    };
-
-    class VolleyShootComponent : public ShootComponent {
-    public:
-        VolleyShootComponent(Airplane& owner, GameState& gameState) noexcept;
-
-        void update(sf::Time elapsedTime) noexcept override;
-
-        void tryShoot() noexcept override;
-    private:
-        int m_shots;
     };
 }
 

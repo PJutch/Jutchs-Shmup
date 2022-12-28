@@ -21,9 +21,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <cmath>
 
 namespace Airplane {
-    ShootComponent::ShootComponent(Airplane& owner, GameState& gameState) noexcept : 
-            m_shootCooldown{sf::Time::Zero}, m_owner{owner}, m_gameState{gameState} {};
-
     void ShootComponent::shoot(sf::Vector2f position) noexcept {
         m_gameState.getEntities().addEntity<Bullet>(m_owner.isOnPlayerSide(), position);
     }
@@ -48,77 +45,4 @@ namespace Airplane {
         auto speed = Bullet::getSpeed();
         return {(m_owner.isOnPlayerSide() ? 1 : -1) * speed.x, speed.y};
     }
-
-    void BasicShootComponent::tryShoot() noexcept {
-        if (m_shootCooldown <= sf::Time::Zero) {
-            shoot(m_owner.getPosition());
-            m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
-            m_shootCooldown = sf::seconds(0.25f);
-        }
-    }
-
-    void TripleShootComponent::tryShoot() noexcept {
-        if (m_shootCooldown <= sf::Time::Zero) {
-            auto position = m_owner.getPosition();
-            float height = m_owner.getGlobalBounds().height;
-
-            shoot(position);
-            shoot({position.x, position.y + height / 2});
-            shoot({position.x, position.y - height / 2});
-
-            m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
-
-            m_shootCooldown = sf::seconds(0.5f);
-        }
-    }
-
-    sf::FloatRect TripleShootComponent::getAffectedArea() const noexcept {
-        auto position = m_owner.getPosition();
-        float ownerHeight = m_owner.getGlobalBounds().height;
-        auto size = Bullet::getSize(m_gameState);
-        
-        float areaHeight = ownerHeight + size.y;
-
-        if (m_owner.isOnPlayerSide()) {
-            return {position.x - size.x / 2.f, position.y - areaHeight / 2.f, INFINITY, areaHeight};
-        } else {
-            return {position.x + size.x / 2.f, position.y - areaHeight / 2.f, -INFINITY, areaHeight};
-        }
-    }
-
-    sf::FloatRect TripleShootComponent::getStartShotBounds() const noexcept {
-        auto position = m_owner.getPosition();
-        auto size = Bullet::getSize(m_gameState);
-        float ownerHeight = m_owner.getGlobalBounds().height;   
-
-        float areaHeight = ownerHeight + size.y;
-
-        return {position.x - size.x / 2.f, position.y - areaHeight / 2.f, size.x, areaHeight};
-    }  
-
-    void VolleyShootComponent::tryShoot() noexcept {
-        if (m_shootCooldown <= sf::Time::Zero) {
-            auto position = m_owner.getPosition();
-            float height = m_owner.getGlobalBounds().height;
-
-            shoot(m_owner.getPosition());
-
-            m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
-
-            m_shots += 2;
-            m_shootCooldown = sf::seconds(0.1f);
-        }
-    }
-
-    void VolleyShootComponent::update(sf::Time elapsedTime) noexcept {
-        ShootComponent::update(elapsedTime);
-        if (m_shootCooldown <= sf::Time::Zero && m_shots > 0) {
-            shoot(m_owner.getPosition());
-            m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
-            m_shootCooldown = sf::seconds(-- m_shots == 0 ? 0.5f : 0.1f);
-        }
-    }
-
-    VolleyShootComponent::VolleyShootComponent(Airplane& owner, GameState& gameState) noexcept : 
-        ShootComponent{owner, gameState}, m_shots{0} {};
-    }
+}

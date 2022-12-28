@@ -14,6 +14,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef GEOMETRY_H_
 #define GEOMETRY_H_
 
+#include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
 #include <optional>

@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-class Sprite : public Entity {
+class Sprite : public virtual Entity {
 public:
     Sprite(GameState& gameState) noexcept : m_gameState{gameState} {}
 

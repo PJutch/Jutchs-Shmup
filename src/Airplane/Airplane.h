@@ -35,11 +35,11 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <algorithm>
 
 namespace Airplane {
-    class Airplane : public CollidableBase<Airplane, Sprite> {
+    class Airplane : public Sprite, public CollidableBase<Airplane> {
     public:
         // use Airplane::Builder instead
         Airplane(GameState& gameState) noexcept : 
-            Base{gameState},  m_health{0}, m_maxHealth{0}, m_damageCooldown{sf::seconds(0.f)} {}
+            Sprite{gameState},  m_health{0}, m_maxHealth{0}, m_damageCooldown{sf::seconds(0.f)} {}
 
         friend class Builder;
 

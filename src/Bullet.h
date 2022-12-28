@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-class Bullet : public CollidableBase<Bullet, Sprite> {
+class Bullet : public Sprite, public CollidableBase<Bullet> {
 public:
     Bullet(GameState& gameState, bool playerSide, sf::Vector2f position);
     

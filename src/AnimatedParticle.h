@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <span>
 
-class AnimatedParticle : public CollidableBase<AnimatedParticle, Sprite> {
+class AnimatedParticle : public Sprite, public CollidableBase<AnimatedParticle> {
 public:
     AnimatedParticle(GameState& gameState, sf::Vector2f position, std::span<const sf::Texture> animation, 
                      sf::Time delay) noexcept;

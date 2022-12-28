@@ -19,7 +19,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/System.hpp>
 
 Bullet::Bullet(GameState& gameState, bool playerSide, sf::Vector2f position) :
-        Base{gameState}, m_playerSide{playerSide}, m_alive{true} {
+        Sprite{gameState}, m_playerSide{playerSide}, m_alive{true} {
     auto& texture = gameState.getAssets().getBulletTexture();
     setTexture(texture);
 

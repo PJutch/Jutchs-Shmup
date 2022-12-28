@@ -46,19 +46,16 @@ public:
 };
 
 // CRTP
-template <typename Child, std::derived_from<Entity> BaseT = Entity>
-class CollidableBase : public BaseT {
-public:
-    using Base = CollidableBase<Child, BaseT>;
-    
+template <typename Child>
+class CollidableBase : public virtual Entity {
+public:   
     void startCollide(Entity& other) noexcept override final {
         other.acceptCollide(static_cast<Child&>(*this));
     }
 private:
-    template <typename... Args>
-    CollidableBase(Args&&... args) : BaseT(std::forward<Args>(args)...) {}
+    CollidableBase() = default;
 
-    friend Child;
+    friend Child; // constructible only by Child
 };
 
 #endif

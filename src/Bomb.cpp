@@ -14,7 +14,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Bomb.h"
 
 Bomb::Bomb(GameState& gameState, bool playerSide, sf::Vector2f position) :
-        Base{gameState}, m_launched{gameState.getCurrentTime()}, m_alive{true} {
+        Sprite{gameState}, m_launched{gameState.getCurrentTime()}, m_alive{true} {
     auto& texture = gameState.getAssets().getBombTexture();
     setTexture(texture);
 

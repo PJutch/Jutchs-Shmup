@@ -13,12 +13,14 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "LandManager.h"
 
-#include "GameState.h"
 #include "Airplane/Airplane.h"
+
+#include "GameState.h"
+
+#include "ChanceTable.h"
 
 #include <random>
 #include <ranges>
-#include <iostream>
 #include <algorithm>
 
 LandManager::LandManager(GameState& gameState) noexcept : m_gameState{gameState} {}
@@ -187,8 +189,6 @@ void LandManager::draw(sf::RenderTarget& target, sf::RenderStates states) const 
     for (int ix = 0; start.x + ix * textureSize.x < playerX + 4 * gameHeight; ++ ix)
         for (float iy = 0; iy < std::ssize(m_land[ix]); ++ iy) {
             sf::Sprite sprite{m_gameState.getAssets().getLandTexture(m_land[ix][iy])};
-            if (sprite.getTextureRect().width == 0)
-                std::cout << static_cast<int>(m_land[ix][iy]) << std::endl;
             sprite.setPosition(start.x + ix * textureSize.x, start.y + iy * textureSize.y);
             target.draw(sprite, states);
     }

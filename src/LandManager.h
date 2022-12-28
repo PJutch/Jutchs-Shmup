@@ -16,9 +16,11 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Land.h"
 
-#include "ChanceTable.h"
+#include "ChanceTableEntry.h"
 
 #include <SFML/Graphics.hpp>
+
+#include <deque>
 
 class GameState;
 

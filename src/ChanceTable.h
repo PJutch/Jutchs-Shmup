@@ -26,34 +26,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 namespace ChanceTable {
     template <typename T>
-    struct BasicEntry {
-        using value_type = T;
-
-        value_type value;
-        double chance;
-    };
-
-    template <typename T>
-    auto& value(BasicEntry<T>& entry) noexcept {
-        return entry.value;
-    }
-
-    template <typename T>
-    const auto& value(const BasicEntry<T>& entry) noexcept {
-        return entry.value;
-    }
-
-    template <typename T>
-    inline double& chance(BasicEntry<T>& entry) noexcept {
-        return entry.chance;
-    }
-
-    template <typename T>
-    inline double chance(const BasicEntry<T>& entry) noexcept {
-        return entry.chance;
-    }
-
-    template <typename T>
     concept ConstEntry = requires (const T ct) {
         typename T::value_type;
         { value(ct) } -> std::same_as<const typename T::value_type&>;

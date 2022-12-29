@@ -47,6 +47,10 @@ namespace Airplane {
             bool shouldShoot() override {
                 return !m_component.shouldShoot();
             }
+
+            friend auto operator ! (NotShootControlComponent<Component> component) noexcept {
+                return std::move(component.m_component);
+            }
         private:
             Component m_component;
         };
@@ -58,6 +62,16 @@ namespace Airplane {
         using ResComponent = detail::NotShootControlComponent<std::remove_cvref_t<Component>>;
         return ResComponent{std::forward<Component>(component)};
     }
+
+    inline auto operator ! (AlwaysShootControlComponent) noexcept {
+        return NeverShootControlComponent{};
+    }
+
+    inline auto operator ! (NeverShootControlComponent) noexcept {
+        return AlwaysShootControlComponent{};
+    }
+
+
 
     namespace detail {
         template <std::derived_from<ShootControlComponent> Component1, 
@@ -102,6 +116,30 @@ namespace Airplane {
                             std::forward<Component2>(component2)};
     }
 
+    template <typename Component> 
+        requires std::derived_from<std::remove_cvref_t<Component>, ShootControlComponent>
+    inline auto operator || (Component&& component, AlwaysShootControlComponent) {
+        return AlwaysShootControlComponent{};
+    }
+
+    template <typename Component> 
+        requires std::derived_from<std::remove_cvref_t<Component>, ShootControlComponent>
+    inline auto operator || (AlwaysShootControlComponent, Component&& component) {
+        return AlwaysShootControlComponent{};
+    }
+
+        template <typename Component> 
+        requires std::derived_from<std::remove_cvref_t<Component>, ShootControlComponent>
+    inline auto operator || (Component&& component, NeverShootControlComponent) {
+        return std::forward<Component>(component);
+    }
+
+    template <typename Component> 
+        requires std::derived_from<std::remove_cvref_t<Component>, ShootControlComponent>
+    inline auto operator || (NeverShootControlComponent, Component&& component) {
+        return std::forward<Component>(component);
+    }
+
     namespace detail {
         template <std::derived_from<ShootControlComponent> Component1, 
                     std::derived_from<ShootControlComponent> Component2>
@@ -124,6 +162,30 @@ namespace Airplane {
                                                                 std::remove_cvref_t<Component2>>;
         return ResComponent{std::forward<Component1>(component1), 
                             std::forward<Component2>(component2)};
+    }
+
+        template <typename Component> 
+        requires std::derived_from<std::remove_cvref_t<Component>, ShootControlComponent>
+    inline auto operator && (Component&& component, AlwaysShootControlComponent) {
+        return std::forward<Component>(component);
+    }
+
+    template <typename Component> 
+        requires std::derived_from<std::remove_cvref_t<Component>, ShootControlComponent>
+    inline auto operator && (AlwaysShootControlComponent, Component&& component) {
+        return std::forward<Component>(component);
+    }
+
+        template <typename Component> 
+        requires std::derived_from<std::remove_cvref_t<Component>, ShootControlComponent>
+    inline auto operator && (Component&& component, NeverShootControlComponent) {
+        return NeverShootControlComponent{};
+    }
+
+    template <typename Component> 
+        requires std::derived_from<std::remove_cvref_t<Component>, ShootControlComponent>
+    inline auto operator && (NeverShootControlComponent, Component&& component) {
+        return NeverShootControlComponent{};
     }
 }
 

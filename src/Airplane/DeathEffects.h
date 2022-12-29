@@ -55,7 +55,7 @@ namespace Airplane {
         LootDeathEffect(Airplane& owner, GameState& gameState) noexcept : 
             m_owner{owner}, m_gameState{gameState} {}
 
-        void handleDeath() noexcept override {
+        void handleDeath() override {
             if (m_owner.hasBomb()) {
                 m_gameState.getEntities().addEntity<BombPickup>(m_owner.getPosition());
             } else {
@@ -74,7 +74,7 @@ namespace Airplane {
         ExplosionDeathEffect(Airplane& owner, GameState& gameState) noexcept : 
             m_owner{owner}, m_gameState{gameState} {}
 
-        void handleDeath() noexcept override {
+        void handleDeath() override {
             m_gameState.getEntities().addEntity<AnimatedParticle>(m_owner.getPosition(), 
                 m_gameState.getAssets().getExplosionAnimation(), sf::seconds(0.1f));
             

@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 namespace Airplane {
     namespace {
-        std::tuple<float, float> getMinmaxYFor(Airplane& airplane, GameState& gameState) noexcept {
+        std::tuple<float, float> getMinmaxYFor(Airplane& airplane, GameState& gameState) {
             auto airplaneBounds = airplane.getGlobalBounds();
 
             auto obstacles = gameState.getEntities().getObstaclesFor(airplane) 
@@ -51,7 +51,7 @@ namespace Airplane {
         }
     }
 
-    void PeriodicalMoveComponent::update(sf::Time elapsedTime) noexcept {
+    void PeriodicalMoveComponent::update(sf::Time elapsedTime) {
         auto moved = m_speed * elapsedTime.asSeconds();
 
         auto [minY, maxY] = getMinmaxYFor(m_owner, m_gameState); 
@@ -73,7 +73,7 @@ namespace Airplane {
         m_owner.setPosition(m_owner.getPosition().x - moved.x, y);
     }
 
-    void LineWithTargetMoveComponent::update(sf::Time elapsedTime) noexcept {
+    void LineWithTargetMoveComponent::update(sf::Time elapsedTime) {
         auto moved = m_speed * elapsedTime.asSeconds();
         auto target = m_getTarget(m_owner);
 
@@ -94,7 +94,7 @@ namespace Airplane {
         m_owner.setPosition(m_owner.getPosition().x - moved.x, y);
     }
 
-    void PlayerMoveComponent::update(sf::Time elapsedTime) noexcept {
+    void PlayerMoveComponent::update(sf::Time elapsedTime) {
         auto [movedX, movedY] = getMoved(elapsedTime);
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) movedX *= 2;

@@ -43,7 +43,7 @@ namespace Airplane {
         PeriodicalMoveComponent(Airplane& owner, GameState& gameState) noexcept : 
             m_moveUp{true}, m_owner{owner}, m_gameState{gameState} {}
 
-        void update(sf::Time elapsedTime) noexcept override;
+        void update(sf::Time elapsedTime) override;
 
         sf::Vector2f getMinSpeed() const noexcept override {
             return {-m_speed.x, 0};
@@ -62,7 +62,7 @@ namespace Airplane {
                                     TargetGetter getTarget) noexcept : 
             m_getTarget{std::move(getTarget)}, m_owner{owner}, m_gameState{gameState} {}
 
-        void update(sf::Time elapsedTime) noexcept override;
+        void update(sf::Time elapsedTime) override;
 
         sf::Vector2f getMinSpeed() const noexcept override {
             return {-m_speed.x, 0};
@@ -78,7 +78,7 @@ namespace Airplane {
         PlayerMoveComponent(Airplane& owner, GameState& gameState) noexcept : 
             m_owner{owner}, m_gameState{gameState} {}
 
-        void update(sf::Time elapsedTime) noexcept override;
+        void update(sf::Time elapsedTime) override;
 
         sf::Vector2f getMinSpeed() const noexcept override {
             return {m_speed.x, 0};

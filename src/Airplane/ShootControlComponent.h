@@ -23,7 +23,7 @@ namespace Airplane {
 
         virtual void handleEvent(sf::Event event) noexcept {}
 
-        virtual bool shouldShoot() noexcept = 0;
+        virtual bool shouldShoot() = 0;
     };
 }
 

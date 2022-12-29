@@ -13,17 +13,10 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "ShootControlComponents.h"
 
-#include "../geometry.h"
-
 #include <algorithm>
 
 namespace Airplane {
-    bool TargetPlayerShootControlComponent::shouldShoot() noexcept {
-        return intersects(m_gameState.getEntities().getPlayerGlobalBounds(),
-                          m_owner.getShootGlobalAffectedArea());
-    }
-
-    bool CanHitPlayerShootControlComponent::shouldShoot() noexcept {
+    bool CanHitPlayerShootControlComponent::shouldShoot() {
         sf::FloatRect playerBounds = m_gameState.getEntities().getPlayerGlobalBounds();
         sf::FloatRect ownerBounds = m_owner.getGlobalBounds();
 

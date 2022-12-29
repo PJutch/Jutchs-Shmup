@@ -19,6 +19,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "../GameState.h"
 
+#include "../geometry.h"
+
 namespace Airplane {
     class PlayerShootControlComponent : public ShootControlComponent {
     public:
@@ -43,7 +45,10 @@ namespace Airplane {
         TargetPlayerShootControlComponent(Airplane& owner, GameState& gameState) noexcept : 
             m_owner{owner}, m_gameState{gameState} {}
 
-        bool shouldShoot() noexcept override;
+        bool shouldShoot() noexcept override {
+            return intersects(m_gameState.getEntities().getPlayerGlobalBounds(),
+                            m_owner.getShootGlobalAffectedArea());
+        }
     private:
         Airplane& m_owner;
         GameState& m_gameState;
@@ -54,7 +59,7 @@ namespace Airplane {
         CanHitPlayerShootControlComponent(Airplane& owner, GameState& gameState) noexcept : 
             m_owner{owner}, m_gameState{gameState} {}
 
-        bool shouldShoot() noexcept override;
+        bool shouldShoot() override;
     private:
         Airplane& m_owner;
         GameState& m_gameState;

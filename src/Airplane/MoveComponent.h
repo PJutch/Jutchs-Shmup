@@ -22,7 +22,7 @@ namespace Airplane {
         MoveComponent() noexcept : m_speed{0.f, 0.f} {}
         virtual ~MoveComponent() = default;
 
-        virtual void update(sf::Time elapsedTime) noexcept = 0;
+        virtual void update(sf::Time elapsedTime) = 0;
 
         virtual sf::Vector2f getMinSpeed() const noexcept = 0;
     protected:

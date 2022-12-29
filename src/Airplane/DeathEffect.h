@@ -19,7 +19,7 @@ namespace Airplane {
     public:
         virtual ~DeathEffect() = default;
 
-        virtual void handleDeath() noexcept = 0;
+        virtual void handleDeath() = 0;
     };
 }
 

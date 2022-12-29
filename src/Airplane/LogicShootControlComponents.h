@@ -41,10 +41,10 @@ namespace Airplane {
         template <std::derived_from<ShootControlComponent> Component>
         class NotShootControlComponent : public ShootControlComponent {
         public:
-            explicit NotShootControlComponent(Component component) noexcept : 
+            explicit NotShootControlComponent(Component component) : 
                 m_component{std::move(component)} {}
             
-            bool shouldShoot() noexcept override {
+            bool shouldShoot() override {
                 return !m_component.shouldShoot();
             }
         private:
@@ -64,14 +64,14 @@ namespace Airplane {
                     std::derived_from<ShootControlComponent> Component2>
         class BinaryShootControlComponent : public ShootControlComponent {
         public:
-            BinaryShootControlComponent(Component1 component1, Component2 component2) noexcept :
+            BinaryShootControlComponent(Component1 component1, Component2 component2) :
                 m_component1{std::move(component1)}, m_component2{std::move(component2)} {}
         protected:
-            bool shouldShoot1() noexcept {
+            bool shouldShoot1() {
                 return m_component1.shouldShoot();
             }
 
-            bool shouldShoot2() noexcept {
+            bool shouldShoot2() {
                 return m_component2.shouldShoot();
             }
         private:
@@ -86,7 +86,7 @@ namespace Airplane {
         public:
             using Base::BinaryShootControlComponent;
             
-            bool shouldShoot() noexcept override {
+            bool shouldShoot() override {
                 return Base::shouldShoot1() || Base::shouldShoot2();
             }
         };
@@ -95,7 +95,7 @@ namespace Airplane {
     template <typename Component1, typename Component2> 
         requires std::derived_from<std::remove_cvref_t<Component1>, ShootControlComponent>
                 && std::derived_from<std::remove_cvref_t<Component2>, ShootControlComponent>
-    inline auto operator || (Component1&& component1, Component2&& component2) noexcept {
+    inline auto operator || (Component1&& component1, Component2&& component2) {
         using ResComponent = detail::OrShootControlComponent<std::remove_cvref_t<Component1>, 
                                                                 std::remove_cvref_t<Component2>>;
         return ResComponent{std::forward<Component1>(component1), 
@@ -110,7 +110,7 @@ namespace Airplane {
         public:
             using Base::BinaryShootControlComponent;
             
-            bool shouldShoot() noexcept override {
+            bool shouldShoot() override {
                 return Base::shouldShoot1() && Base::shouldShoot2();
             }
         };
@@ -119,7 +119,7 @@ namespace Airplane {
     template <typename Component1, typename Component2> 
         requires std::derived_from<std::remove_cvref_t<Component1>, ShootControlComponent>
                 && std::derived_from<std::remove_cvref_t<Component2>, ShootControlComponent>
-    inline auto operator && (Component1&& component1, Component2&& component2) noexcept {
+    inline auto operator && (Component1&& component1, Component2&& component2) {
         using ResComponent = detail::AndShootControlComponent<std::remove_cvref_t<Component1>, 
                                                                 std::remove_cvref_t<Component2>>;
         return ResComponent{std::forward<Component1>(component1), 

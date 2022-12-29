@@ -22,10 +22,6 @@ namespace Airplane {
         MoveComponent() noexcept : m_speed{0.f, 0.f} {}
         virtual ~MoveComponent() = default;
 
-        void setSpeed(sf::Vector2f speed) noexcept {
-            m_speed = speed;
-        }
-
         virtual void update(sf::Time elapsedTime) noexcept = 0;
 
         virtual sf::Vector2f getMinSpeed() const noexcept = 0;
@@ -35,6 +31,8 @@ namespace Airplane {
         sf::Vector2f getMoved(sf::Time elapsedTime) const noexcept {
             return elapsedTime.asSeconds() * m_speed;
         }
+    private:
+        friend class Builder;
     };
 }
 

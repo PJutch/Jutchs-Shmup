@@ -153,8 +153,8 @@ namespace Airplane {
         }
 
         std::unique_ptr<Airplane> build() noexcept {
-            m_build->m_moveComponent->setSpeed(m_speed);
-            m_build->m_bombComponent->setHasBomb(m_hasBomb);
+            m_build->m_moveComponent->m_speed = m_speed;
+            m_build->m_bombComponent->m_hasBomb = m_hasBomb;
 
             m_build->updateTexture();
 

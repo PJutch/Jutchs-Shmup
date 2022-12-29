@@ -34,10 +34,6 @@ namespace Airplane {
             return m_hasBomb;
         }
 
-        void setHasBomb(bool hasBomb) noexcept {
-            m_hasBomb = hasBomb;
-        }
-
         bool tryAddBomb() noexcept {
             if (m_hasBomb) return false;
             m_hasBomb = true;
@@ -54,6 +50,8 @@ namespace Airplane {
         void tryBomb();
     private:
         bool m_hasBomb;
+
+        friend class Builder;
     };
 }
 

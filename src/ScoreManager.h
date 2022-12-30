@@ -25,25 +25,19 @@ class ScoreManager {
 public:
     ScoreManager(GameState& gameState) noexcept;
 
-    int getScore() const noexcept {
-        return m_score;
-    }
+    // score may be negative
+    void addScore(float score) noexcept;
 
-    void addScore(int score) noexcept;
-
-    void update();
+    void update(sf::Time elapsedTime);
 
     void reset();
 
     sf::Vector2f drawGui(sf::Vector2f position, sf::RenderTarget& target, sf::RenderStates states) const;
 private:
-    int m_score;
+    float m_score;
 
-    struct ScoreChange {
-        int value;
-        sf::Time time;
-    };
-    std::deque<ScoreChange> m_scoreChanges;
+    float m_scoreChange;
+    float m_scoreApplySpeed;
 
     float m_scoredX;
 

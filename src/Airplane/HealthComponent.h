@@ -35,7 +35,7 @@ namespace Airplane {
 
         // return true on success
         bool tryHeal() noexcept { 
-            if (m_health >= m_maxHealth) {
+            if (m_health < m_maxHealth) {
                 ++ m_health;
                 return true;
             } else {

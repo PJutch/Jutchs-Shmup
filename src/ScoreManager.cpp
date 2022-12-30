@@ -19,32 +19,34 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Gui/drawNumber.h"
 
+#include <utility>
+
 const sf::Time SCORE_CHANGE_SHOW_TIME = sf::seconds(0.5f);
 
 ScoreManager::ScoreManager(GameState& gameState) noexcept : 
-    m_score{0}, m_scoredX{0.f}, m_gameState{gameState} {}
+    m_score{0}, m_scoredX{0.f}, m_gameState{gameState}, m_scoreChange{0}, m_scoreApplySpeed{0.0f} {}
 
-void ScoreManager::addScore(int score) noexcept {
-    m_score += score;
-    m_scoreChanges.emplace_back(score, m_gameState.getCurrentTime());
+void ScoreManager::addScore(float score) noexcept {
+    m_scoreChange += score;
+    m_scoreApplySpeed = m_scoreChange / SCORE_CHANGE_SHOW_TIME.asSeconds();
 }
 
-void ScoreManager::update() {
+void ScoreManager::update(sf::Time elapsedTime) {
     float playerX = m_gameState.getEntities().getPlayerPosition().x;
     while (playerX > m_scoredX) {
         m_scoredX += 32;
-        addScore(1);
+        m_score += 1;
     }
 
-    while (!m_scoreChanges.empty() 
-            && m_gameState.getCurrentTime() - m_scoreChanges[0].time >= SCORE_CHANGE_SHOW_TIME) {
-        m_scoreChanges.pop_front();
-    }
+    float applyedScore = std::min(m_scoreApplySpeed * elapsedTime.asSeconds(), m_scoreChange);
+    m_score += applyedScore;
+    m_scoreChange -= applyedScore;
 }
 
 void ScoreManager::reset() {
     m_score = 0;
-    m_scoreChanges.clear();
+    m_scoreChange = 0;
+    m_scoreApplySpeed = 0.f;
     m_scoredX = 0.f;
 }
 
@@ -53,17 +55,14 @@ sf::Vector2f ScoreManager::drawGui(sf::Vector2f position,
     const auto& assets = m_gameState.getAssets();
     auto digitSize = assets.getDigitTextures()[0].getSize();
 
-    float maxWidth = Gui::drawNumber(m_score, position, target, states, assets).x;
+    float width = Gui::drawNumber(static_cast<int>(m_score), position, target, states, assets).x;
 
-    for (int i = std::ssize(m_scoreChanges) - 1; i >= 0; -- i) {
-        float alpha = 1.f - (m_gameState.getCurrentTime() - m_scoreChanges[i].time) / SCORE_CHANGE_SHOW_TIME;
-        if (alpha <= 0) continue;
-
-        sf::Vector2f scoreChangePosition{0.f, position.y + digitSize.y * (std::ssize(m_scoreChanges) - i)};
+    if (m_scoreChange != 0) {
+        sf::Vector2f scoreChangePosition{position.x, position.y + digitSize.y};
         
-        maxWidth = std::max(maxWidth, Gui::drawSignedNumber(m_scoreChanges[i].value, 
-            scoreChangePosition, alpha, target, states, assets).x);
+        width = std::max(Gui::drawSignedNumber(static_cast<int>(m_scoreChange), 
+            scoreChangePosition, target, states, assets).x, width);
     }
 
-    return sf::Vector2f(maxWidth, (std::ssize(m_scoreChanges) + 1) * digitSize.y);
+    return sf::Vector2f(width, 2 * digitSize.y);
 }

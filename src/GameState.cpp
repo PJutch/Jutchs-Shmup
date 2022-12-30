@@ -51,7 +51,7 @@ void GameState::update() {
 
     checkReset(elapsedTime);
     
-    m_scoreManager.update();
+    m_scoreManager.update(elapsedTime);
 }
 
 void GameState::reset() {  

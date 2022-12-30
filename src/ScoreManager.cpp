@@ -21,14 +21,18 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <utility>
 
-const sf::Time SCORE_CHANGE_SHOW_TIME = sf::seconds(0.5f);
+const sf::Time SCORE_CHANGE_APPLY_DELAY = sf::seconds(0.5f);
+const sf::Time SCORE_CHANGE_APPLY_TIME = sf::seconds(0.5f);
 
 ScoreManager::ScoreManager(GameState& gameState) noexcept : 
-    m_score{0}, m_scoredX{0.f}, m_gameState{gameState}, m_scoreChange{0}, m_scoreApplySpeed{0.0f} {}
+    m_score{0}, m_scoredX{0.f}, m_gameState{gameState}, m_scoreChange{0}, 
+    m_changeApplySpeed{0.0f}, m_changeApplyStart{sf::Time::Zero} {}
 
 void ScoreManager::addScore(float score) noexcept {
     m_scoreChange += score;
-    m_scoreApplySpeed = m_scoreChange / SCORE_CHANGE_SHOW_TIME.asSeconds();
+
+    m_changeApplySpeed = m_scoreChange / SCORE_CHANGE_APPLY_TIME.asSeconds();
+    m_changeApplyStart = m_gameState.getCurrentTime() + SCORE_CHANGE_APPLY_DELAY;
 }
 
 void ScoreManager::update(sf::Time elapsedTime) {
@@ -38,15 +42,20 @@ void ScoreManager::update(sf::Time elapsedTime) {
         m_score += 1;
     }
 
-    float applyedScore = std::min(m_scoreApplySpeed * elapsedTime.asSeconds(), m_scoreChange);
-    m_score += applyedScore;
-    m_scoreChange -= applyedScore;
+    auto currentTime = m_gameState.getCurrentTime();
+    if (currentTime > m_changeApplyStart) {
+        sf::Time applyTime = std::min(elapsedTime, currentTime - m_changeApplyStart);
+        float applyedScore = std::min(m_changeApplySpeed * applyTime.asSeconds(), m_scoreChange);
+        
+        m_score += applyedScore;
+        m_scoreChange -= applyedScore;
+    }
 }
 
 void ScoreManager::reset() {
     m_score = 0;
     m_scoreChange = 0;
-    m_scoreApplySpeed = 0.f;
+    m_changeApplySpeed = 0.f;
     m_scoredX = 0.f;
 }
 

@@ -37,7 +37,8 @@ private:
     float m_score;
 
     float m_scoreChange;
-    float m_scoreApplySpeed;
+    float m_changeApplySpeed;
+    sf::Time m_changeApplyStart;
 
     float m_scoredX;
 

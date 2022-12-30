@@ -32,18 +32,14 @@ namespace Airplane {
                 });
 
             float minTop = max_value(obstacles 
-                | std::views::transform([](sf::FloatRect obstacle) {
-                    return bottom(obstacle);
-                }) | std::views::filter([airplaneBounds](float obstacleBottom) {
-                    return obstacleBottom < top(airplaneBounds);
-                }), -gameState.getGameHeight() / 2);
+                    | std::views::transform(bottom<float>) 
+                    | std::views::filter(less_than(top(airplaneBounds))), 
+                -gameState.getGameHeight() / 2);
 
             float maxBottom = min_value(obstacles 
-            | std::views::transform([](sf::FloatRect obstacle) {
-                    return top(obstacle);
-            }) | std::views::filter([airplaneBounds](float obstacleTop) {
-                return obstacleTop < bottom(airplaneBounds);
-            }), gameState.getGameHeight() / 2);
+                    | std::views::transform(top<float>) 
+                    | std::views::filter(greater_than(bottom(airplaneBounds))), 
+                gameState.getGameHeight() / 2);
 
             float posOffset = airplane.getPosition().y - airplaneBounds.top;
             return std::tuple<float, float>{minTop + posOffset, 

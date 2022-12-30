@@ -18,6 +18,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "declarations.h"
 
+#include "functional.h"
+
 #include <algorithm>
 #include <ranges>
 #include <vector>
@@ -27,7 +29,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 class EntityManager : public sf::Drawable {
 public:
     EntityManager(GameState& gameState) noexcept;
-    
+
     void addEntity(Entity* entity) {
         m_entities.emplace_back(entity);
     }
@@ -49,13 +51,11 @@ public:
     // return global bounds of all entities that AI of entity must consider in pathfinding
     auto getObstaclesFor(Entity& entity) noexcept {
         return m_entities
+           | std::views::filter(not_pred(indirect(&Entity::shouldBeDeleted))) 
+           | std::views::filter(not_pred(indirect(&Entity::isPassable)))
            | std::views::filter([&entity](const std::unique_ptr<Entity>& obstacle) {
-            return  obstacle.get() != &entity 
-                && !obstacle->isPassable() 
-                && !obstacle->shouldBeDeleted();
-        }) | std::views::transform([](const std::unique_ptr<Entity>& obstacle) {
-            return obstacle->getGlobalBounds();
-        });
+            return obstacle.get() != &entity;
+        }) | std::views::transform(indirect(&Entity::getGlobalBounds));
     }
 
     sf::Vector2f getPlayerPosition() const noexcept;

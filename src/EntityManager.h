@@ -27,31 +27,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 class EntityManager : public sf::Drawable {
 public:
     EntityManager(GameState& gameState) noexcept;
-
-    auto cbegin() const noexcept {
-        return m_entities.cbegin();
-    }
-
-    auto begin() noexcept {
-        return m_entities.begin();
-    }
-
-    auto begin() const noexcept {
-        return cbegin();
-    }
-
-    auto cend() const noexcept {
-        return m_entities.cend();
-    }
-
-    auto end() noexcept {
-        return m_entities.end();
-    }
-
-    auto end() const noexcept {
-        return cend();
-    }
-
+    
     void addEntity(Entity* entity) {
         m_entities.emplace_back(entity);
     }
@@ -72,7 +48,7 @@ public:
 
     // return global bounds of all entities that AI of entity must consider in pathfinding
     auto getObstaclesFor(Entity& entity) noexcept {
-        return *this
+        return m_entities
            | std::views::filter([&entity](const std::unique_ptr<Entity>& obstacle) {
             return  obstacle.get() != &entity 
                 && !obstacle->isPassable() 

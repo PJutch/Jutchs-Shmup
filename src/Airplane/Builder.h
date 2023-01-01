@@ -18,8 +18,9 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "../GameState.h"
 
-#include <concepts>
+#include "functional.h"
 
+#include <concepts>
 namespace Airplane {
     class Builder {
     public:
@@ -78,10 +79,16 @@ namespace Airplane {
             return Component(std::forward<Args>(args)...);
         }
 
-        template <std::derived_from<ShootControlComponent> Component, typename... Args>
-        Builder& shootControlComponent(Args&&... args) {
-            m_build->m_shootControlComponent = newComponent<Component>(std::forward<Args>(args)...);
+        template <typename Factory, typename... Args>
+        Builder& shootControlComponent(Factory&& factory, Args&&... args) {
+            m_build->m_shootControlComponent = newComponentBy<ShootControlComponent>(
+                std::forward<Factory>(factory), std::forward<Args>(args)...);
             return *this;
+        }
+
+        template<std::derived_from<ShootControlComponent> Component, typename... Args>
+        Builder& shootControlComponent(Args&&... args) {
+            return shootControlComponent(makeUniqueFunctor<Component>, std::forward<Args>(args)...);
         }
 
         template <typename Component>
@@ -93,10 +100,16 @@ namespace Airplane {
             return *this;
         }
 
+        template <typename Factory, typename... Args>
+        Builder& moveComponent(Factory&& factory, Args&&... args) {
+            m_build->m_moveComponent = newComponentBy<MoveComponent>(std::forward<Factory>(factory), 
+                                                                     std::forward<Args>(args)...);
+            return *this;
+        }
+
         template<std::derived_from<MoveComponent> Component, typename... Args>
         Builder& moveComponent(Args&&... args) {
-            m_build->m_moveComponent = newComponent<Component>(std::forward<Args>(args)...);
-            return *this;
+            return moveComponent(makeUniqueFunctor<Component>, std::forward<Args>(args)...);
         }
 
         template <typename Component>
@@ -108,10 +121,16 @@ namespace Airplane {
             return *this;
         }
 
+        template <typename Factory, typename... Args>
+        Builder& bombComponent(Factory&& factory, Args&&... args) {
+            m_build->m_bombComponent = newComponentBy<BombComponent>(std::forward<Factory>(factory), 
+                                                                     std::forward<Args>(args)...);
+            return *this;
+        }
+
         template<std::derived_from<BombComponent> Component, typename... Args>
         Builder& bombComponent(Args&&... args) {
-            m_build->m_bombComponent = newComponent<Component>(std::forward<Args>(args)...);
-            return *this;
+            return bombComponent(makeUniqueFunctor<Component>, std::forward<Args>(args)...);
         }
 
         template <typename Component>
@@ -128,10 +147,16 @@ namespace Airplane {
             return *this;
         }
 
-        template<std::derived_from<DeathEffect> Component, typename... Args>
-        Builder& addDeathEffect(Args&&... args) {
-            m_build->m_deathEffects.push_back(newComponent<Component>(std::forward<Args>(args)...));
+        template <typename Factory, typename... Args>
+        Builder& addDeathEffect(Factory&& factory, Args&&... args) {
+            m_build->m_deathEffects.push_back(newComponentBy<DeathEffect>(std::forward<Factory>(factory), 
+                                                                          std::forward<Args>(args)...));
             return *this;
+        }
+
+        template<std::derived_from<DeathEffect> Effect, typename... Args>
+        Builder& addDeathEffect(Args&&... args) {
+            return addDeathEffect(makeUniqueFunctor<Effect>, std::forward<Args>(args)...);
         }
 
         template <typename Component>
@@ -168,28 +193,74 @@ namespace Airplane {
 
         GameState& m_gameState;
 
-        template <typename Component, typename... Args> 
-            requires std::constructible_from<Component, Airplane::Airplane&, GameState&, Args...>
-        std::unique_ptr<Component> newComponent(Args&&... args) {
-            return std::make_unique<Component>(*m_build, m_gameState, std::forward<Args>(args)...);
+        template <typename Base, typename Factory, typename... Args> 
+            requires std::convertible_to<
+                std::invoke_result_t<Factory, Airplane::Airplane&, GameState&, Args...>, 
+                std::unique_ptr<Base>>
+        std::unique_ptr<Base> newComponentBy(Factory&& factory, Args&&... args) {
+            return std::invoke(std::forward<Factory>(factory), 
+                               *m_build, m_gameState, std::forward<Args>(args)...);
         }
 
-        template <typename Component, typename... Args> 
-            requires std::constructible_from<Component, GameState&, Args...>
-        std::unique_ptr<Component> newComponent(Args&&... args) {
-            return std::make_unique<Component>(m_gameState, std::forward<Args>(args)...);
+        template <typename Base, typename Factory, typename... Args> 
+            requires std::derived_from<
+                std::invoke_result_t<Factory, Airplane::Airplane&, GameState&, Args...>, Base>
+        std::unique_ptr<Base> newComponentBy(Factory&& factory, Args&&... args) {
+            using Component = std::invoke_result_t<Factory, Airplane::Airplane&, GameState&, Args...>;
+            return std::make_unique<Component>(
+                std::invoke(std::forward<Factory>(factory), 
+                            *m_build, m_gameState, std::forward<Args>(args)...));
         }
 
-        template <typename Component, typename... Args> 
-            requires std::constructible_from<Component, Airplane::Airplane&, Args...>
-        std::unique_ptr<Component> newComponent(Args&&... args) {
-            return std::make_unique<Component>(*m_build, std::forward<Args>(args)...);
+        template <typename Base, typename Factory, typename... Args> 
+            requires std::convertible_to<
+                std::invoke_result_t<Factory, GameState&, Args...>, 
+                std::unique_ptr<Base>>
+        std::unique_ptr<Base> newComponentBy(Factory&& factory, Args&&... args) {
+            return std::invoke(std::forward<Factory>(factory), m_gameState, std::forward<Args>(args)...);
         }
 
-        template <typename Component, typename... Args> 
-            requires std::constructible_from<Component, Args...>
-        std::unique_ptr<Component> newComponent(Args&&... args) {
-            return std::make_unique<Component>(std::forward<Args>(args)...);
+        template <typename Base, typename Factory, typename... Args> 
+            requires std::derived_from<
+                std::invoke_result_t<Factory, GameState&, Args...>, Base>
+        std::unique_ptr<Base> newComponentBy(Factory&& factory, Args&&... args) {
+            using Component = std::invoke_result_t<Factory, GameState&, Args...>;
+            return std::make_unique<Component>(
+                std::invoke(std::forward<Factory>(factory), m_gameState, std::forward<Args>(args)...));
+        }
+
+        template <typename Base, typename Factory, typename... Args> 
+            requires std::convertible_to<
+                std::invoke_result_t<Factory, Airplane::Airplane&, Args...>, 
+                std::unique_ptr<Base>>
+        std::unique_ptr<Base> newComponentBy(Factory&& factory, Args&&... args) {
+            return std::invoke(std::forward<Factory>(factory), *m_build, std::forward<Args>(args)...);
+        }
+
+        template <typename Base, typename Factory, typename... Args> 
+            requires std::derived_from<
+                std::invoke_result_t<Factory, Airplane::Airplane&, Args...>, Base>
+        std::unique_ptr<Base> newComponentBy(Factory&& factory, Args&&... args) {
+            using Component = std::invoke_result_t<Factory, Airplane::Airplane&, Args...>;
+            return std::make_unique<Component>(
+                std::invoke(std::forward<Factory>(factory), *m_build, std::forward<Args>(args)...));
+        }
+
+        template <typename Base, typename Factory, typename... Args> 
+            requires std::convertible_to<
+                std::invoke_result_t<Factory, Args...>, 
+                std::unique_ptr<Base>>
+        std::unique_ptr<Base> newComponentBy(Factory&& factory, Args&&... args) {
+            return std::invoke(std::forward<Factory>(factory), std::forward<Args>(args)...);
+        }
+
+        template <typename Base, typename Factory, typename... Args> 
+            requires std::derived_from<
+                std::invoke_result_t<Factory, Args...>, Base>
+        std::unique_ptr<Base> newComponentBy(Factory&& factory, Args&&... args) {
+            using Component = std::invoke_result_t<Factory, Args...>;
+            return std::make_unique<Component>(
+                std::invoke(std::forward<Factory>(factory), std::forward<Args>(args)...));
         }
     };
 

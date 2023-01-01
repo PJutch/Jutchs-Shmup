@@ -21,7 +21,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <algorithm>
 
 namespace Airplane {
-    namespace {
+    namespace detail {
         std::tuple<float, float> getMinmaxYFor(Airplane& airplane, GameState& gameState) {
             auto airplaneBounds = airplane.getGlobalBounds();
 
@@ -50,7 +50,7 @@ namespace Airplane {
     void PeriodicalMoveComponent::update(sf::Time elapsedTime) {
         auto moved = m_speed * elapsedTime.asSeconds();
 
-        auto [minY, maxY] = getMinmaxYFor(m_owner, m_gameState); 
+        auto [minY, maxY] = detail::getMinmaxYFor(m_owner, m_gameState); 
 
         float deltaY = m_moveUp ? moved.y : -moved.y;
         if (maxY - minY < 2 * m_owner.getGlobalBounds().height) {
@@ -64,27 +64,6 @@ namespace Airplane {
         } else if (y < minY) {
             y = m_owner.getPosition().y - deltaY;
             m_moveUp = true;
-        }
-        
-        m_owner.setPosition(m_owner.getPosition().x - moved.x, y);
-    }
-
-    void LineWithTargetMoveComponent::update(sf::Time elapsedTime) {
-        auto moved = m_speed * elapsedTime.asSeconds();
-        auto target = m_getTarget(m_owner);
-
-        auto [minY, maxY] = getMinmaxYFor(m_owner, m_gameState);  
-        float targetY = target.y;
-        float y = m_owner.getPosition().y;
-        if (std::abs(targetY - y) < moved.y) {
-            y = targetY;
-        } else {
-            y = y + (targetY > y ? 1.f : -1.f) * moved.y;
-            if (y > maxY) {
-                y = maxY;
-            } else if (y < minY) {
-                y = minY;
-            }
         }
         
         m_owner.setPosition(m_owner.getPosition().x - moved.x, y);

@@ -221,7 +221,7 @@ void EntityManager::spawnEnemy(sf::Vector2f position) {
     builder.bombComponent<Airplane::EnemyBombComponent>();
 
     if (hasBomb && canonicalDistribution(m_gameState.getRandomEngine()) < 0.9) {
-        builder.moveComponent<Airplane::LineWithTargetMoveComponent>(
+        builder.moveComponent(Airplane::createLineWithTargetMoveComponent,
             [&land = m_gameState.getLand(), 
              target = m_gameState.getLand().getTargetFor(position)] 
             (const Airplane::Airplane& owner) mutable -> sf::Vector2f {
@@ -235,7 +235,7 @@ void EntityManager::spawnEnemy(sf::Vector2f position) {
         if (moveSeed < 0.1) {
             builder.moveComponent<Airplane::PeriodicalMoveComponent>();
         } else if (moveSeed < 0.2) {
-            builder.moveComponent<Airplane::LineWithTargetMoveComponent>(
+            builder.moveComponent(Airplane::createLineWithTargetMoveComponent,
                 [this](const Airplane::Airplane&) -> sf::Vector2f {
                     return getPlayerPosition();
                 });

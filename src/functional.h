@@ -44,4 +44,10 @@ auto greater_than(T&& val) {
     };
 }
 
+template <typename Component>
+const auto makeUniqueFunctor = []<typename... Args>(Args&&... args) 
+        requires std::constructible_from<Component, Args...> {
+    return std::make_unique<Component>(std::forward<Args>(args)...);
+};
+
 #endif

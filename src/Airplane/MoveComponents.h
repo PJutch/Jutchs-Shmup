@@ -22,6 +22,10 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <functional>
 
 namespace Airplane {
+    namespace detail {
+        std::tuple<float, float> getMinmaxYFor(Airplane& airplane, GameState& gameState);
+    }
+
     class BasicMoveComponent : public MoveComponent {
     public:
         BasicMoveComponent(Airplane& owner) : m_owner{owner} {}
@@ -54,10 +58,10 @@ namespace Airplane {
         GameState& m_gameState;
     };
 
+    template <typename TargetGetter> 
+        requires std::convertible_to<std::invoke_result_t<TargetGetter, const Airplane&>, sf::Vector2f>
     class LineWithTargetMoveComponent : public MoveComponent {
     public:
-        using TargetGetter = std::function<sf::Vector2f(const Airplane&)>;
-
         LineWithTargetMoveComponent(Airplane& owner, GameState& gameState, 
                                     TargetGetter getTarget) noexcept : 
             m_getTarget{std::move(getTarget)}, m_owner{owner}, m_gameState{gameState} {}
@@ -72,6 +76,37 @@ namespace Airplane {
         Airplane& m_owner;
         GameState& m_gameState;
     };
+
+    const auto createLineWithTargetMoveComponent = 
+            []<typename TargetGetter>(Airplane& owner, GameState& gameState, TargetGetter&& getTarget) 
+            requires std::convertible_to<std::invoke_result_t<TargetGetter, const Airplane&>, 
+                                         sf::Vector2f> {
+        using Component = LineWithTargetMoveComponent<TargetGetter>;
+        return std::make_unique<Component>(owner, gameState, std::forward<TargetGetter>(getTarget));
+    };
+
+    template <typename TargetGetter>
+        requires std::convertible_to<std::invoke_result_t<TargetGetter, const Airplane&>, sf::Vector2f>
+    void LineWithTargetMoveComponent<TargetGetter>::update(sf::Time elapsedTime) {
+        auto moved = m_speed * elapsedTime.asSeconds();
+        auto target = m_getTarget(m_owner);
+
+        auto [minY, maxY] = detail::getMinmaxYFor(m_owner, m_gameState);  
+        float targetY = target.y;
+        float y = m_owner.getPosition().y;
+        if (std::abs(targetY - y) < moved.y) {
+            y = targetY;
+        } else {
+            y = y + (targetY > y ? 1.f : -1.f) * moved.y;
+            if (y > maxY) {
+                y = maxY;
+            } else if (y < minY) {
+                y = minY;
+            }
+        }
+        
+        m_owner.setPosition(m_owner.getPosition().x - moved.x, y);
+    }
 
     class PlayerMoveComponent : public MoveComponent {
     public:

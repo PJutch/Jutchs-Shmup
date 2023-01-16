@@ -18,6 +18,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "../LanguageManager.h"
 #include "../Airplane/Airplane.h"
 
+#include <string>
 #include <algorithm>
 #include <exception>
 
@@ -26,7 +27,9 @@ namespace Gui {
         using std::runtime_error::runtime_error;
     };
 
-    Manager::Manager(GameState& gameState) : m_gameState{gameState}, m_menuOpen{false} {}
+    Manager::Manager(GameState& gameState) : 
+        m_gameState{gameState}, m_menuOpen{false}, 
+        m_loadingDots{0}, m_loadingDotsChangeDelay{LOADING_DOTS_CHANGE_DELAY} {}
 
     sf::Vector2f Manager::addMenuText(sf::Vector2f position) {
         auto menuText = std::make_unique<Text>();
@@ -225,6 +228,23 @@ namespace Gui {
 
         if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)
             m_menuOpen = !m_menuOpen;
+    }
+
+    void Manager::update(sf::Time elapsedTime) {
+        if (m_gameState.isLoading()) {
+            m_loadingDotsChangeDelay -= elapsedTime;
+            if (m_loadingDotsChangeDelay <= sf::Time::Zero) {
+                if (++ m_loadingDots > 3)
+                    m_loadingDots = 0;
+
+                std::string newLoadingText = m_gameState.getLanguageManager().getLoadingText();
+                for (int i = 0; i < m_loadingDots; ++ i)
+                    newLoadingText.push_back('.');
+                m_loadingText.setString(newLoadingText);
+
+                m_loadingDotsChangeDelay = LOADING_DOTS_CHANGE_DELAY;
+            }
+        }
     }
 
     sf::Vector2f Manager::drawHealth(sf::Vector2f position, 

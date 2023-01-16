@@ -126,6 +126,10 @@ public:
     void update();
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+    bool isLoading() noexcept {
+        return m_landManager.isLoading();
+    }
 private:
     std::mt19937_64 m_randomEngine;
 

@@ -45,6 +45,7 @@ void GameState::update() {
     sf::Time elapsedTime = m_tickClock.restart();
 
     m_soundManager.update();
+    m_guiManager.update(elapsedTime);
 
     if (m_guiManager.isMenuOpen()) return;
 
@@ -66,6 +67,9 @@ void GameState::update() {
 
 void GameState::reset() {  
     m_clock.restart();
+
+    m_guiManager.reset();
+
     m_scoreManager.reset();
     m_entityManager.reset();
     m_landManager.reset();

@@ -27,7 +27,9 @@ LandManager::LandManager(GameState& gameState) noexcept : m_gameState{gameState}
 
 void LandManager::init() {
     prepareChances();
-    generateSpawn();
+    startSpawnGeneration();
+    while (isSpawnGenerationRunning())
+        generateSpawn();
 }
 
 const std::array<double, 5> LandManager::s_roadChances {0.0, 0.05, 1.0, 0.3, 0.3};
@@ -66,7 +68,7 @@ void LandManager::prepareChances() {
     ChanceTable::normalize(m_chances);
 }
 
-void LandManager::generateSpawn() {
+void LandManager::startSpawnGeneration() {
     auto tileSize = m_gameState.getAssets().getLandTextureSize();
 
     m_land.emplace_back();
@@ -87,9 +89,10 @@ void LandManager::generateSpawn() {
             m_gameState.getRandomEngine()));
         y += tileSize.y;
     }
+}
 
-    while (m_endX < 5 * m_gameState.getGameHeight())
-        addRow();
+bool LandManager::isSpawnGenerationRunning() {
+    return m_endX < 5 * m_gameState.getGameHeight();
 }
 
 void LandManager::update() {
@@ -157,7 +160,9 @@ void LandManager::addRow() {
 
 void LandManager::reset() {
     m_land.clear();
-    generateSpawn();
+    startSpawnGeneration();
+    while (isSpawnGenerationRunning())
+        generateSpawn();
 }
 
 bool LandManager::isXValid(float x) const noexcept {

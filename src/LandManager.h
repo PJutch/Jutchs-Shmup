@@ -70,7 +70,12 @@ private:
     }
 
     void prepareChances();
-    void generateSpawn();
+
+    void startSpawnGeneration();
+    bool isSpawnGenerationRunning();
+    void generateSpawn() {
+        addRow();
+    }
 
     void addTile(Land land);
 

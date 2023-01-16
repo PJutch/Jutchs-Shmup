@@ -37,6 +37,8 @@ class GameState : public sf::Drawable {
 public:
     GameState(sf::Vector2f screenSize);
 
+    void init();
+
     GameState(const GameState&) noexcept = delete;
     GameState& operator=(const GameState&) noexcept = delete;
     GameState(GameState&&) noexcept = delete;
@@ -126,6 +128,11 @@ public:
     void update();
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+
+    void drawLoadingScreen(sf::RenderTarget& target, 
+           sf::RenderStates states = sf::RenderStates::Default) const {
+        m_guiManager.drawLoadingScreen(target, states);
+    }
 private:
     std::mt19937_64 m_randomEngine;
 

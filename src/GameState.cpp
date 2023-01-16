@@ -24,10 +24,12 @@ GameState::GameState(sf::Vector2f screenSize) :
         m_scoreManager{*this}, m_shouldResetAfter{sf::Time::Zero}, m_shouldReset{false},
         m_shouldEnd{false}, m_guiManager{*this} {
     m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);
-    m_guiManager.initGui();   
+    m_guiManager.initGui();            
+}
 
+void GameState::init() {
     getEntities().init();
-    m_landManager.init();      
+    m_landManager.init(); 
 }
 
 void GameState::handleEvent(const sf::Event& event) {
@@ -72,10 +74,10 @@ void GameState::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     auto prevView = target.getView();
 
     if (m_shouldReset) {
-        m_guiManager.drawLoadingScreen(target, states);
+        drawLoadingScreen(target, states);
         return;
     }
-    
+
     target.setView(getView());
     target.draw(m_landManager, states);
     target.draw(m_entityManager, states);

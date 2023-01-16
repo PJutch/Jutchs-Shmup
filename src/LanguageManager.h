@@ -45,6 +45,10 @@ public:
         return m_exitText;
     }
 
+    const std::string& getLoadingText() const noexcept {
+        return m_loadingText;
+    }
+
     const std::string& getLanguageName(Language language) const noexcept {
         return m_languageNames[static_cast<int>(language)];
     }
@@ -64,6 +68,7 @@ private:
     std::string m_volumeText;    // gui.menu.volume
     std::string m_resumeText;    // gui.menu.resume
     std::string m_exitText;      // gui.menu.exit
+    std::string m_loadingText;   // gui.loading
     std::array<std::string, 
         static_cast<int>(Language::TOTAL)> m_languageNames; // see s_languageKeys
 

@@ -48,13 +48,15 @@ void LanguageManager::loadLanguage(const std::filesystem::path& path) {
         std::string_view value{valueBegin, strippedEnd};
 
                if (key == "gui.menu.menu") {
-            m_menuText   = value;
+            m_menuText = value;
         } else if (key == "gui.menu.volume") {
             m_volumeText = value;
         } else if (key == "gui.menu.resume") {
             m_resumeText = value;
         } else if (key == "gui.menu.exit") {
-            m_exitText   = value;
+            m_exitText = value;
+        } else if (key == "gui.loading") {
+            m_loadingText = value;
         } else {
             bool found = true;
             for (int i = 0; i < static_cast<int>(Language::TOTAL); ++ i) {

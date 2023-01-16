@@ -147,6 +147,7 @@ private:
     ScoreManager m_scoreManager;
 
     sf::Time m_shouldResetAfter;
+    bool m_shouldReset;
 
     sf::Vector2f m_screenSize;
     float m_gameHeight;
@@ -157,10 +158,11 @@ private:
 
     void reset();
 
-    void checkReset(sf::Time elapsedTime) {
+    void updateShouldReset(sf::Time elapsedTime) {
         if (m_shouldResetAfter > sf::Time::Zero) {
             m_shouldResetAfter -= elapsedTime;
-            if (m_shouldResetAfter <= sf::Time::Zero) reset();
+            if (m_shouldResetAfter <= sf::Time::Zero) 
+                m_shouldReset = true;
         }
     }
 };

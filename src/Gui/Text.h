@@ -24,14 +24,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 namespace Gui {
     class Text : public Element {
     public:
-        Text(const std::string& string, const sf::Font& font, 
-                    int characterSize, sf::Color color) noexcept : 
-                m_string{string} {
-            m_text.setFillColor(color);
-            m_text.setFont(font);
-            m_text.setCharacterSize(characterSize);
-            m_text.setString(sf::String::fromUtf8(m_string.begin(), m_string.end()));
-        }
+        Text() noexcept = default;
         
         sf::Vector2f getSize() const noexcept {
             auto localBounds = m_text.getLocalBounds();
@@ -45,9 +38,18 @@ namespace Gui {
         void setOrigin(sf::Vector2f origin) noexcept {
             m_text.setOrigin(origin);
         }
+
+        void setString(const std::string& string) noexcept {
+            m_text.setString(sf::String::fromUtf8(string.begin(), string.end()));
+        }
+
+        void setStyle(const sf::Font& font, int characterSize, sf::Color color) noexcept {
+            m_text.setFillColor(color);
+            m_text.setFont(font);
+            m_text.setCharacterSize(characterSize);
+        }
     private:
         sf::Text m_text;
-        const std::string& m_string;
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
             target.draw(m_text, states);

@@ -29,8 +29,9 @@ namespace Gui {
     Manager::Manager(GameState& gameState) : m_gameState{gameState}, m_menuOpen{false} {}
 
     sf::Vector2f Manager::addMenuText(sf::Vector2f position) {
-        auto menuText = std::make_unique<Text>(m_gameState.getLanguageManager().getMenuText(), 
-            m_gameState.getAssets().getFont(), 100, sf::Color::White);
+        auto menuText = std::make_unique<Text>();
+        menuText->setString(m_gameState.getLanguageManager().getMenuText());
+        menuText->setStyle(m_gameState.getAssets().getFont(), 100, sf::Color::White);
         
         auto size = menuText->getSize();
         menuText->setOrigin({size.x / 2.f, 0.f});
@@ -43,8 +44,9 @@ namespace Gui {
     sf::Vector2f Manager::addVolumeSlider(sf::Vector2f position) {
         sf::Vector2f screenSize = m_gameState.getScreenSize();
 
-        auto volumeText = std::make_unique<Text>(m_gameState.getLanguageManager().getVolumeText(), 
-            m_gameState.getAssets().getFont(), 50, sf::Color::White);
+        auto volumeText = std::make_unique<Text>();
+        volumeText->setString(m_gameState.getLanguageManager().getVolumeText());
+        volumeText->setStyle(m_gameState.getAssets().getFont(), 50, sf::Color::White);
         
         auto textSize = volumeText->getSize();
         volumeText->setOrigin({textSize.x / 2.f, 0.f});
@@ -88,16 +90,16 @@ namespace Gui {
         float comboTextPadding = screenSize.y / 10.f;
         sf::Vector2f comboSize{comboTextPadding, comboTextPadding}; // .x will be updated
 
-        auto englishText = std::make_unique<Text>(
-            languageManager.getLanguageName(LanguageManager::Language::ENGLISH), 
-            font, 50, sf::Color::White);
+        auto englishText = std::make_unique<Text>();
+        englishText->setString(languageManager.getLanguageName(LanguageManager::Language::ENGLISH));
+        englishText->setStyle(font, 50, sf::Color::White);
         englishText->setOrigin({englishText->getSize().x / 2.f, englishText->getSize().y * (2.f / 3.f)});
         englishText->setPosition({0.f, comboSize.y / 2.f}); // at the center of the combo
         comboSize.x = std::max(englishText->getSize().x + comboTextPadding, comboSize.x);
 
-        auto russianText = std::make_unique<Text>(
-            languageManager.getLanguageName(LanguageManager::Language::RUSSIAN), 
-            font, 50, sf::Color::White);
+        auto russianText = std::make_unique<Text>();
+        russianText->setString(languageManager.getLanguageName(LanguageManager::Language::RUSSIAN));
+        russianText->setStyle(font, 50, sf::Color::White);
         russianText->setOrigin({russianText->getSize().x / 2.f, russianText->getSize().y * (2.f / 3.f)});
         russianText->setPosition({0.f, comboSize.y / 2.f}); // at the center of the combo
         comboSize.x = std::max(russianText->getSize().x + comboTextPadding, comboSize.x);
@@ -129,14 +131,16 @@ namespace Gui {
         float buttonTextPadding = screenSize.y / 10.f;
         sf::Vector2f buttonSize{buttonTextPadding, buttonTextPadding}; // .x will be updated
 
-        auto resumeText = std::make_unique<Text>(languageManager.getResumeText(), 
-                                                 font, 80, sf::Color::White);
+        auto resumeText = std::make_unique<Text>();
+        resumeText->setString(languageManager.getResumeText());
+        resumeText->setStyle(font, 80, sf::Color::White);
         resumeText->setOrigin({resumeText->getSize().x / 2.f, resumeText->getSize().y});
         resumeText->setPosition({0.f, -buttonSize.y / 2.f}); // place in the center of the button
         buttonSize.x = std::max(resumeText->getSize().x + buttonTextPadding, buttonSize.x);
 
-        auto exitText = std::make_unique<Text>(languageManager.getExitText(), 
-                                               font, 80, sf::Color::White);
+        auto exitText = std::make_unique<Text>();
+        exitText->setString(languageManager.getExitText());
+        exitText->setStyle(font, 80, sf::Color::White);
         exitText->setOrigin({exitText->getSize().x / 2.f, exitText->getSize().y});
         exitText->setPosition({0.f, -buttonSize.y / 2.f}); // place in the center of the button
         buttonSize.x = std::max(exitText->getSize().x + buttonTextPadding, buttonSize.x);
@@ -178,6 +182,16 @@ namespace Gui {
         return totalSize;
     }
 
+    sf::Vector2f Manager::createLoadingText(sf::Vector2f position) {
+        m_loadingText.setString(m_gameState.getLanguageManager().getLoadingText());
+        m_loadingText.setStyle(m_gameState.getAssets().getFont(), 80, sf::Color::White);
+
+        m_loadingText.setOrigin(m_loadingText.getSize() / 2.f);
+        m_loadingText.setPosition(position);
+
+        return m_loadingText.getSize();
+    }
+
     void Manager::initGui() {
         sf::Vector2f screenSize = m_gameState.getScreenSize();
 
@@ -196,8 +210,10 @@ namespace Gui {
 
         addMenuButtons({menuSize.x / 2.f, menuSize.y}); // at center bottom
 
-        topCenterPos.y += std::max(screenSize.y / 16.f, 1.f); // at center under the volumeSlider   
+        topCenterPos.y += std::max(screenSize.y / 16.f, 1.f); // at the center under the volumeSlider   
         addLanguageCombo(topCenterPos); // over the buttons
+
+        createLoadingText(m_gameState.getScreenSize() / 2.f); // at the center of the screen
     }
 
     void Manager::handleEvent(const sf::Event& event) {
@@ -233,5 +249,9 @@ namespace Gui {
         m_gameState.getScoreManager().drawGui({0.f, healthSize.y}, target, states);
 
         if (m_menuOpen) target.draw(m_menu, states);
+    }
+
+    void Manager::drawLoadingScreen(sf::RenderTarget& target, sf::RenderStates states) const {
+        target.draw(m_loadingText, states);
     }
 }

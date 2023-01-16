@@ -15,6 +15,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define GUI_MANAGER_
 
 #include "Panel.h"
+#include "Text.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -34,10 +35,12 @@ namespace Gui {
         void handleEvent(const sf::Event& event);
 
         void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+        void drawLoadingScreen(sf::RenderTarget& target, sf::RenderStates states) const;
     private:
         GameState& m_gameState;
         bool m_menuOpen;
         Gui::Panel m_menu;
+        Gui::Text m_loadingText;
 
         // return element size
         // element's origin at its top center point
@@ -48,6 +51,8 @@ namespace Gui {
         // return element size
         // element's origin at its bottom center point
         sf::Vector2f addMenuButtons(sf::Vector2f position);
+
+        sf::Vector2f createLoadingText(sf::Vector2f position);
         
         // return element size
         // element's origin at its top left corner

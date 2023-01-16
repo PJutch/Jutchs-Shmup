@@ -21,13 +21,13 @@ GameState::GameState(sf::Vector2f screenSize) :
         m_randomEngine{std::random_device{}()},
         m_assetManager{m_randomEngine}, m_entityManager{*this}, m_landManager{*this},
         m_screenSize{screenSize}, m_gameHeight{512},
-        m_scoreManager{*this}, m_shouldResetAfter{sf::Time::Zero},
+        m_scoreManager{*this}, m_shouldResetAfter{sf::Time::Zero}, m_shouldReset{false},
         m_shouldEnd{false}, m_guiManager{*this} {
+    m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);
+    m_guiManager.initGui();   
+
     getEntities().init();
     m_landManager.init();      
-
-    m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);   
-    m_guiManager.initGui();
 }
 
 void GameState::handleEvent(const sf::Event& event) {
@@ -49,16 +49,18 @@ void GameState::update() {
     m_entityManager.update(elapsedTime);
     m_landManager.update();
 
-    checkReset(elapsedTime);
+    if (m_shouldReset) reset();
+    updateShouldReset(elapsedTime);
     
     m_scoreManager.update(elapsedTime);
 }
 
 void GameState::reset() {  
+    m_clock.restart();
+    m_scoreManager.reset();
     m_entityManager.reset();
     m_landManager.reset();
-    m_scoreManager.reset();
-    m_clock.restart();
+    m_shouldReset = false;
 }
 
 bool GameState::inActiveArea(float x) const noexcept {
@@ -69,6 +71,11 @@ bool GameState::inActiveArea(float x) const noexcept {
 void GameState::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     auto prevView = target.getView();
 
+    if (m_shouldReset) {
+        m_guiManager.drawLoadingScreen(target, states);
+        return;
+    }
+    
     target.setView(getView());
     target.draw(m_landManager, states);
     target.draw(m_entityManager, states);

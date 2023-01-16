@@ -37,8 +37,6 @@ class GameState : public sf::Drawable {
 public:
     GameState(sf::Vector2f screenSize);
 
-    void init();
-
     GameState(const GameState&) noexcept = delete;
     GameState& operator=(const GameState&) noexcept = delete;
     GameState(GameState&&) noexcept = delete;
@@ -128,11 +126,6 @@ public:
     void update();
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-
-    void drawLoadingScreen(sf::RenderTarget& target, 
-           sf::RenderStates states = sf::RenderStates::Default) const {
-        m_guiManager.drawLoadingScreen(target, states);
-    }
 private:
     std::mt19937_64 m_randomEngine;
 
@@ -154,7 +147,6 @@ private:
     ScoreManager m_scoreManager;
 
     sf::Time m_shouldResetAfter;
-    bool m_shouldReset;
 
     sf::Vector2f m_screenSize;
     float m_gameHeight;
@@ -165,11 +157,11 @@ private:
 
     void reset();
 
-    void updateShouldReset(sf::Time elapsedTime) {
+    void checkShouldReset(sf::Time elapsedTime) {
         if (m_shouldResetAfter > sf::Time::Zero) {
             m_shouldResetAfter -= elapsedTime;
             if (m_shouldResetAfter <= sf::Time::Zero) 
-                m_shouldReset = true;
+                reset();
         }
     }
 };

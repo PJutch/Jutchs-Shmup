@@ -40,10 +40,6 @@ int main(int argc, char** argv) {
         window.setIcon(x, y, icon.getPixelsPtr());
 
         GameState gameState{screenSize};
-        window.clear(sf::Color::Black);
-        gameState.drawLoadingScreen(window);
-        window.display();
-        gameState.init();
 
         while (window.isOpen()) {
             sf::Event event;

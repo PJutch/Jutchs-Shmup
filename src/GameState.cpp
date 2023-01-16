@@ -21,13 +21,11 @@ GameState::GameState(sf::Vector2f screenSize) :
         m_randomEngine{std::random_device{}()},
         m_assetManager{m_randomEngine}, m_entityManager{*this}, m_landManager{*this},
         m_screenSize{screenSize}, m_gameHeight{512},
-        m_scoreManager{*this}, m_shouldResetAfter{sf::Time::Zero}, m_shouldReset{false},
+        m_scoreManager{*this}, m_shouldResetAfter{sf::Time::Zero},
         m_shouldEnd{false}, m_guiManager{*this} {
     m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);
-    m_guiManager.initGui();            
-}
+    m_guiManager.initGui();    
 
-void GameState::init() {
     getEntities().init();
     m_landManager.init(); 
 }
@@ -41,6 +39,8 @@ void GameState::handleEvent(const sf::Event& event) {
     if (event.type == sf::Event::Closed) m_shouldEnd = true;
 }
 
+sf::Time MAX_LOADING_TICK = sf::seconds(0.015f);
+
 void GameState::update() {
     sf::Time elapsedTime = m_tickClock.restart();
 
@@ -48,11 +48,18 @@ void GameState::update() {
 
     if (m_guiManager.isMenuOpen()) return;
 
+    if (m_landManager.isLoading()) {
+        while (m_landManager.isLoading() 
+                && m_tickClock.getElapsedTime() < MAX_LOADING_TICK)
+            m_landManager.load();
+
+        return;
+    }
+
     m_entityManager.update(elapsedTime);
     m_landManager.update();
 
-    if (m_shouldReset) reset();
-    updateShouldReset(elapsedTime);
+    checkShouldReset(elapsedTime);
     
     m_scoreManager.update(elapsedTime);
 }
@@ -62,7 +69,6 @@ void GameState::reset() {
     m_scoreManager.reset();
     m_entityManager.reset();
     m_landManager.reset();
-    m_shouldReset = false;
 }
 
 bool GameState::inActiveArea(float x) const noexcept {
@@ -73,8 +79,8 @@ bool GameState::inActiveArea(float x) const noexcept {
 void GameState::draw(sf::RenderTarget& target, sf::RenderStates states) const {
     auto prevView = target.getView();
 
-    if (m_shouldReset) {
-        drawLoadingScreen(target, states);
+    if (m_landManager.isLoading()) {
+        m_guiManager.drawLoadingScreen(target, states);
         return;
     }
 

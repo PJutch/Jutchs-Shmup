@@ -50,6 +50,12 @@ public:
     bool isPosValid(sf::Vector2f position) const noexcept;
 
     sf::Vector2f getTargetFor(sf::Vector2f enemyPosition) noexcept;
+
+    bool isLoading() const;
+
+    void load() {
+        addRow();
+    }
 private:
     std::deque<std::vector<Land>> m_land;
     float m_endX;
@@ -71,15 +77,10 @@ private:
 
     void prepareChances();
 
-    void startSpawnGeneration();
-    bool isSpawnGenerationRunning();
-    void generateSpawn() {
-        addRow();
-    }
-
     void addTile(Land land);
-
     void addRow();
+
+    void startSpawnGeneration();
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 

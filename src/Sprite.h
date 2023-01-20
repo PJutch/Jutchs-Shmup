@@ -93,12 +93,13 @@ protected:
     void setOrigin(float x, float y) noexcept {
         setOrigin({x, y});
     }
-private:
-    sf::Sprite m_sprite;
 
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
+    void draw(sf::RenderTarget& target, 
+              sf::RenderStates states = sf::RenderStates::Default) const noexcept override {
         target.draw(m_sprite, states);
     }
+private:
+    sf::Sprite m_sprite;
 };
 
 #endif

@@ -40,9 +40,8 @@ namespace Airplane {
             if (m_health < m_maxHealth) {
                 ++ m_health;
                 return true;
-            } else {
+            } else
                 return false;
-            }
         }
 
         // return true if killed
@@ -54,6 +53,10 @@ namespace Airplane {
                 return isDead();
             } else
                 return false;
+        }
+
+        bool shouldDraw() const noexcept {
+            return m_damageCooldown.isFinished();
         }
     private:
         int m_health;

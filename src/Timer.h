@@ -103,4 +103,32 @@ private:
     int m_maxSteps;
 };
 
+class SwitchTimer {
+public:
+    SwitchTimer(sf::Time delay) noexcept : m_delay{delay}, m_on{false} {}
+
+    void update(sf::Time elapsedTime) noexcept {
+        m_timer.update(elapsedTime);
+
+        while (m_timer.isFinished()) {
+            m_timer.extend(m_delay);
+            m_on = !m_on;
+        }
+    }
+
+    void reset() noexcept {
+        m_timer.reset();
+        m_on = false;
+    }
+
+    bool isOn() const noexcept {
+        return m_on;
+    }
+private:
+    OnceTimer m_timer;
+    sf::Time m_delay;
+
+    bool m_on;
+};
+
 #endif

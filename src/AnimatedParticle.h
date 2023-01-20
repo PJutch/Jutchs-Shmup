@@ -34,14 +34,20 @@ public:
     }
 
     bool shouldBeDeleted() const noexcept override {
-        return m_currentTexture >= std::ssize(m_animation);
+        return m_timer.isReachedMaxStep();
     }
 private:
     std::span<const sf::Texture> m_animation;
     sf::Time m_delay;
 
-    int m_currentTexture;
-    OnceTimer m_untilNext;
+    StepTimer m_timer;
+
+    void setTexture(const sf::Texture& texture) noexcept {
+        Sprite::setTexture(texture);
+
+        auto size = texture.getSize();
+        setOrigin(size.x / 2.f, size.y / 2.f);
+    }
 };
 
 #endif

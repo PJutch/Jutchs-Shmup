@@ -43,4 +43,64 @@ private:
     sf::Time m_time;
 };
 
+class StepTimer {
+public:
+    StepTimer(int maxSteps = 0) : m_step{0}, m_maxSteps{maxSteps} {}
+
+    void setMaxSteps(int maxSteps) noexcept {
+        m_maxSteps = maxSteps;
+    }
+
+    void wait(sf::Time duration) noexcept {
+        m_timer.extend(duration);
+    }
+
+    void update(sf::Time duration) noexcept {
+        m_timer.update(duration);
+    }
+
+    int getStep() noexcept {
+        return m_step;
+    }
+
+    bool canStep() const noexcept {
+        return m_timer.isFinished() && m_step != m_maxSteps;
+    }
+
+    template <typename Func> 
+        requires std::convertible_to<std::invoke_result_t<Func, int>, sf::Time>
+    void forEachStep(Func&& func) {
+        while (m_timer.isFinished() && m_step < m_maxSteps) {
+            m_timer.extend(func(m_step));
+            ++ m_step;
+        }
+    }
+
+    bool isReachedMaxStep() const noexcept {
+        return m_step == m_maxSteps;
+    }
+
+    bool isFinished() const noexcept {
+        return m_timer.isFinished() && isReachedMaxStep();
+    }
+
+    void finish() noexcept {
+        m_timer.reset();
+        m_step = m_maxSteps;
+    }
+
+    void restart() noexcept {
+        m_timer.reset();
+        m_step = 0;
+    }
+
+    void tryRestart() noexcept {
+        if (isFinished()) restart();
+    }
+private:
+    OnceTimer m_timer;
+    int m_step;
+    int m_maxSteps;
+};
+
 #endif

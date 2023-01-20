@@ -33,25 +33,21 @@ namespace Airplane {
         using Pattern = std::span<PatternElement>;
 
         ShootComponent(Airplane& owner, GameState& gameState) noexcept :
-            m_currentElement{0}, m_owner{owner}, m_gameState{gameState} {}
+            m_owner{owner}, m_gameState{gameState} {}
 
         void update(sf::Time elapsedTime);
 
         void trySetShouldShoot() noexcept {
-            if (m_shootCooldown.isFinished() && m_currentElement == std::ssize(m_pattern)) {
-                m_currentElement = 0;
-                m_shootCooldown.reset();
-            }
+            m_shootTimer.tryRestart();
         }
 
         // width  can be infinite
         // height can be infinite and/or negative
         sf::FloatRect getGlobalAffectedArea() const noexcept;
     private:
-        OnceTimer m_shootCooldown;
+        StepTimer m_shootTimer;
 
         Pattern m_pattern;
-        int m_currentElement;
 
         // in local coordinate space
         // respect rotation (+x is move direction)

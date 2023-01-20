@@ -28,7 +28,6 @@ If not, see <https://www.gnu.org/licenses/>. */
 namespace Airplane {
     void ShootComponent::setPattern(Pattern pattern) {
         m_pattern = pattern;
-        m_currentElement = std::ssize(pattern);
 
         if (m_pattern.empty()) {
             m_localAffectedArea = {0.f, 0.f, 0.f, 0.f};
@@ -44,22 +43,20 @@ namespace Airplane {
 
         m_localAffectedArea = {minX - bulletSize.x / 2.f, minY - bulletSize.x / 2.f, 
                                INFINITY, maxY - minY + bulletSize.x};
+        
+        m_shootTimer.setMaxSteps(std::ssize(pattern));
+        m_shootTimer.finish();
     }
 
     void ShootComponent::update(sf::Time elapsedTime) {
-        m_shootCooldown.update(elapsedTime);
+        m_shootTimer.update(elapsedTime);
         
-        bool shot = false;
-        while (m_shootCooldown.isFinished() && m_currentElement < std::ssize(m_pattern)) {
-            spawnBullet(m_pattern[m_currentElement].offset);
+        if (m_shootTimer.canStep()) shotSound();
 
-            m_shootCooldown.extend(m_pattern[m_currentElement].delay);
-            ++ m_currentElement;
-
-            shot = true;
-        }
-
-        if (shot) shotSound();
+        m_shootTimer.forEachStep([this](int step) {
+            spawnBullet(m_pattern[step].offset);
+            return m_pattern[step].delay;
+        });
     }
 
     void ShootComponent::spawnBullet(sf::Vector2f offset) const {

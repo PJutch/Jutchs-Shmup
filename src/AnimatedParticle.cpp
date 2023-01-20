@@ -23,26 +23,19 @@ using std::ssize;
 
 AnimatedParticle::AnimatedParticle(GameState& gameState, sf::Vector2f position, 
                                    span<const sf::Texture> animation, sf::Time delay) noexcept :
-        Sprite{gameState}, m_animation{animation}, m_delay{delay},
-        m_currentTexture{0}{
-    auto& texture = m_animation[m_currentTexture];
-    setTexture(texture);
-
-    auto size = texture.getSize();
-    setOrigin(size.x / 2.f, size.y / 2.f);
-
+        Sprite{gameState}, m_animation{animation}, 
+        m_delay{delay}, m_timer{std::ssize(m_animation)} {        
     setPosition(position);
-
-    m_untilNext.start(delay);
+    setTexture(m_animation[0]);
+    m_timer.wait(m_delay);
 }
 
 void AnimatedParticle::update(sf::Time elapsedTime) noexcept {
-    m_untilNext.update(elapsedTime);
-    while (m_untilNext.isFinished() && m_currentTexture < std::ssize(m_animation)) {
-        ++ m_currentTexture;
-        m_untilNext.extend(m_delay);
-    }
+    m_timer.update(elapsedTime);
+    m_timer.forEachStep([this](int){
+        return m_delay;
+    });
 
-    if (m_currentTexture < std::ssize(m_animation))
-        setTexture(m_animation[m_currentTexture]);
+    if (!m_timer.isReachedMaxStep())
+        setTexture(m_animation[m_timer.getStep()]);
 }

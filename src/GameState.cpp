@@ -21,8 +21,7 @@ GameState::GameState(sf::Vector2f screenSize) :
         m_randomEngine{std::random_device{}()},
         m_assetManager{m_randomEngine}, m_entityManager{*this}, m_landManager{*this},
         m_screenSize{screenSize}, m_gameHeight{512},
-        m_scoreManager{*this}, m_shouldResetAfter{sf::Time::Zero},
-        m_shouldEnd{false}, m_guiManager{*this} {
+        m_scoreManager{*this}, m_shouldEnd{false}, m_guiManager{*this} {
     m_languageManager.setLanguage(LanguageManager::Language::ENGLISH);
     m_guiManager.initGui();    
 

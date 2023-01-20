@@ -14,14 +14,18 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef GAME_STATE_H_
 #define GAME_STATE_H_
 
-#include "AssetManager.h"
-#include "EntityManager.h"
 #include "Gui/Panel.h"
-#include "LanguageManager.h"
 #include "Gui/Manager.h"
-#include "SoundManager.h"
+
+#include "EntityManager.h"
 #include "LandManager.h"
 #include "ScoreManager.h"
+
+#include "AssetManager.h"
+#include "LanguageManager.h"
+#include "SoundManager.h"
+
+#include "Timer.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -106,7 +110,7 @@ public:
     bool inActiveArea(float x) const noexcept;
 
     void setShouldResetAfter(sf::Time time) noexcept {
-        m_shouldResetAfter = time;
+        m_resetTimer.start(time);
     }
 
     bool shouldEnd() const noexcept {
@@ -150,7 +154,7 @@ private:
 
     ScoreManager m_scoreManager;
 
-    sf::Time m_shouldResetAfter;
+    OnceTimer m_resetTimer;
 
     sf::Vector2f m_screenSize;
     float m_gameHeight;
@@ -162,9 +166,9 @@ private:
     void reset();
 
     void checkShouldReset(sf::Time elapsedTime) {
-        if (m_shouldResetAfter > sf::Time::Zero) {
-            m_shouldResetAfter -= elapsedTime;
-            if (m_shouldResetAfter <= sf::Time::Zero) 
+        if (!m_resetTimer.isFinished()) {
+            m_resetTimer.update(elapsedTime);
+            if (m_resetTimer.isFinished()) 
                 reset();
         }
     }

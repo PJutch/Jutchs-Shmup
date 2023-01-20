@@ -15,6 +15,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #define ANIMATED_PARTICLE_H_
 
 #include "Sprite.h"
+#include "Timer.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -23,8 +24,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class AnimatedParticle : public Sprite, public CollidableBase<AnimatedParticle> {
 public:
-    AnimatedParticle(GameState& gameState, sf::Vector2f position, std::span<const sf::Texture> animation, 
-                     sf::Time delay) noexcept;
+    AnimatedParticle(GameState& gameState, sf::Vector2f position, 
+        std::span<const sf::Texture> animation, sf::Time delay) noexcept;
 
     void update(sf::Time elapsedTime) noexcept override;
     
@@ -40,7 +41,7 @@ private:
     sf::Time m_delay;
 
     int m_currentTexture;
-    sf::Time m_untilNext;
+    OnceTimer m_untilNext;
 };
 
 #endif

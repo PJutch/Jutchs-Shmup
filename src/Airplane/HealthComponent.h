@@ -14,15 +14,17 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef AIRPLANE_HEALTH_COMPONENT_H_
 #define AIRPLANE_HEALTH_COMPONENT_H_
 
+#include "../Timer.h"
+
 #include <SFML/System.hpp>
 
 namespace Airplane {
     class HealthComponent {
     public:
-        HealthComponent() : m_health{0}, m_maxHealth{0}, m_damageCooldown{sf::Time::Zero} {}
+        HealthComponent() : m_health{0}, m_maxHealth{0} {}
 
         void update(sf::Time elapsedTime) noexcept {
-            m_damageCooldown -= elapsedTime;
+            m_damageCooldown.update(elapsedTime);
         }
 
         int getHealth() const noexcept {
@@ -45,19 +47,19 @@ namespace Airplane {
 
         // return true if killed
         bool damage() noexcept {
-            if (m_damageCooldown <= sf::Time::Zero) {
-                m_damageCooldown = sf::seconds(0.1f);
+            if (m_damageCooldown.isFinished()) {
+                m_damageCooldown.start(sf::seconds(0.1f));
 
                 -- m_health;
-                if (isDead()) return true;
-            }
-            return false;
+                return isDead();
+            } else
+                return false;
         }
     private:
         int m_health;
         int m_maxHealth;
 
-        sf::Time m_damageCooldown;
+        OnceTimer m_damageCooldown;
 
         void setMaxHealth(int maxHealth) noexcept {
             m_health = maxHealth;

@@ -14,6 +14,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef AIRPLANE_SHOOT_COMPONENT_H_
 #define AIRPLANE_SHOOT_COMPONENT_H_
 
+#include "../Timer.h"
+
 #include "../declarations.h"
 
 #include <SFML/Graphics.hpp>
@@ -31,24 +33,22 @@ namespace Airplane {
         using Pattern = std::span<PatternElement>;
 
         ShootComponent(Airplane& owner, GameState& gameState) noexcept :
-            m_shootCooldown{sf::Time::Zero}, m_currentElement{0}, 
-            m_owner{owner}, m_gameState{gameState} {}
+            m_currentElement{0}, m_owner{owner}, m_gameState{gameState} {}
 
         void update(sf::Time elapsedTime);
 
         void trySetShouldShoot() noexcept {
-            if (m_shootCooldown <= sf::Time::Zero 
-             && m_currentElement == std::ssize(m_pattern)) {
+            if (m_shootCooldown.isFinished() && m_currentElement == std::ssize(m_pattern)) {
                 m_currentElement = 0;
-                m_shootCooldown = sf::Time::Zero;
+                m_shootCooldown.reset();
             }
         }
 
         // width  can be infinite
         // height can be infinite and/or negative
         sf::FloatRect getGlobalAffectedArea() const noexcept;
-    protected:
-        sf::Time m_shootCooldown;
+    private:
+        OnceTimer m_shootCooldown;
 
         Pattern m_pattern;
         int m_currentElement;

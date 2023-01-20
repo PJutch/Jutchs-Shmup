@@ -47,14 +47,13 @@ namespace Airplane {
     }
 
     void ShootComponent::update(sf::Time elapsedTime) {
-        m_shootCooldown -= elapsedTime;
+        m_shootCooldown.update(elapsedTime);
         
         bool shot = false;
-        while (m_shootCooldown <= sf::Time::Zero 
-            && m_currentElement < std::ssize(m_pattern)) {
+        while (m_shootCooldown.isFinished() && m_currentElement < std::ssize(m_pattern)) {
             spawnBullet(m_pattern[m_currentElement].offset);
 
-            m_shootCooldown += m_pattern[m_currentElement].delay;
+            m_shootCooldown.extend(m_pattern[m_currentElement].delay);
             ++ m_currentElement;
 
             shot = true;

@@ -38,6 +38,10 @@ public:
         return m_bombTexture;
     }
 
+    const sf::Texture& getTurretTexture() const noexcept {
+        return m_turretTexture;
+    }
+
     const sf::Texture& getHealthPickupTexture() const noexcept {
         return m_healthPickupTexture;
     }
@@ -104,6 +108,8 @@ public:
 private:
     sf::Texture m_bulletTexture;
     sf::Texture m_bombTexture;
+
+    sf::Texture m_turretTexture;
     
     sf::Texture m_healthPickupTexture;
     std::vector<sf::Texture> m_explosionAnimation;

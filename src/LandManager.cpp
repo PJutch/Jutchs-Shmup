@@ -169,7 +169,7 @@ bool LandManager::isXValid(float x) const noexcept {
 sf::Vector2i LandManager::toIndices(sf::Vector2f position) const noexcept {
     auto tileSize = m_gameState.getAssets().getLandTextureSize();
     sf::Vector2i landSize(std::ssize(m_land), std::ssize(m_land[0]));
-    return sf::Vector2i(landSize.x - (m_endX - position.x)        / tileSize.x, 
+    return sf::Vector2i(landSize.x - (m_endX - position.x) / tileSize.x, 
                         (m_gameState.getGameHeight() / 2 + position.y) / tileSize.y);
 }
 
@@ -185,7 +185,7 @@ void LandManager::draw(sf::RenderTarget& target, sf::RenderStates states) const 
     float playerX = m_gameState.getEntities().getPlayerPosition().x;
     float gameHeight = m_gameState.getGameHeight();
 
-    sf::Vector2f start{playerX - gameHeight - std::fmodf(playerX, textureSize.x), 
+    sf::Vector2f start{playerX - gameHeight / 2 - std::fmodf(playerX, textureSize.x), 
                         -gameHeight / 2};
     for (int ix = 0; start.x + ix * textureSize.x < playerX + 4 * gameHeight; ++ ix)
         for (float iy = 0; iy < std::ssize(m_land[ix]); ++ iy) {
@@ -195,9 +195,13 @@ void LandManager::draw(sf::RenderTarget& target, sf::RenderStates states) const 
     }
 }
 
-sf::Vector2f LandManager::getTargetFor(sf::Vector2f enemyPosition) noexcept {
+sf::Vector2f LandManager::getTargetFor(sf::Vector2f enemyPosition) noexcept {    
     auto maxIter = std::ranges::upper_bound(m_targets, enemyPosition.x, {}, &sf::Vector2f::x);
-    int maxIndex = maxIter - m_targets.begin();
+    int maxIndex = (maxIter - m_targets.begin()) - 1;
+
+    if (maxIndex < 0)
+        return enemyPosition;
+
     int index = std::uniform_int_distribution{0, maxIndex}(m_gameState.getRandomEngine());
     return m_targets[index];
 }
@@ -207,8 +211,15 @@ void LandManager::addTile(Land land) {
     float gameHeight = m_gameState.getGameHeight();
 
     m_land.back().push_back(land);
-    m_targets.emplace_back(m_endX + tileSize.x / 2, 
-        (std::ssize(m_land.back()) - 1) * tileSize.y - gameHeight / 2 + tileSize.y / 2);
+
+    sf::Vector2f position{m_endX + tileSize.x / 2.f, 
+        (std::ssize(m_land.back()) - 1) * tileSize.y - gameHeight / 2.f + tileSize.y / 2.f};
+    
+    if (isEnemyTarget(land))
+        m_targets.push_back(position);
+    
+    if (canHaveTurret(land))
+        m_gameState.getEntities().trySpawnTurret(position);
 }
 
 bool LandManager::isPosValid(sf::Vector2f position) const noexcept {

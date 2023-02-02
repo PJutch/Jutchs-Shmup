@@ -38,6 +38,7 @@ public:
     virtual void acceptCollide(Bomb& other) {}
     virtual void acceptCollide(Pickup& other) {}
     virtual void acceptCollide(AnimatedParticle& other) {}
+    virtual void acceptCollide(Turret& other) {}
 
     // for AI only
     virtual bool isPassable() const noexcept = 0;

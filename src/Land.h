@@ -213,8 +213,12 @@ inline Land destroyed(Land land) noexcept {
 
 int scoreIfDestroyed(Land land);
 
-inline bool isEnemyTarget(Land land) {
+inline bool isEnemyTarget(Land land) noexcept {
     return (land & ~Land::MODIFIED & ~Land::BADLAND) == Land::PLAYER_FLAG;
+}
+
+inline bool canHaveTurret(Land land) noexcept {
+    return (land & ~Land::MODIFIED & ~Land::BADLAND) == Land::PLAINS;
 }
 
 #endif

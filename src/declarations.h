@@ -26,5 +26,6 @@ class Bullet;
 class Bomb;
 class Pickup;
 class AnimatedParticle;
+class Turret;
 
 #endif

@@ -13,11 +13,13 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "EntityManager.h"
 
-#include "GameState.h"
-
 #include "Airplane/Airplane.h"
 #include "Airplane/Builder.h"
 #include "Airplane/Components.h"
+
+#include "Turret.h"
+
+#include "GameState.h"
 
 #include "geometry.h"
 
@@ -59,7 +61,7 @@ void EntityManager::spawnPlayer() {
 
     m_player = Airplane::Builder{m_gameState}
         .position(PLAYER_START_POSITION).maxHealth(PLAYER_MAX_HEALTH)
-        .flags(PLAYER_SIDE | HEAVY | SLOW | NO_WEAPON | USE_PICKUPS | NO_BOMB)
+        .flags(PLAYER_SIDE | HEAVY | SLOW | NO_WEAPON | USE_PICKUPS)
         .shootPattern(basicPattern)
         .shootControlComponent<Airplane::PlayerShootControlComponent>()
         .moveComponent<Airplane::PlayerMoveComponent>().speed(250.f, 250.f)
@@ -249,4 +251,12 @@ void EntityManager::spawnEnemy(sf::Vector2f position) {
            .addDeathEffect<Airplane::ExplosionDeathEffect>();
 
     addEntity(builder.build());
+}
+
+bool EntityManager::trySpawnTurret(sf::Vector2f position) {
+    if (std::uniform_real_distribution{0.0, 1.0}(m_gameState.getRandomEngine()) < 0.001) {
+        addEntity<Turret>(position);
+        return true;
+    }
+    return false;
 }

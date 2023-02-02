@@ -68,6 +68,12 @@ public:
 
     void update(sf::Time elapsedTime) noexcept;
 
+    bool trySpawnTurret(sf::Vector2f position);
+
+    bool trySpawnTurret(float x, float y) {
+        trySpawnTurret({x, y});
+    }
+
     void reset() noexcept;
 
     void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override;

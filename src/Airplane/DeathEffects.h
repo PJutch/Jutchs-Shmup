@@ -75,8 +75,11 @@ namespace Airplane {
             m_owner{owner}, m_gameState{gameState} {}
 
         void handleDeath() override {
-            m_gameState.getEntities().addEntity<AnimatedParticle>(m_owner.getPosition(), 
+            auto& entities = m_gameState.getEntities();
+            auto particle = entities.createEntity<AnimatedParticleAir>(
                 m_gameState.getAssets().getExplosionAnimation(), sf::seconds(0.1f));
+            particle->setPosition(m_owner.getPosition());
+            entities.addEntity(std::move(particle));
             
             m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomExplosionSound());
         }

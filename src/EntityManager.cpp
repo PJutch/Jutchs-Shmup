@@ -129,10 +129,13 @@ void EntityManager::update(sf::Time elapsedTime) noexcept {
 }
 
 void EntityManager::draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept {
-    for (const auto& entity : m_entities) {
+    for (const auto& entity : m_entities)
         if (!entity->shouldBeDeleted()) 
-            target.draw(*entity, states);
-    }
+            entity->drawLand(target, states);
+
+    for (const auto& entity : m_entities)
+        if (!entity->shouldBeDeleted()) 
+            entity->drawAir(target, states);
 }
 
 void EntityManager::reset() noexcept {

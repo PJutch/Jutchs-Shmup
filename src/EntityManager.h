@@ -43,9 +43,16 @@ public:
         m_entities.push_back(createEntity<EntityT>(std::forward<Args>(args)...));
     }
 
-    template <std::derived_from<Entity> EntityT, typename... Args>
+    template <std::derived_from<Entity> EntityT, typename... Args> 
+        requires std::constructible_from<EntityT, GameState&, Args...>
     std::unique_ptr<EntityT> createEntity(Args&&... args) {
         return std::make_unique<EntityT>(m_gameState, std::forward<Args>(args)...);
+    }
+
+    template <std::derived_from<Entity> EntityT, typename... Args> 
+        requires std::constructible_from<EntityT, Args...>
+    std::unique_ptr<EntityT> createEntity(Args&&... args) {
+        return std::make_unique<EntityT>(std::forward<Args>(args)...);
     }
 
     // return global bounds of all entities that AI of entity must consider in pathfinding

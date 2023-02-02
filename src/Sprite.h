@@ -94,7 +94,7 @@ protected:
         setOrigin({x, y});
     }
 
-    void draw(sf::RenderTarget& target, 
+    void drawAir(sf::RenderTarget& target, 
               sf::RenderStates states = sf::RenderStates::Default) const noexcept override {
         target.draw(m_sprite, states);
     }

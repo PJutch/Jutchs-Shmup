@@ -22,7 +22,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <concepts>
 
-class Entity : public sf::Drawable {
+class Entity {
 public:
     virtual ~Entity() = default;
 
@@ -42,6 +42,9 @@ public:
 
     // for AI only
     virtual bool isPassable() const noexcept = 0;
+
+    virtual void drawAir(sf::RenderTarget& target, sf::RenderStates states) const {}
+    virtual void drawLand(sf::RenderTarget& target, sf::RenderStates states) const {}
 
     virtual bool shouldBeDeleted() const noexcept = 0;
 };

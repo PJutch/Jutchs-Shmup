@@ -30,6 +30,9 @@ GameState::GameState(sf::Vector2f screenSize) :
 }
 
 void GameState::handleEvent(const sf::Event& event) {
+    if (m_landManager.isLoading())
+        return;
+
     m_guiManager.handleEvent(event);
 
     if (!m_guiManager.isMenuOpen())

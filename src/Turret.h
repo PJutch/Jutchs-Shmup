@@ -50,7 +50,7 @@ public:
         return !m_gameState.inActiveArea(m_base.getPosition().x);
     }
 
-    void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
+    void drawLand(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
         target.draw(m_base, states);
         target.draw(m_turret, states);
     }

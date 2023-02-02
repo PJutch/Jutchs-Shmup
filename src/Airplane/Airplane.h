@@ -139,9 +139,9 @@ namespace Airplane {
                     deathEffect->handleDeath();
         }
 
-        void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
+        void drawAir(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
             if (m_healthComponent.shouldDraw())
-                Sprite::draw(target, states);
+                Sprite::drawAir(target, states);
         }
 
         friend class Builder;

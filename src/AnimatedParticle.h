@@ -22,12 +22,13 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <span>
 
-class AnimatedParticle : public Sprite, public CollidableBase<AnimatedParticle> {
+class AnimatedParticle : public CollidableBase<AnimatedParticle> {
 public:
-    AnimatedParticle(GameState& gameState, sf::Vector2f position, 
-        std::span<const sf::Texture> animation, sf::Time delay) noexcept;
-
     void update(sf::Time elapsedTime) noexcept override;
+
+    sf::FloatRect getGlobalBounds() const noexcept {
+        return m_sprite.getGlobalBounds();
+    }
     
     bool isPassable() const noexcept override {
         return true;
@@ -36,18 +37,72 @@ public:
     bool shouldBeDeleted() const noexcept override {
         return m_timer.isReachedMaxStep();
     }
+
+    void setPosition(sf::Vector2f position) noexcept {
+        m_sprite.setPosition(position);
+    }
+
+    void setPosition(float x, float y) noexcept {
+        setPosition({x, y});
+    }
+
+    void setScale(sf::Vector2f factors) noexcept {
+        m_sprite.setScale(factors);
+    }
+
+    void setScale(float xFactor, float yFactor) noexcept {
+        setScale({xFactor, yFactor});
+    }
+
+    void setScale(float scale) noexcept {
+        setScale(scale, scale);
+    }
+protected:
+    AnimatedParticle(std::span<const sf::Texture> animation, sf::Time delay) noexcept;
+
+    void draw(sf::RenderTarget& target, 
+              sf::RenderStates states = sf::RenderStates::Default) const noexcept {
+        target.draw(m_sprite, states);
+    }
 private:
+    sf::Sprite m_sprite;
+
     std::span<const sf::Texture> m_animation;
     sf::Time m_delay;
 
     StepTimer m_timer;
 
     void setTexture(const sf::Texture& texture) noexcept {
-        Sprite::setTexture(texture);
+        m_sprite.setTexture(texture);
 
         auto size = texture.getSize();
-        setOrigin(size.x / 2.f, size.y / 2.f);
+        m_sprite.setOrigin(size.x / 2.f, size.y / 2.f);
     }
 };
+
+class AnimatedParticleAir : public AnimatedParticle {
+public:
+    AnimatedParticleAir(std::span<const sf::Texture> animation, sf::Time delay) noexcept :
+        AnimatedParticle(animation, delay) {}
+
+    void drawAir(sf::RenderTarget& target, 
+              sf::RenderStates states = sf::RenderStates::Default) const noexcept override {
+        draw(target, states);
+    }
+};
+
+class AnimatedParticleLand : public AnimatedParticle {
+public:
+    AnimatedParticleLand(std::span<const sf::Texture> animation, sf::Time delay) noexcept :
+        AnimatedParticle(animation, delay) {}
+
+    void drawLand(sf::RenderTarget& target, 
+              sf::RenderStates states = sf::RenderStates::Default) const noexcept override {
+        draw(target, states);
+    }
+};
+
+static_assert(sizeof(AnimatedParticleLand{std::declval<std::span<const sf::Texture>>(), 
+                                          std::declval<sf::Time>()}) != 0);
 
 #endif

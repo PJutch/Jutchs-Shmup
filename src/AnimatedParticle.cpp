@@ -21,11 +21,8 @@ using std::span;
 
 using std::ssize;
 
-AnimatedParticle::AnimatedParticle(GameState& gameState, sf::Vector2f position, 
-                                   span<const sf::Texture> animation, sf::Time delay) noexcept :
-        Sprite{gameState}, m_animation{animation}, 
-        m_delay{delay}, m_timer{std::ssize(m_animation)} {        
-    setPosition(position);
+AnimatedParticle::AnimatedParticle(span<const sf::Texture> animation, sf::Time delay) noexcept :
+        m_animation{animation}, m_delay{delay}, m_timer{std::ssize(m_animation)} {        
     setTexture(m_animation[0]);
     m_timer.wait(m_delay);
 }

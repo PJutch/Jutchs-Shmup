@@ -19,7 +19,8 @@ target_sources(${PROJECT_NAME} PRIVATE src/main.cpp
                                        src/Bullet.cpp
                                        src/AnimatedParticle.cpp 
                                        src/Bomb.cpp
-                                       src/ScoreManager.cpp)
+                                       src/ScoreManager.cpp
+                                       src/Turret.cpp)
 
 target_sources(${PROJECT_NAME} PRIVATE src/Airplane/ShootComponent.cpp 
                                        src/Airplane/MoveComponents.cpp 

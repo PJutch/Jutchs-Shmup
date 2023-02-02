@@ -17,26 +17,17 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Sprite.h"
 #include "Entity.h"
 
+#include "geometry.h"
+
 #include <SFML/System.hpp>
+
+#include <cmath>
 
 class Turret : public CollidableBase<Turret> {
 public:
-    Turret(GameState& gameState, sf::Vector2f position) noexcept : m_gameState{gameState} {
-        const sf::Texture& baseTexture = m_gameState.getAssets().getTurretBaseTexture();
-        m_base.setTexture(baseTexture);
-        auto [baseSizeX, baseSizeY] = baseTexture.getSize();
-        m_base.setOrigin(baseSizeX / 2.f, baseSizeY / 2.f);
+    Turret(GameState& gameState, sf::Vector2f position) noexcept;
 
-        const sf::Texture& turretTexture = m_gameState.getAssets().getTurretTexture();
-        m_turret.setTexture(turretTexture);
-        auto [sizeX, sizeY] = turretTexture.getSize();
-        m_turret.setOrigin(sizeX / 2.f, sizeY / 2.f);
-
-        m_base.setPosition(position);
-        m_turret.setPosition(position);
-    }
-
-    void update(sf::Time) noexcept override {}
+    void update(sf::Time) noexcept override;
 
     sf::FloatRect getGlobalBounds() const noexcept override {
         return m_base.getGlobalBounds();

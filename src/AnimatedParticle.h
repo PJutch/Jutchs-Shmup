@@ -102,7 +102,4 @@ public:
     }
 };
 
-static_assert(sizeof(AnimatedParticleLand{std::declval<std::span<const sf::Texture>>(), 
-                                          std::declval<sf::Time>()}) != 0);
-
 #endif

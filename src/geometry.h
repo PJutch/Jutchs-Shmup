@@ -19,6 +19,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <optional>
 #include <algorithm>
+#include <numbers>
+#include <cmath>
 
 // WARNING: always return false if min >= max
 template <typename T>
@@ -125,6 +127,26 @@ sf::Rect<T> extendBottom(sf::Rect<T> rect, T bottom) noexcept {
         rect.bottom = bottom;
     }
     return rect;
+}
+
+template <typename T>
+T dot(sf::Vector2<T> lhs, sf::Vector2<T> rhs) noexcept {
+    return lhs.x * rhs.x + lhs.y * rhs.y;
+}
+
+template <typename T>
+T length(sf::Vector2<T> vec) noexcept {
+    return std::sqrt(dot(vec, vec));
+}
+
+template <typename T>
+sf::Vector2<T> normalize(sf::Vector2<T> vec) noexcept {
+    return vec / length(vec);
+}
+
+template <typename T>
+T to_deegrees(T angle) noexcept {
+    return angle * 180.f / std::numbers::pi_v<float>;
 }
 
 #endif

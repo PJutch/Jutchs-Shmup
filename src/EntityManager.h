@@ -75,6 +75,8 @@ public:
 
     void update(sf::Time elapsedTime) noexcept;
 
+    void handleBombExplosion(sf::Vector2f position, float radius);
+
     bool trySpawnTurret(sf::Vector2f position);
 
     bool trySpawnTurret(float x, float y) {

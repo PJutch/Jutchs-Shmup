@@ -38,16 +38,20 @@ public:
     }
 
     bool shouldBeDeleted() const noexcept override {
-        return !m_gameState.inActiveArea(m_base.getPosition().x);
+        return !(m_alive && m_gameState.inActiveArea(m_base.getPosition().x));
     }
 
     void drawLand(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
         target.draw(m_base, states);
         target.draw(m_turret, states);
     }
+
+    void handleBombExplosion(sf::Vector2f position, float radius);
 private:
     sf::Sprite m_base;
     sf::Sprite m_turret;
+
+    bool m_alive;
 
     GameState& m_gameState;
 };

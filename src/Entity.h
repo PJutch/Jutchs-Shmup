@@ -46,6 +46,8 @@ public:
     virtual void drawAir(sf::RenderTarget& target, sf::RenderStates states) const {}
     virtual void drawLand(sf::RenderTarget& target, sf::RenderStates states) const {}
 
+    virtual void handleBombExplosion(sf::Vector2f position, float radius) {}
+
     virtual bool shouldBeDeleted() const noexcept = 0;
 };
 

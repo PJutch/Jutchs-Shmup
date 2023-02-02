@@ -173,7 +173,7 @@ sf::Vector2i LandManager::toIndices(sf::Vector2f position) const noexcept {
                         (m_gameState.getGameHeight() / 2 + position.y) / tileSize.y);
 }
 
-void LandManager::handleExplosion(sf::Vector2f position) {  
+void LandManager::handleBombExplosion(sf::Vector2f position) {  
     if (!isXValid(position.x)) return;     
     Land& land = (*this)[position];
     m_gameState.getScoreManager().addScore(scoreIfDestroyed(land));

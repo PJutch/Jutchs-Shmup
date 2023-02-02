@@ -30,7 +30,7 @@ public:
 
     void init();
 
-    void handleExplosion(sf::Vector2f position);
+    void handleBombExplosion(sf::Vector2f position);
 
     void update();
 

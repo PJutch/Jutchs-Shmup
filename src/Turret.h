@@ -19,27 +19,46 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include <SFML/System.hpp>
 
-class Turret : public Sprite, public CollidableBase<Turret> {
+class Turret : public CollidableBase<Turret> {
 public:
-    Turret(GameState& gameState, sf::Vector2f position) noexcept : Sprite{gameState} {
-        const sf::Texture& texture = m_gameState.getAssets().getTurretTexture();
-        setTexture(texture);
+    Turret(GameState& gameState, sf::Vector2f position) noexcept : m_gameState{gameState} {
+        const sf::Texture& baseTexture = m_gameState.getAssets().getTurretBaseTexture();
+        m_base.setTexture(baseTexture);
+        auto [baseSizeX, baseSizeY] = baseTexture.getSize();
+        m_base.setOrigin(baseSizeX / 2.f, baseSizeY / 2.f);
 
-        auto [sizeX, sizeY] = texture.getSize();
-        setOrigin(sizeX / 2.f, sizeY / 2.f);
+        const sf::Texture& turretTexture = m_gameState.getAssets().getTurretTexture();
+        m_turret.setTexture(turretTexture);
+        auto [sizeX, sizeY] = turretTexture.getSize();
+        m_turret.setOrigin(sizeX / 2.f, sizeY / 2.f);
 
-        setPosition(position);
+        m_base.setPosition(position);
+        m_turret.setPosition(position);
     }
 
     void update(sf::Time) noexcept override {}
 
-    virtual bool isPassable() const noexcept {
+    sf::FloatRect getGlobalBounds() const noexcept override {
+        return m_base.getGlobalBounds();
+    }
+
+    bool isPassable() const noexcept override {
         return true;
     }
 
-    virtual bool shouldBeDeleted() const noexcept {
-        return !m_gameState.inActiveArea(getPosition().x);
+    bool shouldBeDeleted() const noexcept override {
+        return !m_gameState.inActiveArea(m_base.getPosition().x);
     }
+
+    void draw(sf::RenderTarget& target, sf::RenderStates states) const noexcept override {
+        target.draw(m_base, states);
+        target.draw(m_turret, states);
+    }
+private:
+    sf::Sprite m_base;
+    sf::Sprite m_turret;
+
+    GameState& m_gameState;
 };
 
 #endif

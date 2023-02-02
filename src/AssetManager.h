@@ -42,6 +42,10 @@ public:
         return m_turretTexture;
     }
 
+    const sf::Texture& getTurretBaseTexture() const noexcept {
+        return m_turretBaseTexture;
+    }
+
     const sf::Texture& getHealthPickupTexture() const noexcept {
         return m_healthPickupTexture;
     }
@@ -110,8 +114,10 @@ private:
     sf::Texture m_bombTexture;
 
     sf::Texture m_turretTexture;
+    sf::Texture m_turretBaseTexture;
     
     sf::Texture m_healthPickupTexture;
+
     std::vector<sf::Texture> m_explosionAnimation;
 
     std::array<sf::Texture, Airplane::TEXTURE_VARIANTS> m_airplaneTextures;

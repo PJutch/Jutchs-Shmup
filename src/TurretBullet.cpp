@@ -37,3 +37,15 @@ bool TurretBullet::shouldBeDeleted() const noexcept {
             // && (-gameHeight / 2.f <= y && y <= gameHeight / 2.f) 
             && m_gameState.inActiveArea(x));
 }
+
+void TurretBullet::update(sf::Time elapsedTime) noexcept {
+    move(m_speed * elapsedTime.asSeconds());
+    
+    if (isAtMaxHeight())
+        setScale(1.f);
+    else {
+        float t = (m_gameState.getCurrentTime() - m_launched).asSeconds();
+        float height = VERTICAL_SPEED * t - GRAVITY * t * t / 2;
+        setScale(1.f / (2.f - height));
+    }
+}

@@ -18,21 +18,28 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "Entity.h"
 
 #include <SFML/Graphics.hpp>
+#include <cmath>
 
 class TurretBullet : public Sprite, public CollidableBase<TurretBullet> {
 public:
     TurretBullet(GameState& gameState, 
         sf::Vector2f position, sf::Vector2f direction) noexcept;
     
-    void update(sf::Time elapsedTime) noexcept override {
-        move(m_speed * elapsedTime.asSeconds());
-    }
+    void update(sf::Time elapsedTime) noexcept override;
 
     bool shouldBeDeleted() const noexcept override;
+
+    bool isAtMaxHeight() const noexcept {
+        float t = (m_gameState.getCurrentTime() - m_launched).asSeconds();
+        return t >= VERTICAL_SPEED / GRAVITY;
+    }
 private:
     sf::Vector2f m_speed;
     sf::Time m_launched;
     bool m_alive;
+
+    static const constexpr float VERTICAL_SPEED = 4.472136f;
+    static const constexpr float GRAVITY = 10.f;
 };
 
 #endif

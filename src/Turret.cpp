@@ -54,6 +54,8 @@ void Turret::handleBombExplosion(sf::Vector2f position, float radius) {
     float baseRadius = m_gameState.getAssets().getTurretBaseTexture().getSize().x;
     float distance = length(position - m_base.getPosition());
     
-    if (distance <= radius + baseRadius)
+    if (distance <= radius + baseRadius) {
         m_alive = false;
+        m_gameState.getScoreManager().addScore(100);
+    }
 }

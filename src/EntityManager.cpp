@@ -65,7 +65,7 @@ void EntityManager::spawnPlayer() {
         .shootPattern(basicPattern)
         .shootControlComponent<Airplane::PlayerShootControlComponent>()
         .moveComponent<Airplane::PlayerMoveComponent>().speed(250.f, 250.f)
-        .bombComponent<Airplane::PlayerBombComponent>()
+        .bombComponent<Airplane::PlayerBombComponent>().bomb()
         .addDeathEffect<Airplane::LoseDeathEffect>()
         .addDeathEffect<Airplane::ExplosionDeathEffect>()
         .build().release();

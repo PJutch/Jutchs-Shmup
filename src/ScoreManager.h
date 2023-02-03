@@ -32,7 +32,8 @@ public:
 
     void reset();
 
-    sf::Vector2f drawGui(sf::Vector2f position, sf::RenderTarget& target, sf::RenderStates states) const;
+    sf::Vector2f drawGui(sf::Vector2f position, 
+        sf::RenderTarget& target, sf::RenderStates states) const;
 private:
     float m_score;
 

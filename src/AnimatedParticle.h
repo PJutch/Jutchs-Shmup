@@ -29,10 +29,6 @@ public:
     sf::FloatRect getGlobalBounds() const noexcept {
         return m_sprite.getGlobalBounds();
     }
-    
-    bool isPassable() const noexcept override {
-        return true;
-    }
 
     bool shouldBeDeleted() const noexcept override {
         return m_timer.isReachedMaxStep();

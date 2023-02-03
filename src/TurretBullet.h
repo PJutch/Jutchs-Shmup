@@ -11,22 +11,28 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup.
 If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef DECLARATIONS_H_
-#define DECLARATIONS_H_
+#ifndef TURRET_BULLET_H_
+#define TURRET_BULLET_H_
 
-/// common forward declarations
+#include "Sprite.h"
+#include "Entity.h"
 
-class GameState;
+#include <SFML/Graphics.hpp>
 
-namespace Airplane {
-    class Airplane;
-}
+class TurretBullet : public Sprite, public CollidableBase<TurretBullet> {
+public:
+    TurretBullet(GameState& gameState, 
+        sf::Vector2f position, sf::Vector2f direction) noexcept;
+    
+    void update(sf::Time elapsedTime) noexcept override {
+        move(m_speed * elapsedTime.asSeconds());
+    }
 
-class Bullet;
-class Bomb;
-class Pickup;
-class AnimatedParticle;
-class Turret;
-class TurretBullet;
+    bool shouldBeDeleted() const noexcept override;
+private:
+    sf::Vector2f m_speed;
+    sf::Time m_launched;
+    bool m_alive;
+};
 
 #endif

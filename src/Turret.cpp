@@ -13,6 +13,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Turret.h"
 
+#include "TurretBullet.h"
+
 #include "geometry.h"
 
 #include <cmath>
@@ -33,11 +35,19 @@ Turret::Turret(GameState& gameState, sf::Vector2f position) noexcept :
     m_turret.setPosition(position);
 }
 
-void Turret::update(sf::Time) noexcept {
-    sf::Vector2f playerPosition = m_gameState.getEntities().getPlayerPosition();
+void Turret::update(sf::Time elapsedTime) noexcept {
+    auto& entities = m_gameState.getEntities();
+
+    sf::Vector2f playerPosition = entities.getPlayerPosition();
     sf::Vector2f playerDirection = normalize(playerPosition - m_turret.getPosition());
 
     m_turret.setRotation(-to_deegrees(std::atan2(playerDirection.x, playerDirection.y)));
+
+    m_shootCooldown.update(elapsedTime);
+    if (m_shootCooldown.isFinished()) {
+        entities.addEntity<TurretBullet>(m_turret.getPosition(), playerDirection);
+        m_shootCooldown.start(sf::seconds(1.0f));
+    }
 }
 
 void Turret::handleBombExplosion(sf::Vector2f position, float radius) {

@@ -14,9 +14,10 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef TURRET_H_
 #define TURRET_H_
 
-#include "Sprite.h"
 #include "Entity.h"
+#include "GameState.h"
 
+#include "Timer.h"
 #include "geometry.h"
 
 #include <SFML/System.hpp>
@@ -27,14 +28,10 @@ class Turret : public CollidableBase<Turret> {
 public:
     Turret(GameState& gameState, sf::Vector2f position) noexcept;
 
-    void update(sf::Time) noexcept override;
+    void update(sf::Time elapsedTime) noexcept override;
 
     sf::FloatRect getGlobalBounds() const noexcept override {
         return m_base.getGlobalBounds();
-    }
-
-    bool isPassable() const noexcept override {
-        return true;
     }
 
     bool shouldBeDeleted() const noexcept override {
@@ -52,6 +49,8 @@ private:
     sf::Sprite m_turret;
 
     bool m_alive;
+
+    OnceTimer m_shootCooldown;
 
     GameState& m_gameState;
 };

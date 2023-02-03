@@ -23,15 +23,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 class Pickup : public Sprite, public CollidableBase<Pickup> {
 public:
-    Pickup(GameState& gameState, sf::Vector2f position, const sf::Texture& texture) noexcept: 
-            Sprite{gameState}, m_alive{true} {
-        setTexture(texture);
-
-        auto size = texture.getSize();
-        setOrigin(size.x / 2.f, size.y / 2.f);
-
-        setPosition(position);
-    }
+    Pickup(GameState& gameState, sf::Vector2f position, const sf::Texture& texture) noexcept;
 
     virtual ~Pickup() = default;
 
@@ -45,10 +37,6 @@ public:
 
     bool shouldBeDeleted() const noexcept override {
         return !(m_alive && m_gameState.inActiveArea(getPosition().x));
-    }
-
-    bool isPassable() const noexcept override {
-        return true;
     }
 protected:
     void die() noexcept {

@@ -11,28 +11,14 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with Jutchs Shmup. 
 If not, see <https://www.gnu.org/licenses/>. */
 
-#ifndef BOMB_H_
-#define BOMB_H_
+#include "Pickup.h"
 
-#include "GameState.h"
-#include "Sprite.h"
-#include "AnimatedParticle.h"
+Pickup::Pickup(GameState& gameState, sf::Vector2f position, const sf::Texture& texture) noexcept: 
+        Sprite{gameState}, m_alive{true} {
+    setTexture(texture);
 
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
+    auto size = texture.getSize();
+    setOrigin(size.x / 2.f, size.y / 2.f);
 
-class Bomb : public Sprite, public CollidableBase<Bomb> {
-public:
-    Bomb(GameState& gameState, bool playerSide, sf::Vector2f position);
-
-    void update(sf::Time elapsedTime) override;
-
-    bool shouldBeDeleted() const noexcept override {
-        return !(m_alive && m_gameState.inActiveArea(getPosition().x));
-    }
-private:
-    sf::Time m_launched;
-    bool m_alive;
-};
-
-#endif
+    setPosition(position);
+}

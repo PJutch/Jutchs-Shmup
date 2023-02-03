@@ -39,9 +39,12 @@ public:
     virtual void acceptCollide(Pickup& other) {}
     virtual void acceptCollide(AnimatedParticle& other) {}
     virtual void acceptCollide(Turret& other) {}
+    virtual void acceptCollide(TurretBullet& other) {}
 
     // for AI only
-    virtual bool isPassable() const noexcept = 0;
+    virtual bool isPassable() const noexcept {
+        return true;
+    }
 
     virtual void drawAir(sf::RenderTarget& target, sf::RenderStates states) const {}
     virtual void drawLand(sf::RenderTarget& target, sf::RenderStates states) const {}

@@ -33,6 +33,8 @@ public:
         float t = (m_gameState.getCurrentTime() - m_launched).asSeconds();
         return t >= VERTICAL_SPEED / GRAVITY;
     }
+
+    void acceptCollide(Airplane::Airplane& other) noexcept override;
 private:
     sf::Vector2f m_speed;
     sf::Time m_launched;

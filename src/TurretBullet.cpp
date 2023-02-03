@@ -13,6 +13,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "TurretBullet.h"
 
+#include "Airplane/Airplane.h"
+
 #include "geometry.h"
 
 TurretBullet::TurretBullet(GameState& gameState, 
@@ -48,4 +50,9 @@ void TurretBullet::update(sf::Time elapsedTime) noexcept {
         float height = VERTICAL_SPEED * t - GRAVITY * t * t / 2;
         setScale(1.f / (2.f - height));
     }
+}
+
+void TurretBullet::acceptCollide(Airplane::Airplane& other) noexcept {
+    if (isAtMaxHeight() && other.isOnPlayerSide())
+        m_alive = false;
 }

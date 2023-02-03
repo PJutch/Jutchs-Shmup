@@ -262,7 +262,7 @@ void EntityManager::spawnEnemy(sf::Vector2f position) {
 }
 
 bool EntityManager::trySpawnTurret(sf::Vector2f position) {
-    if (std::uniform_real_distribution{0.0, 1.0}(m_gameState.getRandomEngine()) < 0.001) {
+    if (std::uniform_real_distribution{0.0, 1.0}(m_gameState.getRandomEngine()) < 0.0005) {
         addEntity<Turret>(position);
         return true;
     }

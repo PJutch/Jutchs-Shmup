@@ -26,6 +26,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include "../Sprite.h"
 #include "../Bullet.h"
 #include "../Bomb.h"
+#include "../TurretBullet.h"
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -52,8 +53,13 @@ namespace Airplane {
         }
 
         void acceptCollide(Bullet& other) noexcept override {
-            if (other.isOnPlayerSide() == isOnPlayerSide()) return;
-            damage();
+            if (other.isOnPlayerSide() != isOnPlayerSide())
+                damage();
+        }
+
+        void acceptCollide(TurretBullet& other) noexcept override {
+            if (other.isAtMaxHeight() && isOnPlayerSide())
+                damage();
         }
 
         // return true on success

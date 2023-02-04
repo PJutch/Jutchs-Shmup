@@ -95,7 +95,7 @@ protected:
     }
 
     void drawAir(sf::RenderTarget& target, 
-              sf::RenderStates states = sf::RenderStates::Default) const noexcept override {
+            sf::RenderStates states = sf::RenderStates::Default) const override {
         target.draw(m_sprite, states);
     }
 private:

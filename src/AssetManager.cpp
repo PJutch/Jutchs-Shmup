@@ -71,9 +71,9 @@ AssetManager::AssetManager(std::mt19937_64& randomEngine) : m_randomEngine{rando
 
     for (int i = 0; i < std::ssize(m_digitTextures); ++ i) 
         if (!m_digitTextures[i].loadFromFile(
-                std::format("resources/textures/kenney_pixelshmup/Digits/digit_{}.png", i))) 
+                std::format("resources/textures/Digits/digit_{}.png", i))) 
             throw TextureLoadError{std::format("Can't load digit {} texture", i)};
-
+    
     for (int i = 0; i < std::size(m_explosionSounds); ++ i) 
         if (!m_explosionSounds[i].loadFromFile(
                 std::format("resources/sounds/sci-fi-sounds/Explosions/explosionCrunch_{}.ogg", i))) 

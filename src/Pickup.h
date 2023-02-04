@@ -30,7 +30,8 @@ public:
     void update(sf::Time) noexcept override {}
 
     void acceptCollide(Airplane::Airplane& other) noexcept override {
-        if (other.canUsePickups()) apply(other);
+        if (other.canUsePickups()) 
+            apply(other);
     }
 
     virtual void apply(Airplane::Airplane& airplane) noexcept = 0;

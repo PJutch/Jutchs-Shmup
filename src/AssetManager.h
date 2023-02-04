@@ -87,6 +87,10 @@ public:
         return m_minusTexture;
     }
 
+    const sf::Texture& getSlashTexture() const noexcept {
+        return m_slashTexture;
+    }
+
     const std::array<sf::Texture, 10>& getDigitTextures() const noexcept {
         return m_digitTextures;
     }
@@ -127,6 +131,7 @@ private:
     sf::Texture m_healthTexture;
     sf::Texture m_plusTexture;
     sf::Texture m_minusTexture;
+    sf::Texture m_slashTexture;
     std::array<sf::Texture, 10> m_digitTextures;
 
     std::array<sf::SoundBuffer, 5> m_explosionSounds;

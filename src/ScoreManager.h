@@ -25,6 +25,10 @@ class ScoreManager {
 public:
     ScoreManager(GameState& gameState) noexcept;
 
+    ~ScoreManager() {
+        saveBestScore();
+    }
+
     // score may be negative
     void addScore(float score) noexcept;
 
@@ -36,6 +40,7 @@ public:
         sf::RenderTarget& target, sf::RenderStates states) const;
 private:
     float m_score;
+    float m_bestScore;
 
     float m_scoreChange;
     float m_changeApplySpeed;
@@ -44,6 +49,8 @@ private:
     float m_scoredX;
 
     GameState& m_gameState;
+
+    void saveBestScore() noexcept;
 };
 
 #endif // SCORE_MANAGER_H_

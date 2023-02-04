@@ -66,6 +66,9 @@ AssetManager::AssetManager(std::mt19937_64& randomEngine) : m_randomEngine{rando
     if (!m_minusTexture.loadFromFile("resources/textures/minus.png"))
         throw TextureLoadError{"Can't load minus texture"};
 
+    if (!m_slashTexture.loadFromFile("resources/textures/slash.png"))
+        throw TextureLoadError{"Can't load slash texture"};
+
     for (int i = 0; i < std::ssize(m_digitTextures); ++ i) 
         if (!m_digitTextures[i].loadFromFile(
                 std::format("resources/textures/kenney_pixelshmup/Digits/digit_{}.png", i))) 

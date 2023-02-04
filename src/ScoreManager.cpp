@@ -19,14 +19,21 @@ If not, see <https://www.gnu.org/licenses/>. */
 
 #include "Gui/drawNumber.h"
 
+#include <fstream>
 #include <utility>
 
 const sf::Time SCORE_CHANGE_APPLY_DELAY = sf::seconds(0.5f);
 const sf::Time SCORE_CHANGE_APPLY_TIME = sf::seconds(0.5f);
 
 ScoreManager::ScoreManager(GameState& gameState) noexcept : 
-    m_score{0}, m_scoredX{0.f}, m_gameState{gameState}, m_scoreChange{0}, 
-    m_changeApplySpeed{0.0f}, m_changeApplyStart{sf::Time::Zero} {}
+        m_score{0}, m_scoredX{0.f}, m_gameState{gameState}, m_scoreChange{0}, 
+        m_changeApplySpeed{0.0f}, m_changeApplyStart{sf::Time::Zero} {
+    std::ifstream best_score_file{"best_score.txt"};
+    if (best_score_file)
+        best_score_file >> m_bestScore;
+    else
+        m_bestScore = 0.f;
+}
 
 void ScoreManager::addScore(float score) noexcept {
     m_scoreChange += score;
@@ -52,7 +59,16 @@ void ScoreManager::update(sf::Time elapsedTime) {
     }
 }
 
+void ScoreManager::saveBestScore() noexcept {
+    m_bestScore = std::max(m_score + m_scoreChange, m_bestScore);
+
+    std::ofstream best_score_file{"best_score.txt"};
+    best_score_file << m_bestScore;
+}
+
 void ScoreManager::reset() {
+    saveBestScore();
+
     m_score = 0;
     m_scoreChange = 0;
     m_changeApplySpeed = 0.f;
@@ -65,6 +81,18 @@ sf::Vector2f ScoreManager::drawGui(sf::Vector2f position,
     auto digitSize = assets.getDigitTextures()[0].getSize();
 
     float width = Gui::drawNumber(static_cast<int>(m_score), position, target, states, assets).x;
+
+    const sf::Texture& slashTexture = assets.getSlashTexture();
+    sf::Vector2u slashSize = slashTexture.getSize();
+
+    sf::Sprite slashSprite{slashTexture};
+    slashSprite.setPosition(position.x + width, position.y);
+    target.draw(slashSprite, states);
+
+    width += slashSize.x;
+
+    width += Gui::drawNumber(static_cast<int>(m_bestScore), {position.x + width, position.y}, 
+                             target, states, assets).x;
 
     if (m_scoreChange != 0) {
         sf::Vector2f scoreChangePosition{position.x, position.y + digitSize.y};

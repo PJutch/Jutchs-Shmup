@@ -63,7 +63,7 @@ void ScoreManager::saveBestScore() noexcept {
     m_bestScore = std::max(m_score + m_scoreChange, m_bestScore);
 
     std::ofstream best_score_file{"best_score.txt"};
-    best_score_file << m_bestScore;
+    best_score_file << m_bestScore << '\n';
 }
 
 void ScoreManager::reset() {

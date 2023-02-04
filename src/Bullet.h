@@ -39,9 +39,7 @@ public:
 
     void acceptCollide(Airplane::Airplane& other) noexcept override;
 
-    bool shouldBeDeleted() const noexcept override {
-        return !(m_alive && m_gameState.inActiveArea(getPosition().x));
-    }
+    bool shouldBeDeleted() const noexcept override;
 
     bool isPassable() const noexcept override {
         return true;
@@ -52,7 +50,9 @@ public:
     }
 private:
     bool m_playerSide;
+
     bool m_alive;
+    PassedTimer m_liveTimer;
 };
 
 #endif

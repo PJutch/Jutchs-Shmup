@@ -30,15 +30,15 @@ public:
     bool shouldBeDeleted() const noexcept override;
 
     bool isAtMaxHeight() const noexcept {
-        float t = (m_gameState.getCurrentTime() - m_launched).asSeconds();
-        return t >= VERTICAL_SPEED / GRAVITY;
+        return m_liveTimer.getPassedTime().asSeconds() >= VERTICAL_SPEED / GRAVITY;
     }
 
     void acceptCollide(Airplane::Airplane& other) noexcept override;
 private:
     sf::Vector2f m_speed;
-    sf::Time m_launched;
+
     bool m_alive;
+    PassedTimer m_liveTimer;
 
     static const constexpr float VERTICAL_SPEED = 4.472136f;
     static const constexpr float GRAVITY = 10.f;

@@ -22,7 +22,8 @@ target_sources(${PROJECT_NAME} PRIVATE src/main.cpp
                                        src/ScoreManager.cpp
                                        src/Turret.cpp
                                        src/TurretBullet.cpp
-                                       src/Pickup.cpp)
+                                       src/Pickup.cpp
+                                       src/Timer.cpp)
 
 target_sources(${PROJECT_NAME} PRIVATE src/Airplane/ShootComponent.cpp 
                                        src/Airplane/MoveComponents.cpp 

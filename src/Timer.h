@@ -14,6 +14,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #ifndef TIMER_H_
 #define TIMER_H_
 
+#include "declarations.h"
+
 #include <SFML/System.hpp>
 
 class OnceTimer {
@@ -129,6 +131,16 @@ private:
     sf::Time m_delay;
 
     bool m_on;
+};
+
+class PassedTimer {
+public:
+    PassedTimer(GameState& gameState) noexcept;
+    
+    sf::Time getPassedTime() const noexcept;
+private:
+    GameState& m_gameState;
+    sf::Time m_start;
 };
 
 #endif

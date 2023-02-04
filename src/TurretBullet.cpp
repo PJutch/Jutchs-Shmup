@@ -20,7 +20,7 @@ If not, see <https://www.gnu.org/licenses/>. */
 TurretBullet::TurretBullet(GameState& gameState, 
     sf::Vector2f position, sf::Vector2f direction) noexcept :
         Sprite{gameState}, m_speed{direction * 750.f}, 
-        m_launched{gameState.getCurrentTime()}, m_alive{true} {
+        m_liveTimer{gameState}, m_alive{true} {
     const sf::Texture& texture = gameState.getAssets().getBulletTexture();
     setTexture(texture);
 
@@ -36,8 +36,9 @@ bool TurretBullet::shouldBeDeleted() const noexcept {
     auto [x, y] = getPosition();
     float gameHeight = m_gameState.getGameHeight();
     return !(m_alive 
-            // && (-gameHeight / 2.f <= y && y <= gameHeight / 2.f) 
-            && m_gameState.inActiveArea(x));
+          && (-gameHeight / 2.f <= y && y <= gameHeight / 2.f) 
+          && m_gameState.inActiveArea(x) 
+          && m_liveTimer.getPassedTime() <= sf::seconds(1.f));
 }
 
 void TurretBullet::update(sf::Time elapsedTime) noexcept {
@@ -46,7 +47,7 @@ void TurretBullet::update(sf::Time elapsedTime) noexcept {
     if (isAtMaxHeight())
         setScale(1.f);
     else {
-        float t = (m_gameState.getCurrentTime() - m_launched).asSeconds();
+        float t = m_liveTimer.getPassedTime().asSeconds();
         float height = VERTICAL_SPEED * t - GRAVITY * t * t / 2;
         setScale(1.f / (2.f - height));
     }

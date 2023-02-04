@@ -19,7 +19,8 @@ If not, see <https://www.gnu.org/licenses/>. */
 #include <SFML/System.hpp>
 
 Bullet::Bullet(GameState& gameState, bool playerSide, sf::Vector2f position) :
-        Sprite{gameState}, m_playerSide{playerSide}, m_alive{true} {
+        Sprite{gameState}, m_playerSide{playerSide}, m_alive{true}, 
+        m_liveTimer{gameState} {
     auto& texture = gameState.getAssets().getBulletTexture();
     setTexture(texture);
 
@@ -33,4 +34,10 @@ Bullet::Bullet(GameState& gameState, bool playerSide, sf::Vector2f position) :
 void Bullet::acceptCollide(Airplane::Airplane& other) noexcept {
     if (other.isOnPlayerSide() != m_playerSide) 
         m_alive = false;
+}
+
+bool Bullet::shouldBeDeleted() const noexcept {
+    return !(m_alive 
+             && m_gameState.inActiveArea(getPosition().x) 
+             && m_liveTimer.getPassedTime() <= sf::seconds(2.0f));
 }

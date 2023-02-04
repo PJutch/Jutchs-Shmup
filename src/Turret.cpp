@@ -46,6 +46,7 @@ void Turret::update(sf::Time elapsedTime) noexcept {
     m_shootCooldown.update(elapsedTime);
     if (m_shootCooldown.isFinished()) {
         entities.addEntity<TurretBullet>(m_turret.getPosition(), playerDirection);
+        m_gameState.getSounds().addSound(m_gameState.getAssets().getRandomShotSound());
         m_shootCooldown.start(sf::seconds(1.0f));
     }
 }

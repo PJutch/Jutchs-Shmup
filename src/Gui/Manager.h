@@ -52,6 +52,8 @@ namespace Gui {
         int m_loadingDots;
         sf::Time m_loadingDotsChangeDelay;
 
+        Gui::Text m_bestScoreText;
+
         const static inline sf::Time LOADING_DOTS_CHANGE_DELAY = sf::seconds(0.1f);
 
         // return element size
@@ -64,7 +66,15 @@ namespace Gui {
         // element's origin at its bottom center point
         sf::Vector2f addMenuButtons(sf::Vector2f position);
 
+        // return element size
+        // element's origin at its center point
         sf::Vector2f createLoadingText(sf::Vector2f position);
+
+        // return element size
+        // element's origin at its top center point
+        sf::Vector2f createBestScoreText(sf::Vector2f position);
+
+        void setBestScoreText(const std::string& text);
         
         // return element size
         // element's origin at its top left corner

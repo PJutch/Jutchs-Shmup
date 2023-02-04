@@ -6,4 +6,5 @@ gui.menu.exit    Выйти
 gui.menu.language.english Английский
 gui.menu.language.russian Русский
 
-gui.loading Загрузка
+gui.loading.loading Загрузка
+gui.loading.best_score Лучший счёт:

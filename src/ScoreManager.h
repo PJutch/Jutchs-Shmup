@@ -38,6 +38,10 @@ public:
 
     sf::Vector2f drawGui(sf::Vector2f position, 
         sf::RenderTarget& target, sf::RenderStates states) const;
+
+    float getBestScore() noexcept {
+        return m_bestScore;
+    }
 private:
     float m_score;
     float m_bestScore;

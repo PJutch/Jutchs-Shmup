@@ -55,8 +55,10 @@ void LanguageManager::loadLanguage(const std::filesystem::path& path) {
             m_resumeText = value;
         } else if (key == "gui.menu.exit") {
             m_exitText = value;
-        } else if (key == "gui.loading") {
+        } else if (key == "gui.loading.loading") {
             m_loadingText = value;
+        } else if (key == "gui.loading.best_score") {
+            m_bestScoreText = value;
         } else {
             bool found = true;
             for (int i = 0; i < static_cast<int>(Language::TOTAL); ++ i) {

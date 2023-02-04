@@ -195,6 +195,20 @@ namespace Gui {
         return m_loadingText.getSize();
     }
 
+    sf::Vector2f Manager::createBestScoreText(sf::Vector2f position) {
+        m_bestScoreText.setStyle(m_gameState.getAssets().getFont(), 80, sf::Color::White);
+        m_bestScoreText.setPosition(position);
+
+        setBestScoreText(m_gameState.getLanguageManager().getBestScoreText());
+
+        return m_bestScoreText.getSize();
+    }
+
+    void Manager::setBestScoreText(const std::string& string) {
+        m_bestScoreText.setString(string);
+        m_bestScoreText.setOrigin({m_bestScoreText.getSize().x / 2.f, 0.f});
+    }
+
     void Manager::initGui() {
         sf::Vector2f screenSize = m_gameState.getScreenSize();
 
@@ -216,7 +230,9 @@ namespace Gui {
         topCenterPos.y += std::max(screenSize.y / 16.f, 1.f); // at the center under the volumeSlider   
         addLanguageCombo(topCenterPos); // over the buttons
 
-        createLoadingText(m_gameState.getScreenSize() / 2.f); // at the center of the screen
+        // at the center of the screen
+        sf::Vector2f loadingTextSize = createLoadingText(screenSize / 2.f); 
+        createBestScoreText({screenSize.x / 2.f, screenSize.y / 2.f + loadingTextSize.y / 2.f + 10.f});
     }
 
     void Manager::handleEvent(const sf::Event& event) {
@@ -244,6 +260,10 @@ namespace Gui {
 
                 m_loadingDotsChangeDelay = LOADING_DOTS_CHANGE_DELAY;
             }
+
+            std::string bestScoreString = m_gameState.getLanguageManager().getBestScoreText()
+                + ' ' + std::to_string(static_cast<int>(m_gameState.getScoreManager().getBestScore()));
+            setBestScoreText(bestScoreString);
         }
     }
 
@@ -273,5 +293,6 @@ namespace Gui {
 
     void Manager::drawLoadingScreen(sf::RenderTarget& target, sf::RenderStates states) const {
         target.draw(m_loadingText, states);
+        target.draw(m_bestScoreText, states);
     }
 }

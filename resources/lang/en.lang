@@ -6,4 +6,5 @@ gui.menu.exit    Exit
 gui.menu.language.english English
 gui.menu.language.russian Russian
 
-gui.loading Loading
+gui.loading.loading Loading
+gui.loading.best_score Best score:
